@@ -1,0 +1,21 @@
+python -m venv building_env
+python.exe -m pip install --upgrade pip
+pip install django
+pip install djangorestframework
+pip install djangorestframework-simplejwt
+pip install django-cors-headers
+pip install icecream
+pip install psycopg2-binary
+pip install python-decouple        for env
+
+
+
+
+npm create vite@latest frontend -- --template react
+cd frontend
+npm install
+npm install react-router-dom
+npm install axios
+npm install react-icons
+npm install framer-motion
+npm install i18next react-i18next
