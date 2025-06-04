@@ -4,10 +4,12 @@ import axios from "axios";
 import axiosInstance from "../axiosInstance";
 import MyButton from "../UI/MyButton";
 import MyModal from "../UI/MyModal";
+import { useTranslation } from 'react-i18next';
 
 export default function ProductList() {
   const [products, setProducts] = useState([]);
   const [openModal, setOpenModal] = useState(false);
+  const { t, i18n } = useTranslation();
 
   // const fetchProducts = (accessToken) => {
   //   return axios.get("http://localhost:8000/api/products/", {
@@ -45,10 +47,11 @@ export default function ProductList() {
   return (
     <div>
       <div className="p-2">
-        <MyButton variant="Pink" onClick={() => setOpenModal(!openModal)}>
-          Hereket (insert)
+        <MyButton variant="green" onClick={() => setOpenModal(!openModal)}>
+          {t("action")} (insert)
         </MyButton>
       </div>
+
 
       <ul>
         {products.map((p) => (

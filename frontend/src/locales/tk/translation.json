@@ -1,0 +1,18 @@
+{
+  "register": "Registrasiya",
+  "login": "Içeri gir",
+  "logout": "Çyk",
+  "faktura": "Faktura",
+  "towary": "Harytlar",
+  "addProduct": "Haryt goşmak",
+  "action": "Hereket",
+  "language": "TM",
+  "suppliers": "Üpjün edijiler",
+  "clients": "Müşderiler",
+  "delivers": "Awto",
+  "addNewSupplier": "Täze üpjün edijini goş",
+  "add": "Goş", 
+  "search": "Gözleg...",
+  "noData": "Tapylmady",
+  "loadMore": "Has köp görkez"
+}

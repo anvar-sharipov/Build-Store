@@ -1,0 +1,19 @@
+{
+  "register": "Регистрация",
+  "login": "Вход",
+  "logout": "Выход",
+  "faktura": "Фактура",
+  "towary": "Товары",
+  "addProduct": "Добавить товар",
+  "action": "Действие",
+  "language": "RU",
+  "suppliers": "Поставщики",
+  "clients": "Покупатели",
+  "delivers": "Авто",
+  "addNewSupplier": "Добавить нового поставщика",
+  "add": "Добавить",
+  "search": "Поиск...",
+  "noData": "Не найдено",
+  "loadMore": "Показать ещё"
+  
+}

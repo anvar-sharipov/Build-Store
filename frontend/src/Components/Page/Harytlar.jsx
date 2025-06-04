@@ -1,17 +1,16 @@
-import { div } from "framer-motion/client";
-import React from "react";
-import { useState, useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import MyModal from "../UI/MyModal";
 import MyButton from "../UI/MyButton";
+import { useTranslation } from "react-i18next";
 
 const Harytlar = () => {
   const [openModal, setOpenModal] = useState(false);
+  const { t, i18n } = useTranslation();
 
   useEffect(() => {
     document.title = "Harytlar";
   }, []);
 
-  // Добавляем обработчик нажатия клавиши Insert
   useEffect(() => {
     function handleKeyDown(event) {
       if (event.key === "Insert") {
@@ -20,18 +19,22 @@ const Harytlar = () => {
     }
 
     window.addEventListener("keydown", handleKeyDown);
-    return () => {
-      window.removeEventListener("keydown", handleKeyDown);
-    };
+    return () => window.removeEventListener("keydown", handleKeyDown);
   }, []);
 
   return (
     <div>
-      <div className="p-2">
-        <MyButton variant='Green' onClick={() => setOpenModal(!openModal)} >Haryt goshmak (insert)</MyButton>
+      <div className="p-2 space-x-2">
+        <MyButton variant="green" onClick={() => setOpenModal(!openModal)}>
+          {t("addProduct")} (insert)
+        </MyButton>
+  
       </div>
-      Harytlar 
-      {openModal && <MyModal onClose={() => setOpenModal(false)}>Harytlar</MyModal>}
+
+
+      {openModal && (
+        <MyModal onClose={() => setOpenModal(false)}>{t("towary")}</MyModal>
+      )}
     </div>
   );
 };

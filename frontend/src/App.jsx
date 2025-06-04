@@ -10,6 +10,10 @@ import { useEffect, useState } from 'react';
 import MyModal from './Components/UI/MyModal';
 import { ROUTES } from './routes';
 import Harytlar from './Components/Page/Harytlar';
+// import Suppliers from './Components/Page/Suppliers';
+import Suppliers from './Components/Page/Supplier/Suppliers';
+import ThemeToggle from './Components/ThemeToggle';
+
 
 
 
@@ -17,7 +21,8 @@ import Harytlar from './Components/Page/Harytlar';
 function App() {
   
   return (
-    <div className="min-h-screen flex flex-col">
+    <div className="flex flex-col bg-white text-black dark:bg-gray-900 dark:text-white min-h-screen p-4">
+      <ThemeToggle />
       <Router>
         <Header />
         <main className="flex-grow">
@@ -26,6 +31,7 @@ function App() {
             <Route path={ROUTES.REGISTER} element={<Register />} />
             <Route path={ROUTES.LOGIN} element={<Login />} />
             <Route path={ROUTES.HARYTLAR} element={<Harytlar />} />
+            <Route path={ROUTES.SUPPLIERS} element={<Suppliers />} />
           </Routes>
         </main>
         <Footer />

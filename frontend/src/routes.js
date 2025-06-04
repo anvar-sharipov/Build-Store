@@ -3,4 +3,5 @@ export const ROUTES = {
   LOGIN: "/login",
   REGISTER: "/register",
   HARYTLAR: "/harytlar",
+  SUPPLIERS: "/postawshik",
 };
