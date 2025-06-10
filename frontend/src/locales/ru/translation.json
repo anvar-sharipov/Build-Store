@@ -7,13 +7,63 @@
   "addProduct": "Добавить товар",
   "action": "Действие",
   "language": "RU",
-  "suppliers": "Поставщики",
   "clients": "Покупатели",
   "delivers": "Авто",
-  "addNewSupplier": "Добавить нового поставщика",
   "add": "Добавить",
   "search": "Поиск...",
+  "search2": "Поиск",
   "noData": "Не найдено",
-  "loadMore": "Показать ещё"
+  "loadMore": "Показать ещё",
+  "theme": "Тема",
+  "dark": "Ночь",
+  "light": "День",
+  "slogan": "Центр строительных материалов",
+  "cancel": "Отмена",
+  "change": "Изменить",
+
+  "main": "Главная страница",
+
+  "klient": "Покупатель",
+  "supplier": "Поставщик",
+  "both": "Поставщик и покупатель",
+  "all": "Все",
+  "total": "Всего",
+  "save": "OK",
+  
+
+
+
+
+  "employeeDeleted": "Работник успешно удалён",
+  "employeeNotDeleted": "Ошибка: Работник не был удалён",
+  "newEmployeeAdded": "Работник успешно добавлен",
+  "newEmployeeAddedError": "Ошибка: Работник не был добавлен",
+  "employeeUpdated": "Работник успешно изменён",
+  "employeeUpdatedError": "Ошибка: Работник не был изменён",
+  "addNewEmployee": "Добавить нового работника",
+  "searchEmployee": "Поиск работника",
+  "employeers": "Работники",
+  "editEmployee": "Изменить работника",
+  "deleteEmployee": "удалить работника?",
+
+  "partnerDeleted": "Партнёр успешно удалён",
+  "newPartnerAdded": "Партнёр успешно добавлен",
+  "newPartnerAddedError": "Ошибка: Партнёр не был добавлен",
+  "partnerUpdated": "Партнёр успешно изменён",
+  "partnerUpdatedError": "Ошибка: Партнёр не был изменён",
+  "addNewPartner": "Добавить нового партнёра",
+  "searchPartner": "Поиск партнёра",
+  "partners": "Партнёры",
+  "changePartnerName": "Изменить имя партнёра",
+  "changePartnerType": "Изменить тип партнёра",
+
+  "productDeleted": "Товар успешно удалён",
+  "newProductAdded": "Товар успешно добавлен",
+  "newProductAddedError": "Ошибка: Товар не был добавлен",
+  "productUpdated": "Товар успешно изменён",
+  "productUpdatedError": "Ошибка: Товар не был изменён",
+  "addNewProduct": "Добавить новый товар",
+  "products": "Товары"
+
   
 }

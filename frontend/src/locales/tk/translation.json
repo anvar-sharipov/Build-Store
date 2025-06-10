@@ -7,12 +7,58 @@
   "addProduct": "Haryt goşmak",
   "action": "Hereket",
   "language": "TM",
-  "suppliers": "Üpjün edijiler",
   "clients": "Müşderiler",
   "delivers": "Awto",
-  "addNewSupplier": "Täze üpjün edijini goş",
   "add": "Goş", 
-  "search": "Gözleg...",
+  "search": "Gözle...",
   "noData": "Tapylmady",
-  "loadMore": "Has köp görkez"
+  "loadMore": "Has köp görkez",
+  "theme": "Tema",
+  "dark": "Gije",
+  "light": "Gün",
+  "slogan": "Gurluşyk materiallary merkezi", 
+  "cancel": "Ýatyrmak",
+  "change": "Üýtget",
+
+  "main": "Baş sahypa",
+
+  "klient": "Alyjy",
+  "supplier": "Üpjünçi",
+  "both": "Üpjünçi we alyjy",
+  "all": "Hemmesi",
+  "total": "Jemi",
+  "save": "OK",
+
+
+
+  "employeeDeleted": "işgär üstünlikli öçürildi.",
+  "newEmployeeAdded": "işgär üstünlikli goşuldy",
+  "newEmployeeAddedError": "Ýalňyşlyk: işgär goşulmady.",
+  "employeeUpdated": "işgär üstünlikli üýtgedildi",
+  "employeeUpdatedError": "Ýalňyşlyk: işgär üýtgedilmedi",
+  "addNewEmployee": "Täze işgär goş",
+  "searchEmployee": "Işgär gozle",
+  "employeers": "işgärler",
+  "editEmployee": "Işgäri üýtgetmek",
+  "deleteEmployee": "Işgäri aýyrmak?",
+
+  "partnerDeleted": "Hyzmatdaş üstünlikli pozuldy",
+  "newPartnerAdded": "Täze hyzmatdaş üstünlikli goşuldy",
+  "newPartnerAddedError": "Ýalňyşlyk: hyzmatdaş goşulmady",
+  "partnerUpdated": "Hyzmatdaş üstünlikli täzelendi",
+  "partnerUpdatedError": "Ýalňyşlyk: hyzmatdaş täzelenmedi",
+  "addNewPartner": "Täze hyzmatdaş goş",
+  "searchPartner": "Hyzmatdaş gozle",
+  "partners": "Hyzmatdaşlar",
+  "changePartnerName": "Hyzmatdaş adyny üýtget",
+  "changePartnerType": "Hyzmatdaş tipyny üýtget",
+
+  "productDeleted": "Haryt üstünlikli pozuldy",
+  "newProductAdded": "Täze haryt üstünlikli goşuldy",
+  "newProductAddedError": "Ýalňyşlyk: haryt goşulmady",
+  "productUpdated": "Haryt üstünlikli täzelendi",
+  "productUpdatedError": "Ýalňyşlyk: haryt täzelenmedi",
+  "addNewProduct": "Täze haryt goş",
+  "products": "Harytlar"
+
 }

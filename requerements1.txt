@@ -20,3 +20,4 @@ npm install react-icons
 npm install framer-motion
 npm install i18next react-i18next
 npm install fuse.js      pisok
+npm install --save @fortawesome/react-fontawesome @fortawesome/free-solid-svg-icons @fortawesome/fontawesome-svg-core

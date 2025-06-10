@@ -96,17 +96,19 @@ class Category(models.Model):
 
 
 
-class Client(models.Model):
-    name = models.CharField(verbose_name='Müşderiniň ady', max_length=2000)
+# class Client(models.Model):
+#     name = models.CharField(verbose_name='Müşderiniň ady', max_length=2000)
 
-    def __str__(self):
-        return self.name
+#     def __str__(self):
+#         return self.name
 
-    class Meta:
-        verbose_name = 'Müşderi'
-        verbose_name_plural = 'Müşderiler'
+#     class Meta:
+#         verbose_name = 'Müşderi'
+#         verbose_name_plural = 'Müşderiler'
 
 
+
+# Udalit potom
 class Supplier(models.Model):
     name = models.CharField(verbose_name='Üpjünçiniň ady', max_length=2000)
 
@@ -118,86 +120,133 @@ class Supplier(models.Model):
         verbose_name_plural = 'Üpjünçiler'
 
 
-class Driver(models.Model):
-    name = models.CharField(verbose_name='Sürüjiniň ady', max_length=2000)
+
+
+
+class Partner(models.Model):
+    BUYER = 'klient'
+    SUPPLIER = 'supplier'
+    BOTH = 'both'
+
+    PARTNER_TYPE_CHOICES = [
+        (BUYER, 'Alyjy (Покупатель)'),
+        (SUPPLIER, 'Üpjünçi (Поставщик)'),
+        (BOTH, 'Alyjy we Üpjünçi (Покупатель и поставщик)'),
+    ]
+
+    name = models.CharField(verbose_name='Partneryn ady', max_length=2000)
+    
+    type = models.CharField(
+        max_length=20,
+        choices=PARTNER_TYPE_CHOICES,
+        default=SUPPLIER,
+        verbose_name='Partneriň görnüşi',
+    )
+
+    def __str__(self):
+        return f'{self.name} ({self.get_type_display()})'
+
+    class Meta:
+        verbose_name = 'Partner'
+        verbose_name_plural = 'Partnerler'
+
+
+
+
+
+
+
+class Employee(models.Model):
+    name = models.CharField(verbose_name='Işgär', max_length=2000)
 
     def __str__(self):
         return self.name
 
     class Meta:
-        verbose_name = 'Sürüji'
-        verbose_name_plural = 'Sürüjiler'
+        verbose_name = 'Işgär'
+        verbose_name_plural = 'Işgärler'
+
+
+# class Driver(models.Model):
+#     name = models.CharField(verbose_name='Sürüjiniň ady', max_length=2000)
+
+#     def __str__(self):
+#         return self.name
+
+#     class Meta:
+#         verbose_name = 'Sürüji'
+#         verbose_name_plural = 'Sürüjiler'
 
     
 
 
 
-class Faktura(models.Model):
+# class Faktura(models.Model):
     
-    TYPE_CHOICES = [
-        (1, 'Girdeji'),   # Входящий
-        (2, 'Çykyjy'),    # Исходящий
-        (3, 'Wozwrat'),   # Возврат
-    ]
+#     TYPE_CHOICES = [
+#         (1, 'Girdeji'),   # Входящий
+#         (2, 'Çykyjy'),    # Исходящий
+#         (3, 'Wozwrat'),   # Возврат
+#     ]
 
-    faktura_type = models.PositiveSmallIntegerField(
-        verbose_name='Faktura görnüşi',
-        choices=TYPE_CHOICES,
-        default=1,
-    )
+#     faktura_type = models.PositiveSmallIntegerField(
+#         verbose_name='Faktura görnüşi',
+#         choices=TYPE_CHOICES,
+#         default=1,
+#     )
 
-    client = models.ForeignKey(
-        Client,
-        verbose_name='Müşderi',  # Клиент
-        on_delete=models.SET_NULL,
-        null=True,
-        blank=True
-    )
-    supplier = models.ForeignKey(
-        Supplier,
-        verbose_name=' üpjünçi',  # Поставщик
-        on_delete=models.SET_NULL,
-        null=True,
-        blank=True
-    )
-    driver = models.ForeignKey(
-        Driver,
-        verbose_name=' sürüji',  # Водитель
-        on_delete=models.SET_NULL,
-        null=True,
-        blank=True
-    )
+#     client = models.ForeignKey(
+#         Client,
+#         verbose_name='Müşderi',  # Клиент
+#         on_delete=models.SET_NULL,
+#         null=True,
+#         blank=True
+#     )
+#     supplier = models.ForeignKey(
+#         Supplier,
+#         verbose_name=' üpjünçi',  # Поставщик
+#         on_delete=models.SET_NULL,
+#         null=True,
+#         blank=True
+#     )
+#     driver = models.ForeignKey(
+#         Driver,
+#         verbose_name=' sürüji',  # Водитель
+#         on_delete=models.SET_NULL,
+#         null=True,
+#         blank=True
+#     )
 
-    description = models.TextField(verbose_name='beýany', blank=True)
+#     description = models.TextField(verbose_name='beýany', blank=True)
 
-    date = models.DateTimeField(verbose_name='Senesi')
+#     date = models.DateTimeField(verbose_name='Senesi')
 
-    def __str__(self):
-        return f"{self.get_faktura_type_display()} - {self.date.strftime('%Y-%m-%d %H:%M')}"
+#     def __str__(self):
+#         return f"{self.get_faktura_type_display()} - {self.date.strftime('%Y-%m-%d %H:%M')}"
     
-    def total_amount(self):
-        # Сумма всех товаров в этой фактуре (quantity * price)
-        return sum(item.quantity * item.price for item in self.items.all())
+#     def total_amount(self):
+#         # Сумма всех товаров в этой фактуре (quantity * price)
+#         return sum(item.quantity * item.price for item in self.items.all())
     
-    class Meta:
-        verbose_name = 'Faktura'
-        verbose_name_plural = 'Fakturalar'
+#     class Meta:
+#         verbose_name = 'Faktura'
+#         verbose_name_plural = 'Fakturalar'
 
 
 
 
 
 
-class FakturaProduct(models.Model):
-    faktura = models.ForeignKey(Faktura, on_delete=models.CASCADE, related_name='items')
-    product = models.ForeignKey(Product, on_delete=models.PROTECT)
-    quantity = models.DecimalField(verbose_name='Mukdary', max_digits=10, decimal_places=2)
-    price = models.DecimalField(verbose_name='Baha', max_digits=10, decimal_places=2)
+# class FakturaProduct(models.Model):
+#     faktura = models.ForeignKey(Faktura, on_delete=models.CASCADE, related_name='items')
+#     product = models.ForeignKey(Product, on_delete=models.PROTECT)
+#     quantity = models.DecimalField(verbose_name='Mukdary', max_digits=10, decimal_places=2)
+#     price = models.DecimalField(verbose_name='Baha', max_digits=10, decimal_places=2)
 
-    def __str__(self):
-        return f"{self.product.name} - {self.quantity} x {self.price}"
+#     def __str__(self):
+#         return f"{self.product.name} - {self.quantity} x {self.price}"
 
-    class Meta:
-        verbose_name = 'Faktura önümi'
-        verbose_name_plural = 'Faktura önümleri'
+#     class Meta:
+#         verbose_name = 'Faktura önümi'
+#         verbose_name_plural = 'Faktura önümleri'
 

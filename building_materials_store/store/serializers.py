@@ -32,3 +32,18 @@ class SupplierSerializer(serializers.ModelSerializer):
         model = Supplier
         fields = ['id', 'name']
 
+
+class EmployeeSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Employee
+        fields = ['id', 'name']
+
+
+
+class PartnerSerializer(serializers.ModelSerializer):
+    type_display = serializers.CharField(source='get_type_display', read_only=True)
+    class Meta:
+        model = Partner
+        fields = ['id', 'name', 'type', 'type_display']
+
+

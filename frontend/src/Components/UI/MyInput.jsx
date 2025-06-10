@@ -10,6 +10,7 @@ const MyInput = forwardRef(({
   placeholder,
   required = false,
   className = "",
+  disabled,
 }, ref) => {
   return (
     <div className="flex flex-col gap-1 w-full">
@@ -23,6 +24,7 @@ const MyInput = forwardRef(({
       )}
       <input
         ref={ref}  // вот тут пробрасываем ref!
+        disabled={disabled}
         id={name}
         name={name}
         type={type}

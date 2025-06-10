@@ -1,7 +1,8 @@
 export const ROUTES = {
-  FAKTURA: "/faktura",
+  FAKTURA: "/main",
   LOGIN: "/login",
   REGISTER: "/register",
-  HARYTLAR: "/harytlar",
-  SUPPLIERS: "/postawshik",
+  HARYTLAR: "/products",
+  PARTNERS: "/partners",
+  EMPLOYEERS: "/employers",
 };

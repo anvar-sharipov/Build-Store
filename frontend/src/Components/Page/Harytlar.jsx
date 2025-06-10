@@ -1,40 +1,22 @@
-import React, { useEffect, useState } from "react";
-import MyModal from "../UI/MyModal";
-import MyButton from "../UI/MyButton";
 import { useTranslation } from "react-i18next";
+import { useEffect } from "react";
 
 const Harytlar = () => {
-  const [openModal, setOpenModal] = useState(false);
-  const { t, i18n } = useTranslation();
+  const { t } = useTranslation();
 
   useEffect(() => {
-    document.title = "Harytlar";
+    document.title = t("products");
   }, []);
-
-  useEffect(() => {
-    function handleKeyDown(event) {
-      if (event.key === "Insert") {
-        setOpenModal((prev) => !prev);
-      }
-    }
-
-    window.addEventListener("keydown", handleKeyDown);
-    return () => window.removeEventListener("keydown", handleKeyDown);
-  }, []);
+ 
 
   return (
-    <div>
-      <div className="p-2 space-x-2">
-        <MyButton variant="green" onClick={() => setOpenModal(!openModal)}>
-          {t("addProduct")} (insert)
-        </MyButton>
-  
+    <div className="p-2">
+      <h1 className="text-center text-2xl">{t("products")}</h1>
+      
+      <div className="mx-auto w-fit">
+        <span>tailwindcss</span>
       </div>
-
-
-      {openModal && (
-        <MyModal onClose={() => setOpenModal(false)}>{t("towary")}</MyModal>
-      )}
+    
     </div>
   );
 };

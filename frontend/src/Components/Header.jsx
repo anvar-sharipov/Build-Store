@@ -1,16 +1,18 @@
 import React, { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
+import { motion, AnimatePresence } from "framer-motion";
+// My jsx
+import LanguageSwitcher from "../LanguageSwitcher";
+import { ROUTES } from "../routes";
 import MyButton from "./UI/MyButton";
+// icons
+import { GrLanguage } from "react-icons/gr";
+import { GiHamburgerMenu } from "react-icons/gi";
+import { IoClose } from "react-icons/io5";
 import { IoLogInOutline } from "react-icons/io5";
 import { TbLogout2 } from "react-icons/tb";
 import { LiaRegistered } from "react-icons/lia";
-import { ROUTES } from "../routes";
-import { useTranslation } from "react-i18next";
-import { GiHamburgerMenu } from "react-icons/gi";
-import { IoClose } from "react-icons/io5";
-import { motion, AnimatePresence } from "framer-motion";
-import { GrLanguage } from "react-icons/gr";
-import LanguageSwitcher from "../LanguageSwitcher";
 
 const Header = () => {
   const { t, i18n } = useTranslation();
@@ -48,7 +50,10 @@ const Header = () => {
         navigate(ROUTES.HARYTLAR);
       } else if (event.key === "F3") {
         event.preventDefault();
-        navigate(ROUTES.SUPPLIERS);
+        navigate(ROUTES.EMPLOYEERS);
+      } else if (event.key === "F4") {
+        event.preventDefault();
+        navigate(ROUTES.PARTNERS);
       }
     };
     window.addEventListener("keydown", handleKeyDown);
@@ -65,63 +70,51 @@ const Header = () => {
     <header className="bg-gray-100 dark:bg-gray-800 text-gray-800 dark:text-white border-b border-gray-300 dark:border-gray-700 px-4 sm:px-6 lg:px-20 py-3">
       <nav className="flex items-center justify-between">
         {/* Logo */}
-        <div className="flex items-center gap-3">
-          <img src="public/POLISEM.png" alt="logo" className="w-20 h-auto" />
-          <h1 className="text-2xl font-bold">POLISEM</h1>
 
-          <div className="hidden md:flex gap-4 items-center">
-            <Link to={ROUTES.FAKTURA}>
-              <MyButton variant="green">{t("faktura")} (F1)</MyButton>
-            </Link>
-            <Link to={ROUTES.HARYTLAR}>
-              <MyButton variant="green">{t("towary")} (F2)</MyButton>
-            </Link>
-            <Link to={ROUTES.SUPPLIERS}>
-              <MyButton variant="green">{t("suppliers")} (F3)</MyButton>
-            </Link>
-          </div>
-        </div>
+        <h1 className="text-xl font-bold text-center dark:text-indigo-400 text-indigo-800">POLISEM</h1>
 
         {/* Burger button */}
-        <div className="md:hidden">
+        <div className="lg:hidden">
           <button onClick={() => setIsMenuOpen(!isMenuOpen)}>
             {isMenuOpen ? <IoClose size={28} /> : <GiHamburgerMenu size={28} />}
           </button>
         </div>
 
         {/* Menu (desktop) */}
-        <div className="hidden md:flex gap-4 items-center">
-          <Link to={ROUTES.REGISTER}>
-            <MyButton className="flex items-center" variant="blue">
-              <LiaRegistered />
-              {t("register")}
-            </MyButton>
+        <div className="hidden lg:flex gap-6 items-center">
+          <Link
+            to={ROUTES.REGISTER}
+            className="hover:underline text-blue-500 hover:text-blue-700 flex gap-1 items-center"
+          >
+            <LiaRegistered />
+            {t("register")}
           </Link>
-          <Link to={ROUTES.LOGIN}>
-            <MyButton className="flex items-center" variant="green">
-              <IoLogInOutline />
-              {t("login")}
-            </MyButton>
+          <Link
+            to={ROUTES.LOGIN}
+            className="hover:underline text-blue-500 hover:text-blue-700 flex gap-1 items-center"
+          >
+            <IoLogInOutline />
+            {t("login")}
           </Link>
-          <MyButton
+          <div
             onClick={logout}
-            className="flex items-center"
-            variant="red"
+            className="hover:underline text-blue-500 hover:text-blue-700 flex gap-1 items-center cursor-pointer"
           >
             <TbLogout2 />
             {t("logout")}
-          </MyButton>
+          </div>
           <LanguageSwitcher
             i18n={i18n}
-            classList="bg-white dark:bg-gray-700 hover:bg-gradient-to-r hover:from-blue-400 hover:to-blue-600"
           />
-          <MyButton
+          <div
             onClick={() => setDarkMode(!darkMode)}
             aria-label="Toggle theme"
-            variant="blue"
+            className="hover:underline text-blue-500 hover:text-blue-700 flex gap-1 items-center cursor-pointer"
           >
-            {darkMode ? "🌙 Тема: Ночь" : "☀️ Тема: День"}
-          </MyButton>
+            {darkMode
+              ? `🌙 ${t("theme")}: ${t("dark")}`
+              : `☀️ ${t("theme")}: ${t("light")}`}
+          </div>
         </div>
       </nav>
 
@@ -133,78 +126,63 @@ const Header = () => {
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -10 }}
             transition={{ duration: 0.25 }}
-            className="md:hidden flex flex-col items-start gap-2 mt-3"
+            className="lg:hidden flex flex-col items-start gap-2 mt-3"
           >
-            <Link to={ROUTES.FAKTURA}>
-              <MyButton
-                className="flex items-center"
-                variant="green"
-                onClick={() => setIsMenuOpen(false)}
-              >
-                {t("faktura")} (F1)
-              </MyButton>
+            <Link
+              to={ROUTES.FAKTURA}
+              className="hover:underline text-blue-500 hover:text-blue-700 flex gap-1 items-center"
+              onClick={() => setIsMenuOpen(false)}
+            >
+              {t("faktura")} (F1)
             </Link>
-            <Link to={ROUTES.HARYTLAR}>
-              <MyButton
-                className="flex items-center"
-                variant="green"
-                onClick={() => setIsMenuOpen(false)}
-              >
-                {t("towary")} (F2)
-              </MyButton>
+            <Link
+              to={ROUTES.HARYTLAR}
+              className="hover:underline text-blue-500 hover:text-blue-700 flex gap-1 items-center"
+              onClick={() => setIsMenuOpen(false)}
+            >
+              {t("towary")} (F2)
             </Link>
-            <Link to={ROUTES.SUPPLIERS}>
-              <MyButton
-                className="flex items-center"
-                variant="green"
-                onClick={() => setIsMenuOpen(false)}
-              >
-                {t("suppliers")} (F3)
-              </MyButton>
+            <Link
+              to={ROUTES.REGISTER}
+              className="hover:underline text-blue-500 hover:text-blue-700 flex gap-1 items-center"
+              onClick={() => setIsMenuOpen(false)}
+            >
+              <LiaRegistered />
+              {t("register")}
             </Link>
-            <Link to={ROUTES.REGISTER}>
-              <MyButton
-                className="flex items-center"
-                variant="blue"
-                onClick={() => setIsMenuOpen(false)}
-              >
-                <LiaRegistered />
-                {t("register")}
-              </MyButton>
+            <Link
+              to={ROUTES.LOGIN}
+              className="hover:underline text-blue-500 hover:text-blue-700 flex gap-1 items-center"
+              onClick={() => setIsMenuOpen(false)}
+            >
+              <IoLogInOutline />
+              {t("login")}
             </Link>
-            <Link to={ROUTES.LOGIN}>
-              <MyButton
-                className="flex items-center"
-                variant="green"
-                onClick={() => setIsMenuOpen(false)}
-              >
-                <IoLogInOutline />
-                {t("login")}
-              </MyButton>
-            </Link>
-            <MyButton
+            <div
               onClick={() => {
                 logout();
                 setIsMenuOpen(false);
               }}
-              className="flex items-center"
-              variant="red"
+              className="hover:underline text-blue-500 hover:text-blue-700 flex gap-1 items-center"
             >
               <TbLogout2 />
               {t("logout")}
-            </MyButton>
+            </div>
+
             <LanguageSwitcher
               i18n={i18n}
               classList="bg-white dark:bg-gray-700 hover:bg-gradient-to-r hover:from-blue-400 hover:to-blue-600"
             />
 
-            <MyButton
+            <div
               onClick={() => setDarkMode(!darkMode)}
               aria-label="Toggle theme"
-              variant="blue"
+              className="hover:underline text-blue-500 hover:text-blue-700 flex gap-1 items-center"
             >
-              {darkMode ? "🌙 Тема: Ночь" : "☀️ Тема: День"}
-            </MyButton>
+              {darkMode
+                ? `🌙 ${t("theme")}: ${t("dark")}`
+                : `☀️ ${t("theme")}: ${t("light")}`}
+            </div>
           </motion.div>
         )}
       </AnimatePresence>
