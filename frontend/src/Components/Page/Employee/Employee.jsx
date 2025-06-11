@@ -15,6 +15,7 @@ import { GrEdit } from "react-icons/gr";
 import { IoIosAddCircleOutline } from "react-icons/io";
 import MyLoading from "../../UI/MyLoading";
 import { CiNoWaitingSign } from "react-icons/ci";
+import { motion, AnimatePresence } from "framer-motion";
 
 const Employee = () => {
   const { t } = useTranslation();
@@ -50,6 +51,15 @@ const Employee = () => {
   const [editId, setEditId] = useState("");
   const [editName, setEditName] = useState("");
 
+  // modal delete
+  const deleteOKRef = useRef(null);
+  const deleteCancelRef = useRef(null);
+  const [openDeleteModal, setOpenDeleteModal] = useState({
+    open: false,
+    data: null,
+    index: null,
+  });
+
   useEffect(() => {
     document.title = t("employeers");
     searchInputRef.current?.focus();
@@ -65,6 +75,12 @@ const Employee = () => {
         setOpenModal(false);
         listItemRefs.current[selectedListItemRef]?.focus();
       }
+      // if (e.key === "Escape" && openDeleteModal.open) {
+      //   console.log("dadadadadad");
+
+      //   listItemRefs.current[0]?.focus();
+      //   setOpenDeleteModal({ open: false, data: null, index: null });
+      // }
     };
     window.addEventListener("keydown", handleKey);
     return () => window.removeEventListener("keydown", handleKey);
@@ -92,7 +108,7 @@ const Employee = () => {
       showNotification("employeeNameRequired", "error");
       return;
     }
-    
+
     setLoadingAdd(true);
     try {
       const res = await myAxios.post("employeers/", { name: newEmployee });
@@ -129,9 +145,14 @@ const Employee = () => {
   const hasMore = filtered.length > employees.length;
 
   const deleteEmployee = async (id, name) => {
-    if (!confirm(t("deleteEmployee", { name }))) return;
-    
+    // if (!confirm(t("deleteEmployee", { name }))) return;
     setLoadingDeleteId(id);
+    // searchInputRef.current?.focus();
+    setOpenDeleteModal({
+      open: false,
+      data: null,
+      index: null,
+    });
     try {
       await myAxios.delete(`employeers/${id}/`);
       showNotification("employeeDeleted", "success");
@@ -151,7 +172,7 @@ const Employee = () => {
       showNotification("employeeNameRequired", "error");
       return;
     }
-    
+
     setLoadingEdit(true);
     try {
       const res = await myAxios.put(`employeers/${editId}/`, {
@@ -180,10 +201,21 @@ const Employee = () => {
     }
   }, [openModal]);
 
+  useEffect(() => {
+    if (openDeleteModal.open) {
+      setTimeout(() => {
+        deleteOKRef.current?.focus();
+      }, 50); // Небольшая задержка, чтобы дать модалке отрендериться
+    }
+  }, [openDeleteModal.open]);
+
   const handleListKeyDown = (e, i, s) => {
     if (e.key === "Delete") {
       e.preventDefault();
-      if (!loadingDeleteId) deleteEmployee(s.id, s.name);
+      setOpenDeleteModal({ open: true, data: s, index: i });
+      console.log("yayayayaya", openDeleteModal);
+
+      // if (!loadingDeleteId) deleteEmployee(s.id, s.name);
     }
     if (e.key === "Enter" || e.key === " ") {
       e.preventDefault();
@@ -254,7 +286,7 @@ const Employee = () => {
     setCurrentPage((p) => p + 1);
     // Focus on first new item after loading
     setTimeout(() => {
-      const newItemIndex = (currentPage * itemsPerPage);
+      const newItemIndex = currentPage * itemsPerPage;
       if (listItemRefs.current[newItemIndex]) {
         listItemRefs.current[newItemIndex].focus();
       }
@@ -269,12 +301,77 @@ const Employee = () => {
 
   return (
     <div className="p-2">
+      {openDeleteModal.open && (
+        <MyModal
+          onClose={() => {
+            listItemRefs.current[openDeleteModal.index]?.focus();
+            setOpenDeleteModal({
+              open: false,
+              data: null,
+              index: null,
+            });
+          }}
+        >
+          <div className="p-6">
+            <h2 className="text-2xl font-bold mb-6 text-gray-800 dark:text-gray-200">
+              {t("deleteEmployee")}
+            </h2>
+            <div className="mb-4">{openDeleteModal.data.name}</div>
+            <div className="flex justify-end gap-3 pt-4 border-t border-gray-200 dark:border-gray-600">
+              <MyButton
+                ref={deleteCancelRef}
+                onKeyDown={(e) => {
+                  if (e.key === "ArrowRight") {
+                    deleteOKRef.current?.focus();
+                  }
+                }}
+                variant="blue"
+                // onClick={() => {
+                //   setOpenModal(false);
+                //   listItemRefs.current[selectedListItemRef]?.focus();
+                // }}
+                onClick={() => {
+                  // listItemRefs.current[openDeleteModal.index]?.focus();
+                  listItemRefs.current[openDeleteModal.index]?.focus();
+                  setOpenDeleteModal({
+                    open: false,
+                    data: null,
+                    index: null,
+                  });
+                }}
+              >
+                {t("cancel")}
+              </MyButton>
+              <MyButton
+                ref={deleteOKRef}
+                variant="red"
+                onClick={() =>
+                  deleteEmployee(
+                    openDeleteModal.data.id,
+                    openDeleteModal.data.name
+                  )
+                }
+                // disabled={loadingEdit}
+                className="min-w-[100px]"
+                onKeyDown={(e) => {
+                  if (e.key === "ArrowLeft") {
+                    deleteCancelRef.current?.focus();
+                  }
+                }}
+              >
+                {t("save")}
+              </MyButton>
+            </div>
+          </div>
+        </MyModal>
+      )}
+
       <Notification
         message={t(notification.message)}
         type={notification.type}
         onClose={() => setNotification({ message: "", type: "" })}
       />
-      
+
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-3xl font-bold text-gray-800 dark:text-gray-200">
           {t("employeers")}
@@ -282,7 +379,9 @@ const Employee = () => {
         <div className="text-sm text-gray-600 dark:text-gray-400">
           {filtered.length > 0 && (
             <span>
-              {search ? `${t("found")}: ${filtered.length}` : `${t("total")}: ${filtered.length}`}
+              {search
+                ? `${t("found")}: ${filtered.length}`
+                : `${t("total")}: ${filtered.length}`}
             </span>
           )}
         </div>
@@ -300,7 +399,11 @@ const Employee = () => {
             className="text-4xl text-green-500 hover:text-green-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
             title={t("addEmployee")}
           >
-            {loadingAdd ? <CiNoWaitingSign className="animate-spin" /> : <IoIosAddCircleOutline />}
+            {loadingAdd ? (
+              <CiNoWaitingSign className="animate-spin" />
+            ) : (
+              <IoIosAddCircleOutline />
+            )}
           </button>
           <MyInput
             ref={addInputRef}
@@ -322,7 +425,7 @@ const Employee = () => {
           {t("searchEmployee")}
         </h2>
         <div className="flex items-end gap-3">
-          <button 
+          <button
             onClick={() => searchInputRef.current?.focus()}
             className="text-4xl text-blue-500 hover:text-blue-600 transition-colors"
             title={t("search")}
@@ -361,14 +464,15 @@ const Employee = () => {
               {search ? t("searchResults") : t("allEmployees")}
             </h2>
           </div>
-          <ul className="divide-y divide-gray-200 dark:divide-gray-600">
+
+          <ul className="divide-y divide-gray-400 dark:divide-gray-600">
             {employees.map((s, index) => (
               <li
                 key={s.id}
                 tabIndex={0}
                 ref={(el) => (listItemRefs.current[index] = el)}
                 onKeyDown={(e) => handleListKeyDown(e, index, s)}
-                className="px-4 py-3 hover:bg-gray-50 dark:hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-blue-50 dark:focus:bg-blue-800 transition-colors cursor-pointer group"
+                className="px-4 py-3 hover:bg-gray-300 dark:hover:bg-gray-700 focus:outline-none focus:ring-2 focus:bg-blue-400 dark:focus:bg-blue-800 transition-colors cursor-pointer group"
               >
                 <div className="flex justify-between items-center">
                   <div className="flex items-center gap-3">
@@ -379,9 +483,15 @@ const Employee = () => {
                       {s.name}
                     </span>
                   </div>
-                  <div className="flex gap-2 opacity-0 group-hover:opacity-100 group-focus:opacity-100 transition-opacity">
+                  <div
+                    className={`flex gap-2 opacity-0 group-hover:opacity-100 group-focus:opacity-100 transition-opacity ${
+                      loadingDeleteId === s.id && "opacity-100"
+                    }`}
+                  >
                     <button
-                      className="p-2 text-green-500 hover:text-green-700 hover:bg-green-50 dark:hover:bg-green-900 rounded-md transition-colors"
+                      className={`p-2 text-gray-800 hover:text-green-700 hover:bg-green-50 dark:hover:bg-green-900 rounded-md transition-colors ${
+                        loadingDeleteId === s.id && "opacity-0"
+                      }`}
                       onClick={(e) => {
                         e.stopPropagation();
                         setSelectedEmployee(s);
@@ -398,7 +508,11 @@ const Employee = () => {
                       disabled={loadingDeleteId === s.id}
                       onClick={(e) => {
                         e.stopPropagation();
-                        deleteEmployee(s.id, s.name);
+                        setOpenDeleteModal({
+                          open: true,
+                          data: s,
+                          index: index,
+                        });
                       }}
                       className="p-2 text-red-500 hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-900 disabled:opacity-50 disabled:cursor-not-allowed rounded-md transition-colors"
                       title={
@@ -419,7 +533,7 @@ const Employee = () => {
               </li>
             ))}
           </ul>
-          
+
           {hasMore && (
             <div className="px-4 py-3 bg-gray-50 dark:bg-gray-700 border-t border-gray-200 dark:border-gray-600 text-center">
               <button
@@ -450,10 +564,7 @@ const Employee = () => {
               {search ? t("noSearchResults") : t("noEmployees")}
             </h3>
             <p className="text-gray-500 dark:text-gray-500">
-              {search 
-                ? t("tryDifferentSearch") 
-                : t("addFirstEmployee")
-              }
+              {search ? t("tryDifferentSearch") : t("addFirstEmployee")}
             </p>
             {search && (
               <button
@@ -493,8 +604,8 @@ const Employee = () => {
               />
             </div>
             <div className="flex justify-end gap-3 pt-4 border-t border-gray-200 dark:border-gray-600">
-              <MyButton 
-                variant="gray" 
+              <MyButton
+                variant="gray"
                 onClick={() => {
                   setOpenModal(false);
                   listItemRefs.current[selectedListItemRef]?.focus();
@@ -502,8 +613,8 @@ const Employee = () => {
               >
                 {t("cancel")}
               </MyButton>
-              <MyButton 
-                variant="blue" 
+              <MyButton
+                variant="blue"
                 onClick={updateEmployee}
                 disabled={loadingEdit}
                 className="min-w-[100px]"

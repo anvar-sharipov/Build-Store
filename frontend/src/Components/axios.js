@@ -14,9 +14,14 @@ myAxios.interceptors.request.use((config) => {
   return config;
 });
 
+// Создаем отдельный экземпляр для refresh запросов (без interceptors)
+const refreshAxios = axios.create({
+  baseURL: "http://localhost:8000/api/",
+});
+
 // Обработка 401 ошибок и попытка обновить токен
 myAxios.interceptors.response.use(
-  (response) => response, // если всё ок — возвращаем ответ
+  (response) => response,
   async (error) => {
     const originalRequest = error.config;
 
@@ -31,9 +36,13 @@ myAxios.interceptors.response.use(
       try {
         const refresh = localStorage.getItem("refresh");
         
-        
+        // Проверяем наличие refresh токена
+        if (!refresh) {
+          throw new Error("No refresh token");
+        }
 
-        const res = await axios.post("http://localhost:8000/api/token/refresh/", {
+        // ВАЖНО: используем refreshAxios вместо обычного axios
+        const res = await refreshAxios.post("token/refresh/", {
           refresh: refresh,
         });
 
@@ -43,11 +52,19 @@ myAxios.interceptors.response.use(
         // Применяем новый access токен и повторяем запрос
         originalRequest.headers.Authorization = `Bearer ${newAccess}`;
         return myAxios(originalRequest);
+        
       } catch (err) {
-        // Не удалось обновить — редирект на логин
+        // Не удалось обновить — очищаем токены и редирект на логин
+        console.log("Token refresh failed:", err.message);
         localStorage.removeItem("access");
         localStorage.removeItem("refresh");
-        window.location = "/login";
+        
+        // Предотвращаем множественные редиректы
+        if (window.location.pathname !== "/login") {
+          window.location.href = "/login";
+        }
+        
+        return Promise.reject(err);
       }
     }
 

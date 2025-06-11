@@ -21,7 +21,7 @@ import Partner from "./Components/Page/Partner/Partner";
 function SidebarLeft() {
   const { t } = useTranslation();
   return (
-    <nav className="hidden lg:flex fixed top-16 left-0 h-[calc(100vh-4rem)] w-52 flex-col p-4 border-r border-gray-300 dark:border-gray-700 bg-gray-100 dark:bg-gray-900 overflow-y-auto z-20 mt-20">
+    <nav className="hidden lg:flex fixed top-16 left-0 h-[calc(100vh-4rem)] w-52 flex-col p-4 border-r border-gray-300 dark:border-gray-700 bg-gray-900 overflow-y-auto z-20 mt-20">
       <ul className="space-y-4">
         {[ 
           { to: ROUTES.FAKTURA, label: t("faktura"), key: "F1" },
@@ -71,12 +71,12 @@ function SidebarRight() {
   ];
 
   return (
-    <aside className="hidden lg:flex fixed top-16 right-0 h-[calc(100vh-4rem)] w-48 flex-col p-4 border-l border-gray-300 dark:border-gray-700 bg-gray-100 dark:bg-gray-900 overflow-y-auto z-20 mt-20">
-      <h2 className="text-lg font-semibold mb-4">{t("filter_partner_type") || "Фильтр по типу партнера"}</h2>
+    <aside className="hidden lg:flex fixed top-16 right-0 h-[calc(100vh-4rem)] w-48 flex-col p-4 border-l border-gray-300 dark:border-gray-700 bg-gray-900 overflow-y-auto z-20 mt-20">
+      <h2 className="text-lg font-semibold mb-4 text-gray-300">{t("filterPartnerType")}</h2>
       {filterOptions.map((option) => (
         <label
           key={option.key}
-          className="flex items-center mb-3 cursor-pointer select-none"
+          className="flex items-center mb-3 cursor-pointer select-none hover:text-blue-800 text-blue-600"
         >
           <input
             type="radio"
@@ -94,7 +94,7 @@ function SidebarRight() {
 
 function App() {
   return (
-    <div className="flex flex-col bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-100 min-h-screen p-4 text-xs sm:text-sm md:text-base">
+    <div className="flex flex-col  text-gray-800 bg-gray-900 dark:text-gray-100 min-h-screen p-4 text-xs sm:text-sm md:text-base">
       {/* <ThemeToggle /> */}
       <Router>
         <Header />

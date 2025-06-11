@@ -1,5 +1,12 @@
 {
   "register": "Регистрация",
+  "register2": "Зарегистрировать",
+  "userName": "Имя пользователя",
+  "password": "Пароль",
+  "password2": "Повторите пароль",
+  "selectGroup": "Выберите группу",
+  "login2": "Вход в систему",
+
   "login": "Вход",
   "logout": "Выход",
   "faktura": "Фактура",
@@ -56,6 +63,7 @@
   "partners": "Партнёры",
   "changePartnerName": "Изменить имя партнёра",
   "changePartnerType": "Изменить тип партнёра",
+  "filterPartnerType": "Фильтр по типу партнера",
 
   "productDeleted": "Товар успешно удалён",
   "newProductAdded": "Товар успешно добавлен",

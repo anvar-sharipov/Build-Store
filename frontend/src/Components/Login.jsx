@@ -2,8 +2,12 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { motion, AnimatePresence } from 'framer-motion';
 import { FiUser, FiLock } from 'react-icons/fi';
+import myAxios from './axios';
+import { useTranslation } from "react-i18next";
+
 
 export default function Login() {
+  const { t } = useTranslation();
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [message, setMessage] = useState('');
@@ -11,13 +15,13 @@ export default function Login() {
 
   const login = (e) => {
     e.preventDefault();
-    axios.post('http://localhost:8000/api/token/', { username, password })
+    myAxios.post('token/', { username, password })
       .then(res => {
         localStorage.setItem('access', res.data.access);
         localStorage.setItem('refresh', res.data.refresh);
         setMessageType('success');
         setMessage('Успешный вход');
-        window.location = '/faktura';
+        window.location = '/main';
       })
       .catch(() => {
         setMessageType('error');
@@ -36,7 +40,7 @@ export default function Login() {
         className="w-full max-w-md p-8 bg-white dark:bg-gray-800 rounded-2xl shadow-xl"
       >
         <h2 className="text-3xl font-bold mb-8 text-center text-gray-800 dark:text-gray-100">
-          Вход в систему
+          {t('login2')}
         </h2>
 
         <div className="relative mb-6">
@@ -44,7 +48,7 @@ export default function Login() {
           <input
             value={username}
             onChange={e => setUsername(e.target.value)}
-            placeholder="Имя пользователя"
+            placeholder={t('userName')}
             className="w-full pl-10 pr-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg 
               bg-white dark:bg-gray-700 text-gray-800 dark:text-white 
               focus:outline-none focus:ring-2 focus:ring-blue-500 transition"
@@ -58,7 +62,7 @@ export default function Login() {
             type="password"
             value={password}
             onChange={e => setPassword(e.target.value)}
-            placeholder="Пароль"
+            placeholder={t('password')}
             className="w-full pl-10 pr-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg 
               bg-white dark:bg-gray-700 text-gray-800 dark:text-white 
               focus:outline-none focus:ring-2 focus:ring-blue-500 transition"
@@ -70,7 +74,7 @@ export default function Login() {
           type="submit"
           className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2.5 rounded-lg transition"
         >
-          Войти
+          {t('login')}
         </button>
 
         <AnimatePresence>

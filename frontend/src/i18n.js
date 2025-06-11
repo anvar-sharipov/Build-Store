@@ -11,7 +11,7 @@ i18n
       ru: { translation: ru },
       tk: { translation: tk },
     },
-    lng: 'ru', // Язык по умолчанию
+    lng: localStorage.getItem('i18nextLng') || 'ru', // берём сохранённый язык или русский
     fallbackLng: 'ru',
     interpolation: { escapeValue: false },
   });

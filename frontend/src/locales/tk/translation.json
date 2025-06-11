@@ -1,5 +1,12 @@
 {
   "register": "Registrasiya",
+  "register2": "Hasaba al",
+  "userName": "Ulanyjy ady",
+  "password": "Parol",
+  "password2": "Paroly gaýtalaň",
+  "selectGroup": "Topary saýlaň",
+  "login2": "Giriş",
+
   "login": "Içeri gir",
   "logout": "Çyk",
   "faktura": "Faktura",
@@ -52,6 +59,7 @@
   "partners": "Hyzmatdaşlar",
   "changePartnerName": "Hyzmatdaş adyny üýtget",
   "changePartnerType": "Hyzmatdaş tipyny üýtget",
+  "filterPartnerType": "Hyzmatdaş görnüşi boýunça süzgi",
 
   "productDeleted": "Haryt üstünlikli pozuldy",
   "newProductAdded": "Täze haryt üstünlikli goşuldy",

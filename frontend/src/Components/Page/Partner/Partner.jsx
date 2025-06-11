@@ -34,7 +34,7 @@ const TypeBadge = ({ type, text, typeText }) => {
       className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold ${styles[type]}`}
     >
       <div className="flex gap-2 items-center">
-        <span>{typeText}</span>
+        <span className="hidden lg:block">{typeText}</span>
         <span>{icons[type]}</span>
       </div>
     </span>
@@ -432,14 +432,14 @@ const Partner = () => {
               )}
             </h2>
           </div>
-          <ul className="divide-y divide-gray-200 dark:divide-gray-600">
+          <ul className="divide-y divide-gray-400 dark:divide-gray-600">
             {partners.map((p, index) => (
               <li
                 key={p.id}
                 tabIndex={0}
                 ref={(el) => (listItemRefs.current[index] = el)}
                 onKeyDown={(e) => handleListKeyDown(e, index, p)}
-                className="px-4 py-3 hover:bg-gray-50 dark:hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-blue-50 dark:focus:bg-blue-800 transition-colors cursor-pointer group"
+                className="px-4 py-3 hover:bg-gray-300 dark:hover:bg-gray-700 focus:outline-none focus:ring-2 focus:bg-blue-400 dark:focus:bg-blue-800 transition-colors cursor-pointer group"
               >
                 <div className="flex justify-between items-center">
                   <div className="flex items-center gap-3">
@@ -458,7 +458,7 @@ const Partner = () => {
                     />
                     <div className="flex gap-2 opacity-0 group-hover:opacity-100 group-focus:opacity-100 transition-opacity">
                       <button
-                        className="p-2 text-green-500 hover:text-green-700 hover:bg-green-50 dark:hover:bg-green-900 rounded-md transition-colors"
+                        className="p-2 text-grey-800 hover:text-green-700 hover:bg-green-50 dark:hover:bg-green-900 rounded-md transition-colors"
                         onClick={(e) => {
                           e.stopPropagation();
                           setSelectedPartner(p);
