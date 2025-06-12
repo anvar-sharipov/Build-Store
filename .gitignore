@@ -1,6 +1,8 @@
 building_env/
+building_materials_store/.env
 .env
 .env.*
 .vscode/
 .idea/
 .DS_Store
+
