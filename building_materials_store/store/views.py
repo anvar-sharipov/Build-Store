@@ -56,6 +56,16 @@ class PartnerViewSet(viewsets.ModelViewSet):
     #         },
     #         status=status.HTTP_201_CREATED
     #     )
+    def destroy(self, request, *args, **kwargs):
+        instance = self.get_object()
+        time.sleep(2)
+        self.perform_destroy(instance)
+        return Response(
+            {"message": "partnerDeleted"},
+            status=status.HTTP_204_NO_CONTENT
+        )
+
+        
 
 
 

@@ -6,6 +6,7 @@
   "password2": "Повторите пароль",
   "selectGroup": "Выберите группу",
   "login2": "Вход в систему",
+  "delete": "Удалить",
 
   "login": "Вход",
   "logout": "Выход",
@@ -54,6 +55,7 @@
   "deleteEmployee": "удалить работника?",
 
   "partnerDeleted": "Партнёр успешно удалён",
+  "deletePartner": "Удалить партнёра?",
   "newPartnerAdded": "Партнёр успешно добавлен",
   "newPartnerAddedError": "Ошибка: Партнёр не был добавлен",
   "partnerUpdated": "Партнёр успешно изменён",

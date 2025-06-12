@@ -34,8 +34,10 @@ const Employee = () => {
   const [loadingDeleteId, setLoadingDeleteId] = useState(null);
   const [loadingEdit, setLoadingEdit] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
+  const [openModalAdd, setOpenModalAdd] = useState(false);
 
   const [selectedListItemRef, setSelectedListItemRef] = useState("");
+  const addIconButtonRef = useRef(null);
 
   const itemsPerPage = 10;
 
@@ -44,6 +46,10 @@ const Employee = () => {
   const listItemRefs = useRef([]);
   const loadMoreButtonRef = useRef(null);
   const editInputRef = useRef(null);
+
+  // ref
+  const refCancelUpdateButton = useRef(null);
+  const refUpdateButton = useRef(null);
 
   const [selectedEmployee, setSelectedEmployee] = useState(null);
   const [openModal, setOpenModal] = useState(false);
@@ -66,21 +72,27 @@ const Employee = () => {
   }, [t]);
 
   useEffect(() => {
+    if (openModalAdd) {
+      setTimeout(() => {
+        addInputRef.current?.focus();
+        addInputRef.current?.select(); // Select all text for easy editing
+      }, 100);
+    } else {
+      searchInputRef.current?.focus();
+    }
+  }, [openModalAdd]);
+
+  useEffect(() => {
     const handleKey = (e) => {
       if (e.key === "Insert") {
         e.preventDefault();
-        addInputRef.current?.focus();
+
+        setOpenModalAdd(true);
       }
       if (e.key === "Escape" && openModal) {
         setOpenModal(false);
         listItemRefs.current[selectedListItemRef]?.focus();
       }
-      // if (e.key === "Escape" && openDeleteModal.open) {
-      //   console.log("dadadadadad");
-
-      //   listItemRefs.current[0]?.focus();
-      //   setOpenDeleteModal({ open: false, data: null, index: null });
-      // }
     };
     window.addEventListener("keydown", handleKey);
     return () => window.removeEventListener("keydown", handleKey);
@@ -122,6 +134,7 @@ const Employee = () => {
     } finally {
       setLoadingAdd(false);
       searchInputRef.current?.focus();
+      setOpenModalAdd(false);
     }
   };
 
@@ -148,11 +161,7 @@ const Employee = () => {
     // if (!confirm(t("deleteEmployee", { name }))) return;
     setLoadingDeleteId(id);
     // searchInputRef.current?.focus();
-    setOpenDeleteModal({
-      open: false,
-      data: null,
-      index: null,
-    });
+
     try {
       await myAxios.delete(`employeers/${id}/`);
       showNotification("employeeDeleted", "success");
@@ -164,6 +173,11 @@ const Employee = () => {
     } finally {
       setLoadingDeleteId(null);
       searchInputRef.current?.focus();
+      setOpenDeleteModal({
+        open: false,
+        data: null,
+        index: null,
+      });
     }
   };
 
@@ -250,7 +264,9 @@ const Employee = () => {
     }
     if (e.key === "ArrowUp") {
       e.preventDefault();
-      addInputRef.current?.focus();
+      // addInputRef.current?.focus();
+
+      addIconButtonRef.current?.focus();
     }
     if (e.key === "Escape" && search) {
       setSearch("");
@@ -280,17 +296,24 @@ const Employee = () => {
       setOpenModal(false);
       listItemRefs.current[selectedListItemRef]?.focus();
     }
+    if (e.key === "ArrowDown") {
+      e.preventDefault();
+      refCancelUpdateButton.current?.focus();
+    }
   };
 
   const loadMore = () => {
-    setCurrentPage((p) => p + 1);
+    setCurrentPage((prevPage) => {
+      const newPage = prevPage + 1;
+      setTimeout(() => {
+        const newItemIndex = (newPage - 1) * itemsPerPage;
+        if (listItemRefs.current[newItemIndex]) {
+          listItemRefs.current[newItemIndex].focus();
+        }
+      }, 100);
+      return newPage;
+    });
     // Focus on first new item after loading
-    setTimeout(() => {
-      const newItemIndex = currentPage * itemsPerPage;
-      if (listItemRefs.current[newItemIndex]) {
-        listItemRefs.current[newItemIndex].focus();
-      }
-    }, 100);
   };
 
   const clearSearch = () => {
@@ -301,6 +324,46 @@ const Employee = () => {
 
   return (
     <div className="p-2">
+      {openModalAdd ? (
+        <MyModal
+          onClose={() => {
+            setOpenModalAdd(false);
+          }}
+        >
+          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-4 mb-6">
+            <h2 className="text-lg font-semibold mb-3 text-gray-700 dark:text-gray-300">
+              {t("addNewEmployee")}
+            </h2>
+            <div className="flex items-end gap-3">
+              <button
+                onClick={addEmployee}
+                disabled={loadingAdd}
+                className="text-4xl text-green-500 hover:text-green-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                title={t("addEmployee")}
+              >
+                {loadingAdd ? (
+                  <CiNoWaitingSign className="animate-spin" />
+                ) : (
+                  <IoIosAddCircleOutline />
+                )}
+              </button>
+              <MyInput
+                ref={addInputRef}
+                name="new_employee"
+                type="text"
+                value={newEmployee}
+                onChange={(e) => setNewEmployee(e.target.value)}
+                placeholder={`${t("addNewEmployee")}...`}
+                className="flex-grow focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-blue-50 dark:focus:bg-gray-700"
+                onKeyDown={handleAddKeyDown}
+                disabled={loadingAdd}
+              />
+            </div>
+          </div>
+        </MyModal>
+      ) : (
+        <div></div>
+      )}
       {openDeleteModal.open && (
         <MyModal
           onClose={() => {
@@ -313,8 +376,18 @@ const Employee = () => {
           }}
         >
           <div className="p-6">
-            <h2 className="text-2xl font-bold mb-6 text-gray-800 dark:text-gray-200">
-              {t("deleteEmployee")}
+            <h2 className="text-xl font-bold mb-6 text-gray-800 dark:text-gray-200 flex gap-2 items-center">
+              <button
+                disabled={loadingDeleteId !== null}
+                className="p-1 text-red-500 hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-400 disabled:opacity-50 disabled:cursor-not-allowed rounded transition-colors"
+              >
+                {loadingDeleteId !== null ? (
+                  <CiNoWaitingSign className="animate-spin" size={28} />
+                ) : (
+                  <RiDeleteBin2Fill size={28} />
+                )}
+              </button>
+              <span>{t("deleteEmployee")}</span>
             </h2>
             <div className="mb-4">{openDeleteModal.data.name}</div>
             <div className="flex justify-end gap-3 pt-4 border-t border-gray-200 dark:border-gray-600">
@@ -326,12 +399,7 @@ const Employee = () => {
                   }
                 }}
                 variant="blue"
-                // onClick={() => {
-                //   setOpenModal(false);
-                //   listItemRefs.current[selectedListItemRef]?.focus();
-                // }}
                 onClick={() => {
-                  // listItemRefs.current[openDeleteModal.index]?.focus();
                   listItemRefs.current[openDeleteModal.index]?.focus();
                   setOpenDeleteModal({
                     open: false,
@@ -344,7 +412,7 @@ const Employee = () => {
               </MyButton>
               <MyButton
                 ref={deleteOKRef}
-                variant="red"
+                variant="blue"
                 onClick={() =>
                   deleteEmployee(
                     openDeleteModal.data.id,
@@ -372,11 +440,11 @@ const Employee = () => {
         onClose={() => setNotification({ message: "", type: "" })}
       />
 
-      <div className="flex justify-between items-center mb-6">
-        <h1 className="text-3xl font-bold text-gray-800 dark:text-gray-200">
+      <div className="flex justify-between items-center mb-2">
+        <h5 className="font-bold text-gray-800 dark:text-gray-200">
           {t("employeers")}
-        </h1>
-        <div className="text-sm text-gray-600 dark:text-gray-400">
+        </h5>
+        <div className="text-gray-600 dark:text-gray-400">
           {filtered.length > 0 && (
             <span>
               {search
@@ -387,51 +455,22 @@ const Employee = () => {
         </div>
       </div>
 
-      {/* Add Employee Section */}
-      <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-4 mb-6">
-        <h2 className="text-lg font-semibold mb-3 text-gray-700 dark:text-gray-300">
-          {t("addNewEmployee")}
-        </h2>
+      {/* Add and search Employee Section */}
+      <div className="bg-gray-200 dark:bg-gray-800 rounded-lg shadow-md p-1 mb-2 flex items-center justify-between px-2">
+        <button
+          className="text-2xl text-green-500 hover:text-green-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+          onClick={() => setOpenModalAdd(true)}
+          ref={addIconButtonRef}
+          onKeyDown={(e) => {
+            if (e.key === "ArrowDown") {
+              e.preventDefault();
+              searchInputRef.current?.focus();
+            }
+          }}
+        >
+          <IoIosAddCircleOutline />
+        </button>
         <div className="flex items-end gap-3">
-          <button
-            onClick={addEmployee}
-            disabled={loadingAdd}
-            className="text-4xl text-green-500 hover:text-green-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-            title={t("addEmployee")}
-          >
-            {loadingAdd ? (
-              <CiNoWaitingSign className="animate-spin" />
-            ) : (
-              <IoIosAddCircleOutline />
-            )}
-          </button>
-          <MyInput
-            ref={addInputRef}
-            name="new_employee"
-            type="text"
-            value={newEmployee}
-            onChange={(e) => setNewEmployee(e.target.value)}
-            placeholder={`${t("addNewEmployee")}...`}
-            className="flex-grow focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-blue-50 dark:focus:bg-gray-700"
-            onKeyDown={handleAddKeyDown}
-            disabled={loadingAdd}
-          />
-        </div>
-      </div>
-
-      {/* Search Section */}
-      <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-4 mb-6">
-        <h2 className="text-lg font-semibold mb-3 text-gray-700 dark:text-gray-300">
-          {t("searchEmployee")}
-        </h2>
-        <div className="flex items-end gap-3">
-          <button
-            onClick={() => searchInputRef.current?.focus()}
-            className="text-4xl text-blue-500 hover:text-blue-600 transition-colors"
-            title={t("search")}
-          >
-            <CiSearch />
-          </button>
           <div className="flex-grow relative">
             <MyInput
               ref={searchInputRef}
@@ -440,7 +479,7 @@ const Employee = () => {
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               placeholder={t("search")}
-              className="w-full focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-blue-50 dark:focus:bg-gray-700"
+              className="w-full focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-blue-50 dark:focus:bg-gray-700 h-7"
               onKeyDown={handleSearchKeyDown}
             />
             {search && (
@@ -453,43 +492,39 @@ const Employee = () => {
               </button>
             )}
           </div>
+          <button
+            onClick={() => searchInputRef.current?.focus()}
+            className="text-2xl text-blue-500 hover:text-blue-600 transition-colors"
+            title={t("search")}
+          >
+            <CiSearch />
+          </button>
         </div>
       </div>
 
       {/* Results Section */}
       {employees.length > 0 ? (
         <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md overflow-hidden">
-          <div className="px-4 py-3 bg-gray-50 dark:bg-gray-700 border-b border-gray-200 dark:border-gray-600">
-            <h2 className="text-lg font-semibold text-gray-700 dark:text-gray-300">
-              {search ? t("searchResults") : t("allEmployees")}
-            </h2>
-          </div>
-
-          <ul className="divide-y divide-gray-400 dark:divide-gray-600">
-            {employees.map((s, index) => (
-              <li
-                key={s.id}
-                tabIndex={0}
-                ref={(el) => (listItemRefs.current[index] = el)}
-                onKeyDown={(e) => handleListKeyDown(e, index, s)}
-                className="px-4 py-3 hover:bg-gray-300 dark:hover:bg-gray-700 focus:outline-none focus:ring-2 focus:bg-blue-400 dark:focus:bg-blue-800 transition-colors cursor-pointer group"
-              >
-                <div className="flex justify-between items-center">
-                  <div className="flex items-center gap-3">
-                    <span className="text-sm text-gray-500 dark:text-gray-400 font-mono w-8">
-                      {(currentPage - 1) * itemsPerPage + index + 1}.
-                    </span>
-                    <span className="font-medium text-gray-800 dark:text-gray-200">
-                      {s.name}
-                    </span>
+          <div className="border border-gray-300 dark:border-gray-600 rounded-sm overflow-hidden">
+            {/* Строки */}
+            <ul className="divide-y divide-gray-300 dark:divide-gray-600">
+              {employees.map((s, index) => (
+                <li
+                  key={s.id}
+                  tabIndex={0}
+                  ref={(el) => (listItemRefs.current[index] = el)}
+                  onKeyDown={(e) => handleListKeyDown(e, index, s)}
+                  className="grid grid-cols-[auto_1fr_auto] px-4 hover:bg-gray-300 dark:hover:bg-gray-700 focus:outline-none focus:ring-2 focus:bg-blue-400 dark:focus:bg-blue-800 transition-colors cursor-pointer"
+                >
+                  <div className="text-sm text-gray-500 dark:text-gray-400 font-mono">
+                    {index + 1}.
                   </div>
-                  <div
-                    className={`flex gap-2 opacity-0 group-hover:opacity-100 group-focus:opacity-100 transition-opacity ${
-                      loadingDeleteId === s.id && "opacity-100"
-                    }`}
-                  >
+                  <div className="font-medium text-gray-800 dark:text-gray-200 truncate">
+                    {s.name}
+                  </div>
+                  <div className="flex gap-1 justify-end">
                     <button
-                      className={`p-2 text-gray-800 hover:text-green-700 hover:bg-green-50 dark:hover:bg-green-900 rounded-md transition-colors ${
+                      className={`p-1 text-gray-800 hover:text-green-700 hover:bg-green-50 dark:hover:bg-green-700 rounded transition-colors dark:text-green-500 ${
                         loadingDeleteId === s.id && "opacity-0"
                       }`}
                       onClick={(e) => {
@@ -502,7 +537,7 @@ const Employee = () => {
                       }}
                       title={t("editEmployee")}
                     >
-                      <GrEdit />
+                      <GrEdit size={14} />
                     </button>
                     <button
                       disabled={loadingDeleteId === s.id}
@@ -514,7 +549,7 @@ const Employee = () => {
                           index: index,
                         });
                       }}
-                      className="p-2 text-red-500 hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-900 disabled:opacity-50 disabled:cursor-not-allowed rounded-md transition-colors"
+                      className="p-1 text-red-500 hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-400 disabled:opacity-50 disabled:cursor-not-allowed rounded transition-colors"
                       title={
                         loadingDeleteId === s.id
                           ? t("deletingEmployee")
@@ -523,21 +558,21 @@ const Employee = () => {
                       aria-busy={loadingDeleteId === s.id}
                     >
                       {loadingDeleteId === s.id ? (
-                        <CiNoWaitingSign className="animate-spin" />
+                        <CiNoWaitingSign className="animate-spin" size={14} />
                       ) : (
-                        <RiDeleteBin2Fill />
+                        <RiDeleteBin2Fill size={14} />
                       )}
                     </button>
                   </div>
-                </div>
-              </li>
-            ))}
-          </ul>
+                </li>
+              ))}
+            </ul>
+          </div>
 
           {hasMore && (
-            <div className="px-4 py-3 bg-gray-50 dark:bg-gray-700 border-t border-gray-200 dark:border-gray-600 text-center">
+            <div className="px-4 py-1 bg-gray-50 dark:bg-gray-700 border-t border-gray-200 dark:border-gray-600 text-center">
               <button
-                className="text-blue-500 hover:text-blue-700 hover:underline font-medium px-4 py-2 rounded-md hover:bg-blue-50 dark:hover:bg-blue-900 transition-colors"
+                className="text-blue-500 hover:text-blue-700 hover:underline font-medium px-4 rounded-md hover:bg-blue-50 dark:hover:bg-blue-900 transition-colors"
                 ref={loadMoreButtonRef}
                 tabIndex={0}
                 onClick={loadMore}
@@ -605,19 +640,35 @@ const Employee = () => {
             </div>
             <div className="flex justify-end gap-3 pt-4 border-t border-gray-200 dark:border-gray-600">
               <MyButton
-                variant="gray"
+                ref={refCancelUpdateButton}
+                variant="blue"
                 onClick={() => {
                   setOpenModal(false);
                   listItemRefs.current[selectedListItemRef]?.focus();
+                }}
+                onKeyDown={(e) => {
+                  if (e.key === "ArrowRight" || e.key === "ArrowDown") {
+                    refUpdateButton.current?.focus();
+                  }
+                  if (e.key === "ArrowUp" || e.key === "ArrowLeft") {
+                    e.preventDefault();
+                    editInputRef.current?.focus();
+                  }
                 }}
               >
                 {t("cancel")}
               </MyButton>
               <MyButton
+                ref={refUpdateButton}
                 variant="blue"
                 onClick={updateEmployee}
                 disabled={loadingEdit}
                 className="min-w-[100px]"
+                onKeyDown={(e) => {
+                  if (e.key === "ArrowLeft" || e.key === "ArrowUp") {
+                    refCancelUpdateButton.current?.focus();
+                  }
+                }}
               >
                 {loadingEdit ? (
                   <span className="flex items-center gap-2">
@@ -625,7 +676,7 @@ const Employee = () => {
                     {t("saving")}
                   </span>
                 ) : (
-                  t("save")
+                  t("change")
                 )}
               </MyButton>
             </div>

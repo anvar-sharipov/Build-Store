@@ -1,2 +1,6 @@
-# .env
-building_env
+building_env/
+.env
+.env.*
+.vscode/
+.idea/
+.DS_Store

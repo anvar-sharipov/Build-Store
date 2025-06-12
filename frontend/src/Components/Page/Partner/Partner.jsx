@@ -14,6 +14,7 @@ import { CiSearch, CiNoWaitingSign } from "react-icons/ci";
 import { FaTruck, FaUser, FaExchangeAlt } from "react-icons/fa";
 import { RiDeleteBin2Fill } from "react-icons/ri";
 import { GrEdit } from "react-icons/gr";
+import { div } from "framer-motion/client";
 
 const TypeBadge = ({ type, text, typeText }) => {
   const styles = {
@@ -31,7 +32,7 @@ const TypeBadge = ({ type, text, typeText }) => {
 
   return (
     <span
-      className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold ${styles[type]}`}
+      className={`inline-flex items-center px-1 rounded-full text-xs font-semibold ${styles[type]}`}
     >
       <div className="flex gap-2 items-center">
         <span className="hidden lg:block">{typeText}</span>
@@ -59,6 +60,8 @@ const Partner = () => {
   const [loadingEdit, setLoadingEdit] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
 
+  const [openModalAdd, setOpenModalAdd] = useState(false);
+
   const [partnerType, setPartnerType] = useState("supplier");
   const [selectedListItemRef, setSelectedListItemRef] = useState("");
 
@@ -73,6 +76,10 @@ const Partner = () => {
   const listItemRefs = useRef([]);
   const loadMoreButtonRef = useRef(null);
   const editInputRef = useRef(null);
+  const addIconButtonRef = useRef(null);
+  const radioRefs = useRef({});
+  const deleteCancelRef = useRef(null)
+  const deleteOKRef = useRef(null)
 
   // Modal states
   const [selectedPartner, setSelectedPartner] = useState(null);
@@ -80,6 +87,25 @@ const Partner = () => {
   const [editId, setEditId] = useState("");
   const [editName, setEditName] = useState("");
   const [editType, setEditType] = useState("supplier");
+  const [deleteModal, setDeleteModal] = useState({
+    open: false,
+    data: null,
+    index: null,
+  });
+
+  useEffect(() => {
+    if (openModalAdd) {
+      addInputRef.current?.focus();
+    } else {
+      searchInputRef.current?.focus();
+    }
+  }, [openModalAdd]);
+
+  useEffect(() => {
+    if (deleteModal.open) {
+      deleteOKRef.current?.focus();
+    }
+  })
 
   useEffect(() => {
     document.title = t("partners");
@@ -141,11 +167,12 @@ const Partner = () => {
     } finally {
       setLoadingAdd(false);
       searchInputRef.current?.focus();
+      setOpenModalAdd(false);
     }
   };
 
   const deletePartner = async (id, name) => {
-    if (!confirm(t("confirmDeletePartner", { name }))) return;
+    // if (!confirm(t("confirmDeletePartner", { name }))) return;
 
     setLoadingDeleteId(id);
     try {
@@ -158,6 +185,7 @@ const Partner = () => {
     } finally {
       setLoadingDeleteId(null);
       searchInputRef.current?.focus();
+      setDeleteModal({ open: false, data: null, index: null });
     }
   };
 
@@ -228,7 +256,8 @@ const Partner = () => {
   const handleListKeyDown = (e, i, p) => {
     if (e.key === "Delete") {
       e.preventDefault();
-      if (!loadingDeleteId) deletePartner(p.id, p.name);
+      // if (!loadingDeleteId) deletePartner(p.id, p.name);
+      setDeleteModal({ open: true, data: p, index: i });
     }
     if (e.key === "Enter" || e.key === " ") {
       e.preventDefault();
@@ -258,7 +287,7 @@ const Partner = () => {
     }
     if (e.key === "ArrowUp") {
       e.preventDefault();
-      addInputRef.current?.focus();
+      addIconButtonRef.current?.focus();
     }
     if (e.key === "Escape" && search) {
       setSearch("");
@@ -270,9 +299,9 @@ const Partner = () => {
       e.preventDefault();
       addPartner();
     }
-    if (e.key === "ArrowDown") {
+    if (e.key === "ArrowUp") {
       e.preventDefault();
-      searchInputRef.current?.focus();
+      radioRefs.current[partnerType]?.focus();
     }
     if (e.key === "Escape") {
       setNewPartner("");
@@ -291,14 +320,19 @@ const Partner = () => {
   };
 
   const loadMore = () => {
-    setCurrentPage((p) => p + 1);
-    // Focus on first new item after loading
-    setTimeout(() => {
-      const newItemIndex = currentPage * itemsPerPage;
-      if (listItemRefs.current[newItemIndex]) {
-        listItemRefs.current[newItemIndex].focus();
-      }
-    }, 100);
+    setCurrentPage((prevPage) => {
+      const newPage = prevPage + 1;
+
+      // Переносим фокус после обновления DOM
+      setTimeout(() => {
+        const newItemIndex = (newPage - 1) * itemsPerPage; // Фокус на первом новом элементе
+        if (listItemRefs.current[newItemIndex]) {
+          listItemRefs.current[newItemIndex].focus();
+        }
+      }, 100);
+
+      return newPage;
+    });
   };
 
   const clearSearch = () => {
@@ -309,17 +343,156 @@ const Partner = () => {
 
   return (
     <div className="p-2">
+      {/* delete modal */}
+      {deleteModal.open && (
+        <MyModal
+          onClose={() => {
+            setDeleteModal({ open: false, data: null, index: null });
+            listItemRefs.current[deleteModal.index]?.focus();
+          }}
+        >
+          <div className="p-6">
+            <h2 className="text-xl font-bold mb-6 text-gray-800 dark:text-gray-200 flex gap-2 items-center">
+              <button
+                disabled={loadingDeleteId !== null}
+                className="p-1 text-red-500 hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-400 disabled:opacity-50 disabled:cursor-not-allowed rounded transition-colors"
+              >
+                {loadingDeleteId !== null ? (
+                  <CiNoWaitingSign className="animate-spin" size={28} />
+                ) : (
+                  <RiDeleteBin2Fill size={28} />
+                )}
+              </button>
+              <span>{t("deletePartner")}</span>
+            </h2>
+            <div className="flex justify-between mb-4">
+                <div>{deleteModal.data.name}</div>
+                <TypeBadge
+                      typeText={t(deleteModal.data.type)}
+                      text={deleteModal.data.type_display}
+                      type={deleteModal.data.type}
+                    />
+            </div>
+            
+            <div className="flex justify-end gap-3 pt-4 border-t border-gray-200 dark:border-gray-600">
+              <MyButton
+                ref={deleteCancelRef}
+                onKeyDown={(e) => {
+                  if (e.key === "ArrowRight") {
+                    deleteOKRef.current?.focus();
+                  }
+                }}
+                variant="blue"
+                onClick={() => {
+                  listItemRefs.current[deleteModal.index]?.focus();
+                  setDeleteModal({
+                    open: false,
+                    data: null,
+                    index: null,
+                  });
+                }}
+              >
+                {t("cancel")}
+              </MyButton>
+              <MyButton
+                ref={deleteOKRef}
+                variant="blue"
+                onClick={() =>
+                  deletePartner(
+                    deleteModal.data.id,
+                    deleteModal.data.name
+                  )
+                }
+                // disabled={loadingEdit}
+                className="min-w-[100px]"
+                onKeyDown={(e) => {
+                  if (e.key === "ArrowLeft") {
+                    deleteCancelRef.current?.focus();
+                  }
+                }}
+              >
+                {t("delete")}
+              </MyButton>
+            </div>
+          </div>
+        </MyModal>
+      )}
+
+      {openModalAdd && (
+        <MyModal
+          onClose={() => {
+            setOpenModalAdd(false);
+          }}
+        >
+          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-4 mb-6">
+            <h2 className="text-lg font-semibold mb-3 text-gray-700 dark:text-gray-300">
+              {t("addNewPartner")}
+            </h2>
+
+            {/* Type selection for adding */}
+            <div className="flex gap-4 mb-3">
+              {["klient", "supplier", "both"].map((type) => (
+                <label key={type} className="flex items-center gap-2">
+                  <input
+                    ref={(el) => (radioRefs.current[type] = el)}
+                    type="radio"
+                    value={type}
+                    checked={partnerType === type}
+                    onChange={(e) => setPartnerType(e.target.value)}
+                    className="text-blue-500 focus:ring-blue-500"
+                    onKeyDown={(e) => {
+                      if (e.key === "ArrowDown") {
+                        e.preventDefault();
+                        addInputRef.current?.focus();
+                      }
+                    }}
+                  />
+                  <span className="text-gray-700 dark:text-gray-300">
+                    {t(type)}
+                  </span>
+                </label>
+              ))}
+            </div>
+
+            <div className="flex items-end gap-3">
+              <button
+                onClick={addPartner}
+                disabled={loadingAdd}
+                className="text-4xl text-green-500 hover:text-green-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                title={t("addPartner")}
+              >
+                {loadingAdd ? (
+                  <CiNoWaitingSign className="animate-spin" />
+                ) : (
+                  <IoIosAddCircleOutline />
+                )}
+              </button>
+              <MyInput
+                ref={addInputRef}
+                name="new_partner"
+                type="text"
+                value={newPartner}
+                onChange={(e) => setNewPartner(e.target.value)}
+                placeholder={`${t("addNewPartner")}...`}
+                className="flex-grow focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-blue-50 dark:focus:bg-gray-700"
+                onKeyDown={(e) => handleAddKeyDown(e)}
+                disabled={loadingAdd}
+              />
+            </div>
+          </div>
+        </MyModal>
+      )}
       <Notification
         message={t(notification.message)}
         type={notification.type}
         onClose={() => setNotification({ message: "", type: "" })}
       />
 
-      <div className="flex justify-between items-center mb-6">
-        <h1 className="text-3xl font-bold text-gray-800 dark:text-gray-200">
+      <div className="flex justify-between items-center mb-2">
+        <h1 className="font-bold text-gray-800 dark:text-gray-200">
           {t("partners")}
         </h1>
-        <div className="text-sm text-gray-600 dark:text-gray-400">
+        <div className="text-gray-600 dark:text-gray-400">
           {filteredPartners.length > 0 && (
             <span>
               {search
@@ -330,179 +503,129 @@ const Partner = () => {
         </div>
       </div>
 
-      {/* Add Partner Section */}
-      <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-4 mb-6">
-        <h2 className="text-lg font-semibold mb-3 text-gray-700 dark:text-gray-300">
-          {t("addNewPartner")}
-        </h2>
+      {/* Add and search Partner Section */}
+      <div className="bg-gray-200 dark:bg-gray-800 rounded-lg shadow-md p-1 mb-2 flex items-center justify-between px-2">
+        <button
+          className="text-2xl text-green-500 hover:text-green-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+          onClick={() => setOpenModalAdd(true)}
+          ref={addIconButtonRef}
+          onKeyDown={(e) => {
+            if (e.key === "ArrowDown") {
+              e.preventDefault();
+              searchInputRef.current?.focus();
+            }
+          }}
+        >
+          <IoIosAddCircleOutline />
+        </button>
 
-        {/* Type selection for adding */}
-        <div className="flex gap-4 mb-3">
-          {["klient", "supplier", "both"].map((type) => (
-            <label key={type} className="flex items-center gap-2">
-              <input
-                type="radio"
-                value={type}
-                checked={partnerType === type}
-                onChange={(e) => setPartnerType(e.target.value)}
-                className="text-blue-500 focus:ring-blue-500"
+        <div className="flex items-end gap-3">
+          <div className="flex-grow relative">
+            <div className="flex-grow relative">
+              <MyInput
+                ref={searchInputRef}
+                name="search_partner"
+                type="text"
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                placeholder={t("search")}
+                className="w-full focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-blue-50 dark:focus:bg-gray-700 h-7"
+                onKeyDown={handleSearchKeyDown}
               />
-              <span className="text-gray-700 dark:text-gray-300">
-                {t(type)}
-              </span>
-            </label>
-          ))}
-        </div>
-
-        <div className="flex items-end gap-3">
-          <button
-            onClick={addPartner}
-            disabled={loadingAdd}
-            className="text-4xl text-green-500 hover:text-green-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-            title={t("addPartner")}
-          >
-            {loadingAdd ? (
-              <CiNoWaitingSign className="animate-spin" />
-            ) : (
-              <IoIosAddCircleOutline />
-            )}
-          </button>
-          <MyInput
-            ref={addInputRef}
-            name="new_partner"
-            type="text"
-            value={newPartner}
-            onChange={(e) => setNewPartner(e.target.value)}
-            placeholder={`${t("addNewPartner")}...`}
-            className="flex-grow focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-blue-50 dark:focus:bg-gray-700"
-            onKeyDown={handleAddKeyDown}
-            disabled={loadingAdd}
-          />
-        </div>
-      </div>
-
-      {/* Search Section */}
-      <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-4 mb-6">
-        <h2 className="text-lg font-semibold mb-3 text-gray-700 dark:text-gray-300">
-          {t("searchPartner")}
-        </h2>
-        <div className="flex items-end gap-3">
+              {search && (
+                <button
+                  onClick={clearSearch}
+                  className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600 text-xl font-bold"
+                  title={t("clearSearch")}
+                >
+                  ×
+                </button>
+              )}
+            </div>
+          </div>
           <button
             onClick={() => searchInputRef.current?.focus()}
-            className="text-4xl text-blue-500 hover:text-blue-600 transition-colors"
+            className="text-2xl text-blue-500 hover:text-blue-600 transition-colors"
             title={t("search")}
           >
             <CiSearch />
           </button>
-          <div className="flex-grow relative">
-            <MyInput
-              ref={searchInputRef}
-              name="search_partner"
-              type="text"
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              placeholder={t("search")}
-              className="w-full focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-blue-50 dark:focus:bg-gray-700"
-              onKeyDown={handleSearchKeyDown}
-            />
-            {search && (
-              <button
-                onClick={clearSearch}
-                className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600 text-xl font-bold"
-                title={t("clearSearch")}
-              >
-                ×
-              </button>
-            )}
-          </div>
         </div>
       </div>
 
       {/* Results Section */}
       {partners.length > 0 ? (
         <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md overflow-hidden">
-          <div className="px-4 py-3 bg-gray-50 dark:bg-gray-700 border-b border-gray-200 dark:border-gray-600">
-            <h2 className="text-lg font-semibold text-gray-700 dark:text-gray-300">
-              {search ? (
-                t("searchResults")
-              ) : (
-                <div>
-                  {t("all")} {t("partners")}
-                </div>
-              )}
-            </h2>
-          </div>
-          <ul className="divide-y divide-gray-400 dark:divide-gray-600">
-            {partners.map((p, index) => (
-              <li
-                key={p.id}
-                tabIndex={0}
-                ref={(el) => (listItemRefs.current[index] = el)}
-                onKeyDown={(e) => handleListKeyDown(e, index, p)}
-                className="px-4 py-3 hover:bg-gray-300 dark:hover:bg-gray-700 focus:outline-none focus:ring-2 focus:bg-blue-400 dark:focus:bg-blue-800 transition-colors cursor-pointer group"
-              >
-                <div className="flex justify-between items-center">
-                  <div className="flex items-center gap-3">
-                    <span className="text-sm text-gray-500 dark:text-gray-400 font-mono w-8">
-                      {(currentPage - 1) * itemsPerPage + index + 1}.
-                    </span>
-                    <span className="font-medium text-gray-800 dark:text-gray-200">
-                      {p.name}
-                    </span>
+          <div className="border border-gray-300 dark:border-gray-600 rounded-sm overflow-hidden">
+            <ul className="divide-y divide-gray-300 dark:divide-gray-600">
+              {partners.map((p, index) => (
+                <li
+                  key={p.id}
+                  tabIndex={0}
+                  ref={(el) => (listItemRefs.current[index] = el)}
+                  onKeyDown={(e) => handleListKeyDown(e, index, p)}
+                  className="grid grid-cols-[auto_1fr_auto] px-4 hover:bg-gray-300 dark:hover:bg-gray-700 focus:outline-none focus:ring-2 focus:bg-blue-400 dark:focus:bg-blue-800 transition-colors cursor-pointer"
+                >
+                  <div className="text-sm text-gray-500 dark:text-gray-400 font-mono">
+                    {index + 1}.
                   </div>
-                  <div className="flex items-center gap-4">
+                  <div className="truncate font-medium text-gray-800 dark:text-gray-200">
+                    {p.name}
+                  </div>
+                  <div className="flex items-center gap-1 justify-end">
                     <TypeBadge
                       typeText={t(p.type)}
                       text={p.type_display}
                       type={p.type}
                     />
-                    <div className="flex gap-2 opacity-0 group-hover:opacity-100 group-focus:opacity-100 transition-opacity">
-                      <button
-                        className="p-2 text-grey-800 hover:text-green-700 hover:bg-green-50 dark:hover:bg-green-900 rounded-md transition-colors"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          setSelectedPartner(p);
-                          setEditName(p.name);
-                          setEditType(p.type);
-                          setEditId(p.id);
-                          setSelectedListItemRef(index);
-                          setOpenModal(true);
-                        }}
-                        title={t("change")}
-                      >
-                        <GrEdit />
-                      </button>
-                      <button
-                        disabled={loadingDeleteId === p.id}
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          deletePartner(p.id, p.name);
-                        }}
-                        className="p-2 text-red-500 hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-900 disabled:opacity-50 disabled:cursor-not-allowed rounded-md transition-colors"
-                        title={
-                          loadingDeleteId === p.id
-                            ? t("deletingPartner")
-                            : t("deletePartner")
-                        }
-                        aria-busy={loadingDeleteId === p.id}
-                      >
-                        {loadingDeleteId === p.id ? (
-                          <CiNoWaitingSign className="animate-spin" />
-                        ) : (
-                          <RiDeleteBin2Fill />
-                        )}
-                      </button>
-                    </div>
+                    <button
+                      className={`p-1 text-gray-800 hover:text-green-700 hover:bg-green-50 dark:hover:bg-green-700 rounded transition-colors dark:text-green-500 ${
+                        loadingDeleteId === p.id && "opacity-0"
+                      }`}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setSelectedPartner(p);
+                        setEditName(p.name);
+                        setEditType(p.type);
+                        setEditId(p.id);
+                        setSelectedListItemRef(index);
+                        setOpenModal(true);
+                      }}
+                      title={t("change")}
+                    >
+                      <GrEdit size={14} />
+                    </button>
+                    <button
+                      disabled={loadingDeleteId === p.id}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        // deletePartner(p.id, p.name);
+                        setDeleteModal({open: true, data:p, index:index})
+                      }}
+                      className="p-1 text-red-500 hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-400 disabled:opacity-50 disabled:cursor-not-allowed rounded transition-colors"
+                      title={
+                        loadingDeleteId === p.id
+                          ? t("deletingPartner")
+                          : t("deletePartner")
+                      }
+                      aria-busy={loadingDeleteId === p.id}
+                    >
+                      {loadingDeleteId === p.id ? (
+                        <CiNoWaitingSign className="animate-spin" size={14} />
+                      ) : (
+                        <RiDeleteBin2Fill size={14} />
+                      )}
+                    </button>
                   </div>
-                </div>
-              </li>
-            ))}
-          </ul>
+                </li>
+              ))}
+            </ul>
+          </div>
 
           {hasMore && (
-            <div className="px-4 py-3 bg-gray-50 dark:bg-gray-700 border-t border-gray-200 dark:border-gray-600 text-center">
+            <div className="px-4 py-1 bg-gray-50 dark:bg-gray-700 border-t border-gray-200 dark:border-gray-600 text-center">
               <button
-                className="text-blue-500 hover:text-blue-700 hover:underline font-medium px-4 py-2 rounded-md hover:bg-blue-50 dark:hover:bg-blue-900 transition-colors"
+                className="text-blue-500 hover:text-blue-700 hover:underline font-medium px-4 rounded-md hover:bg-blue-50 dark:hover:bg-blue-900 transition-colors"
                 ref={loadMoreButtonRef}
                 tabIndex={0}
                 onClick={loadMore}

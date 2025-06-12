@@ -21,9 +21,9 @@ import Partner from "./Components/Page/Partner/Partner";
 function SidebarLeft() {
   const { t } = useTranslation();
   return (
-    <nav className="hidden lg:flex fixed top-16 left-0 h-[calc(100vh-4rem)] w-52 flex-col p-4 border-r border-gray-300 dark:border-gray-700 bg-gray-900 overflow-y-auto z-20 mt-20">
-      <ul className="space-y-4">
-        {[ 
+    <nav className="hidden lg:flex fixed top-16 left-0 h-[calc(100vh-4rem)] w-52 flex-col p-4 bg-gray-900 overflow-y-auto z-20 mt-2">
+      <ul className="">
+        {[
           { to: ROUTES.FAKTURA, label: t("faktura"), key: "F1" },
           { to: ROUTES.HARYTLAR, label: t("towary"), key: "F2" },
           { to: ROUTES.EMPLOYEERS, label: t("employeers"), key: "F3" },
@@ -71,23 +71,27 @@ function SidebarRight() {
   ];
 
   return (
-    <aside className="hidden lg:flex fixed top-16 right-0 h-[calc(100vh-4rem)] w-48 flex-col p-4 border-l border-gray-300 dark:border-gray-700 bg-gray-900 overflow-y-auto z-20 mt-20">
-      <h2 className="text-lg font-semibold mb-4 text-gray-300">{t("filterPartnerType")}</h2>
-      {filterOptions.map((option) => (
-        <label
-          key={option.key}
-          className="flex items-center mb-3 cursor-pointer select-none hover:text-blue-800 text-blue-600"
-        >
-          <input
-            type="radio"
-            name="partnerType"
-            checked={typeFilter === option.key}
-            onChange={() => setFilter(option.key)}
-            className="mr-3 accent-blue-600 cursor-pointer"
-          />
-          <span>{option.label}</span>
-        </label>
-      ))}
+    <aside className="hidden lg:flex fixed top-16 right-0 h-[calc(100vh-4rem)] w-48 flex-col p-4 bg-gray-00 overflow-y-auto z-20 mt-2">
+ 
+        <h2 className="font-semibold mb-4 text-gray-300">
+          {t("filterPartnerType")}
+        </h2>
+        {filterOptions.map((option) => (
+          <label
+            key={option.key}
+            className="flex items-center mb-3 cursor-pointer select-none hover:text-blue-800 text-blue-600"
+          >
+            <input
+              type="radio"
+              name="partnerType"
+              checked={typeFilter === option.key}
+              onChange={() => setFilter(option.key)}
+              className="mr-3 accent-blue-600 cursor-pointer"
+            />
+            <span>{option.label}</span>
+          </label>
+        ))}
+      
     </aside>
   );
 }

@@ -17,12 +17,9 @@ const MyModal = ({ onClose, children }) => {
     <AnimatePresence>
       <motion.div
         className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-60 backdrop-blur-sm"
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        exit={{ opacity: 0 }}
       >
         <motion.div
-          className="bg-white dark:bg-gray-800 rounded-lg shadow-xl w-[95%] sm:w-[90%] md:w-[80%] lg:w-[60%] xl:w-[50%] max-h-[90vh] overflow-auto relative p-4 sm:p-6 md:p-8"
+          className="bg-white dark:bg-gray-800 rounded-lg shadow-xl w-[95%] sm:w-[90%] md:w-[80%] lg:w-[80%] xl:w-[80%] max-h-[90vh] overflow-auto relative p-4 sm:p-6 md:p-8"
           initial={{ scale: 0.9, y: 30, opacity: 0 }}
           animate={{ scale: 1, y: 0, opacity: 1 }}
           exit={{ scale: 0.9, y: 30, opacity: 0 }}
