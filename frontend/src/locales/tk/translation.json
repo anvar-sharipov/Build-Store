@@ -37,6 +37,21 @@
   "total": "Jemi",
   "save": "OK",
 
+  "onlyAdmin": "Diňe administrator üçin mümkinçilik berilýär",
+
+  "noSearchResults": "Netije tapylmady",
+
+  "empty": "Boş",
+
+  "tryDifferentSearch": "Başga gözleg synanyşyň",
+
+  "clearSearch": "Gözlegi arassala",
+
+  "uploadPhoto": "Suraty ýüklä",
+
+
+
+
 
 
   "employeeDeleted": "işgär üstünlikli öçürildi.",
@@ -49,6 +64,7 @@
   "employeers": "işgärler",
   "editEmployee": "Işgäri üýtgetmek",
   "deleteEmployee": "Işgäri aýyrmak?",
+  "addFirstEmployee": "Ilki işgäriňizi goşuň",
 
   "partnerDeleted": "Hyzmatdaş üstünlikli pozuldy",
   "deletePartner": "Hyzmatdaş pozmak?",
@@ -61,7 +77,8 @@
   "partners": "Hyzmatdaşlar",
   "changePartnerName": "Hyzmatdaş adyny üýtget",
   "changePartnerType": "Hyzmatdaş tipyny üýtget",
-  "filterPartnerType": "Hyzmatdaş görnüşi boýunça süzgi",
+  "filter": "Süzgi",
+  "addFirstPartner": "Ilki hyzmatdaşyňyzy goşuň",
 
   "productDeleted": "Haryt üstünlikli pozuldy",
   "newProductAdded": "Täze haryt üstünlikli goşuldy",

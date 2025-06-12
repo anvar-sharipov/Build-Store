@@ -1,5 +1,6 @@
 // axiosInstance.js
 import axios from "axios";
+import { useEffect } from "react";
 
 const myAxios = axios.create({
   baseURL: "http://localhost:8000/api/",
@@ -13,6 +14,8 @@ myAxios.interceptors.request.use((config) => {
   }
   return config;
 });
+
+
 
 // Создаем отдельный экземпляр для refresh запросов (без interceptors)
 const refreshAxios = axios.create({

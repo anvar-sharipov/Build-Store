@@ -12,7 +12,7 @@ const Notification = ({ message, type, onClose }) => {
           className={`notification ${type}`}
           style={{
             position: 'fixed',
-            top: 20,
+            top: 80,
             right: 20,
             padding: '1rem 2rem',
             borderRadius: '8px',

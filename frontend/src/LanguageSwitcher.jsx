@@ -23,14 +23,14 @@ const LanguageSwitcher = ({ i18n }) => {
 
   return (
     <div className="relative inline-block text-left cursor-pointer">
-      <div className="hover:underline text-blue-500 hover:text-blue-700 flex gap-1 items-center" onClick={toggleOpen}>
+      <div className=" flex gap-1 items-center" onClick={toggleOpen}>
         <div className="flex items-center gap-1">
-          <GrLanguage size={20} />
-          <span className="font-semibold select-none">{t("language")}</span>
+          <GrLanguage size={20} className="text-blue-500" />
+          <span className="font-semibold select-none hover:underline text-blue-500 hover:text-blue-700">{t("language")}</span>
           <motion.span
             animate={{ rotate: open ? 180 : 0 }}
             transition={{ duration: 0.3 }}
-            className="inline-block"
+            className="inline-block text-blue-500"
           >
             ▼
           </motion.span>
@@ -44,7 +44,7 @@ const LanguageSwitcher = ({ i18n }) => {
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.95, y: -10 }}
             transition={{ duration: 0.2 }}
-            className="absolute left-1/2 -translate-x-1/2 mt-2 w-40 sm:left-auto sm:right-0 sm:translate-x-0 border border-gray-300 rounded-md shadow-lg z-50 bg-white dark:bg-gray-700"
+            className="absolute -translate-x-1/2 mt-2 w-40 right-auto sm:translate-x-0 border border-gray-300 rounded-md shadow-lg z-50 bg-white dark:bg-gray-700"
           >
             {languages.map(({ code, label }) => (
               <button

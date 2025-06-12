@@ -1,4 +1,5 @@
-import { useRef, useState, useEffect, useMemo } from "react";
+import { useRef, useState, useEffect, useMemo, useContext } from "react";
+import { AuthContext } from "../../../AuthContext";
 import { useTranslation } from "react-i18next";
 import { CiSearch } from "react-icons/ci";
 import { FcPlus } from "react-icons/fc";
@@ -16,10 +17,13 @@ import { IoIosAddCircleOutline } from "react-icons/io";
 import MyLoading from "../../UI/MyLoading";
 import { CiNoWaitingSign } from "react-icons/ci";
 import { motion, AnimatePresence } from "framer-motion";
+import { FaPrint } from "react-icons/fa6";
 
 const Employee = () => {
   const { t } = useTranslation();
   const [notification, setNotification] = useState({ message: "", type: "" });
+
+  const { authUser, authGroup } = useContext(AuthContext);
 
   const showNotification = (message, type) => {
     setNotification({ message, type });
@@ -440,19 +444,23 @@ const Employee = () => {
         onClose={() => setNotification({ message: "", type: "" })}
       />
 
-      <div className="flex justify-between items-center mb-2">
-        <h5 className="font-bold text-gray-800 dark:text-gray-200">
-          {t("employeers")}
-        </h5>
-        <div className="text-gray-600 dark:text-gray-400">
-          {filtered.length > 0 && (
-            <span>
-              {search
-                ? `${t("found")}: ${filtered.length}`
-                : `${t("total")}: ${filtered.length}`}
-            </span>
-          )}
+      <div className="lg:hidden text-center">
+        <div className="flex justify-between">
+          <span>{t("employeers")}</span>
+
+          <div className="text-gray-600 dark:text-gray-400 flex items-center gap-3">
+            {filtered.length > 0 && (
+              <span>
+                {search
+                  ? `${t("found")}: ${filtered.length}`
+                  : `${t("total")}: ${filtered.length}`}
+              </span>
+            )}
+            <FaPrint className="text-blue-500 text-lg hover:text-xl hover:text-red-500 transition-all duration-100" />
+          </div>
         </div>
+
+        <hr className="m-1" />
       </div>
 
       {/* Add and search Employee Section */}
@@ -470,6 +478,20 @@ const Employee = () => {
         >
           <IoIosAddCircleOutline />
         </button>
+
+        <div className="text-gray-600 dark:text-gray-400 hidden lg:flex items-center gap-3">
+          <div>
+            {filtered.length > 0 && (
+              <span>
+                {search
+                  ? `${t("found")}: ${filtered.length}`
+                  : `${t("total")}: ${filtered.length}`}
+              </span>
+            )}
+          </div>
+          <FaPrint className="text-blue-500 text-lg hover:text-xl hover:text-red-500 transition-all duration-100" />
+        </div>
+
         <div className="flex items-end gap-3">
           <div className="flex-grow relative">
             <MyInput
@@ -596,7 +618,7 @@ const Employee = () => {
           <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-8 text-center">
             <div className="text-gray-400 text-6xl mb-4">👥</div>
             <h3 className="text-xl font-semibold text-gray-600 dark:text-gray-400 mb-2">
-              {search ? t("noSearchResults") : t("noEmployees")}
+              {search ? t("noSearchResults") : t("empty")}
             </h3>
             <p className="text-gray-500 dark:text-gray-500">
               {search ? t("tryDifferentSearch") : t("addFirstEmployee")}

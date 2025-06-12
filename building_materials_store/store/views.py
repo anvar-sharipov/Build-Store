@@ -36,12 +36,14 @@ class MyTokenObtainPairView(TokenObtainPairView):
 
 
 class ProductViewSet(viewsets.ReadOnlyModelViewSet):
+    permission_classes = [IsAuthenticated]
     queryset = Product.objects.all()
     serializer_class = ProductSerializer
 
 
 
 class PartnerViewSet(viewsets.ModelViewSet):
+    permission_classes = [IsAuthenticated]
     queryset = Partner.objects.all().order_by('-pk')
     serializer_class = PartnerSerializer
 
@@ -58,12 +60,29 @@ class PartnerViewSet(viewsets.ModelViewSet):
     #     )
     def destroy(self, request, *args, **kwargs):
         instance = self.get_object()
-        time.sleep(2)
+        # time.sleep(2)
         self.perform_destroy(instance)
         return Response(
             {"message": "partnerDeleted"},
             status=status.HTTP_204_NO_CONTENT
         )
+    
+
+    def update(self, request, *args, **kwargs):
+        time.sleep(2)
+        partial = kwargs.pop('partial', False)
+        instance = self.get_object()
+        serializer = self.get_serializer(instance, data=request.data, partial=partial)
+        serializer.is_valid(raise_exception=True)
+        self.perform_update(serializer)
+        return Response(serializer.data) # res.data
+    
+        # return Response({
+        #     "message": "partnerUpdated",
+        #     "data": serializer.data
+        # }) # res.data.data
+    
+   
 
         
 
@@ -130,6 +149,7 @@ class SupplierViewSet(viewsets.ModelViewSet):
 
 
 class EmployeeViewSet(viewsets.ModelViewSet):
+    permission_classes = [IsAuthenticated]
     
     queryset = Employee.objects.all().order_by('-pk')
     serializer_class = EmployeeSerializer
@@ -151,7 +171,7 @@ class EmployeeViewSet(viewsets.ModelViewSet):
         )
 
     def destroy(self, request, *args, **kwargs):
-        time.sleep(2)
+        # time.sleep(2)
         # return Response(
         #         {'message': 'employeeNotDeleted'},
         #         status=status.HTTP_400_BAD_REQUEST
@@ -159,6 +179,15 @@ class EmployeeViewSet(viewsets.ModelViewSet):
         instance = self.get_object()
         self.perform_destroy(instance)
         return Response(status=status.HTTP_200_OK)
+    
+    def update(self, request, *args, **kwargs):
+        time.sleep(2)
+        partial = kwargs.pop('partial', False)
+        instance = self.get_object()
+        serializer = self.get_serializer(instance, data=request.data, partial=partial)
+        serializer.is_valid(raise_exception=True)
+        self.perform_update(serializer)
+        return Response(serializer.data)
     
 
 
@@ -175,3 +204,18 @@ class EmployeeViewSet(viewsets.ModelViewSet):
 #             serializer.save()
 #             return Response(serializer.data, status=status.HTTP_201_CREATED)
 #         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+
+
+class MySecureView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        user = request.user
+        if user.groups.filter(name="admin").exists():
+            return Response({"authUser": f"{request.user}", "authGroup": "admin"})
+        elif user.groups.filter(name="worker").exists():
+            return Response({"authUser": f"{request.user}", "authGroup": "worker"})
+        else:
+            return Response({"message": "Нет доступа"}, status=403)

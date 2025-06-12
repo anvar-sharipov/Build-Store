@@ -20,6 +20,7 @@ urlpatterns = [
     path('token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
     # path('suppliers/', suppliers_list, name='suppliers_list'),
     path('user/', current_user),
+    path('userinfo/', MySecureView.as_view()),
     
 ]
 

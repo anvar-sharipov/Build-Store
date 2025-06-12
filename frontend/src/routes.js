@@ -1,5 +1,5 @@
 export const ROUTES = {
-  FAKTURA: "/main",
+  MAIN: "/main",
   LOGIN: "/login",
   REGISTER: "/register",
   HARYTLAR: "/products",

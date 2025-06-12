@@ -15,6 +15,7 @@ import { TbLogout2 } from "react-icons/tb";
 import { LiaRegistered } from "react-icons/lia";
 import myAxios from "./axios";
 import axios from "axios";
+import { div } from "framer-motion/client";
 
 const Header = () => {
   const { t, i18n } = useTranslation();
@@ -74,7 +75,7 @@ const Header = () => {
     const handleKeyDown = (event) => {
       if (event.key === "F1") {
         event.preventDefault();
-        navigate(ROUTES.FAKTURA);
+        navigate(ROUTES.MAIN);
       } else if (event.key === "F2") {
         event.preventDefault();
         navigate(ROUTES.HARYTLAR);
@@ -93,7 +94,7 @@ const Header = () => {
   const logout = () => {
     localStorage.removeItem("access");
     localStorage.removeItem("refresh");
-    window.location = ROUTES.FAKTURA;
+    window.location = ROUTES.MAIN;
   };
 
   return (
@@ -153,7 +154,7 @@ const Header = () => {
                 alt="user"
                 className="w-8 h-8 rounded-full object-cover border border-gray-400"
               />
-              <span className="text-sm text-gray-300">{user.username}</span>
+              <span className="text-gray-400">{user.username}</span>
             </div>
           )}
         </div>
@@ -167,23 +168,41 @@ const Header = () => {
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -10 }}
             transition={{ duration: 0.25 }}
-            className="lg:hidden flex flex-col items-start gap-2 mt-3"
+            className="lg:hidden flex justify-between items-start gap-2 mt-3"
           >
-            <Link
-              to={ROUTES.FAKTURA}
+            <div className="flex flex-col gap-2">
+              <Link
+              to={ROUTES.MAIN}
               className="hover:underline text-blue-500 hover:text-blue-700 flex gap-1 items-center"
               onClick={() => setIsMenuOpen(false)}
             >
-              {t("faktura")} (F1)
+              {t("main")}
             </Link>
             <Link
               to={ROUTES.HARYTLAR}
               className="hover:underline text-blue-500 hover:text-blue-700 flex gap-1 items-center"
               onClick={() => setIsMenuOpen(false)}
             >
-              {t("towary")} (F2)
+              {t("towary")}
             </Link>
             <Link
+              to={ROUTES.EMPLOYEERS}
+              className="hover:underline text-blue-500 hover:text-blue-700 flex gap-1 items-center"
+              onClick={() => setIsMenuOpen(false)}
+            >
+              {t("employeers")}
+            </Link>
+            <Link
+              to={ROUTES.PARTNERS}
+              className="hover:underline text-blue-500 hover:text-blue-700 flex gap-1 items-center"
+              onClick={() => setIsMenuOpen(false)}
+            >
+              {t("partners")}
+            </Link>
+            </div>
+
+            <div className="flex flex-col gap-2">
+              <Link
               to={ROUTES.REGISTER}
               className="hover:underline text-blue-500 hover:text-blue-700 flex gap-1 items-center"
               onClick={() => setIsMenuOpen(false)}
@@ -232,9 +251,12 @@ const Header = () => {
                   alt="user"
                   className="w-8 h-8 rounded-full object-cover border border-gray-400"
                 />
-                <span className="text-sm text-gray-300">{user.username}</span>
+                <span className="text-gray-400">{user.username}</span>
               </div>
             )}
+            </div>
+            
+            
           </motion.div>
         )}
       </AnimatePresence>

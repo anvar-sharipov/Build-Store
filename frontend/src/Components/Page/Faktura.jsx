@@ -10,7 +10,10 @@ useEffect(() => {
 
   return (
     <div className="p-2">
-      <h1 className="text-center text-2xl">{t("main")}</h1>
+      <div className="block lg:hidden text-center">
+        {t("main")}
+        <hr className="m-1" />
+      </div>
     </div>
   );
 }

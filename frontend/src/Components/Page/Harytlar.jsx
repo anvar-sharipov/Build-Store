@@ -7,16 +7,13 @@ const Harytlar = () => {
   useEffect(() => {
     document.title = t("products");
   }, []);
- 
 
   return (
     <div className="p-2">
-      <h1 className="text-center text-2xl">{t("products")}</h1>
-      
-      <div className="mx-auto w-fit">
-        <span>tailwindcss</span>
+      <div className="block lg:hidden text-center">
+        {t("products")}
+        <hr className="m-1" />
       </div>
-    
     </div>
   );
 };

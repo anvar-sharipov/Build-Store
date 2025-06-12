@@ -15,6 +15,7 @@ import { FaTruck, FaUser, FaExchangeAlt } from "react-icons/fa";
 import { RiDeleteBin2Fill } from "react-icons/ri";
 import { GrEdit } from "react-icons/gr";
 import { div } from "framer-motion/client";
+import { FaPrint } from "react-icons/fa6";
 
 const TypeBadge = ({ type, text, typeText }) => {
   const styles = {
@@ -78,8 +79,11 @@ const Partner = () => {
   const editInputRef = useRef(null);
   const addIconButtonRef = useRef(null);
   const radioRefs = useRef({});
-  const deleteCancelRef = useRef(null)
-  const deleteOKRef = useRef(null)
+  const deleteCancelRef = useRef(null);
+  const deleteOKRef = useRef(null);
+  const refUpdateCancelButton = useRef(null);
+  const refUpdateSaveButton = useRef(null);
+  const refUpdateRadioInput = useRef({});
 
   // Modal states
   const [selectedPartner, setSelectedPartner] = useState(null);
@@ -105,7 +109,7 @@ const Partner = () => {
     if (deleteModal.open) {
       deleteOKRef.current?.focus();
     }
-  })
+  });
 
   useEffect(() => {
     document.title = t("partners");
@@ -116,7 +120,7 @@ const Partner = () => {
     const handleKey = (e) => {
       if (e.key === "Insert") {
         e.preventDefault();
-        addInputRef.current?.focus();
+        setOpenModalAdd(true);
       }
       if (e.key === "Escape" && openModal) {
         setOpenModal(false);
@@ -201,6 +205,8 @@ const Partner = () => {
         name: editName,
         type: editType,
       });
+      console.log("ressss", res);
+
       showNotification(t("partnerUpdated"), "success");
       setPartnersRaw((prev) =>
         prev.map((p) => (p.id === editId ? res.data : p))
@@ -317,6 +323,10 @@ const Partner = () => {
       setOpenModal(false);
       listItemRefs.current[selectedListItemRef]?.focus();
     }
+    if (e.key === "ArrowDown") {
+      e.preventDefault();
+      refUpdateRadioInput.current["supplier"]?.focus(); // наведём фокус
+    }
   };
 
   const loadMore = () => {
@@ -366,14 +376,14 @@ const Partner = () => {
               <span>{t("deletePartner")}</span>
             </h2>
             <div className="flex justify-between mb-4">
-                <div>{deleteModal.data.name}</div>
-                <TypeBadge
-                      typeText={t(deleteModal.data.type)}
-                      text={deleteModal.data.type_display}
-                      type={deleteModal.data.type}
-                    />
+              <div>{deleteModal.data.name}</div>
+              <TypeBadge
+                typeText={t(deleteModal.data.type)}
+                text={deleteModal.data.type_display}
+                type={deleteModal.data.type}
+              />
             </div>
-            
+
             <div className="flex justify-end gap-3 pt-4 border-t border-gray-200 dark:border-gray-600">
               <MyButton
                 ref={deleteCancelRef}
@@ -398,10 +408,7 @@ const Partner = () => {
                 ref={deleteOKRef}
                 variant="blue"
                 onClick={() =>
-                  deletePartner(
-                    deleteModal.data.id,
-                    deleteModal.data.name
-                  )
+                  deletePartner(deleteModal.data.id, deleteModal.data.name)
                 }
                 // disabled={loadingEdit}
                 className="min-w-[100px]"
@@ -444,6 +451,10 @@ const Partner = () => {
                       if (e.key === "ArrowDown") {
                         e.preventDefault();
                         addInputRef.current?.focus();
+                      }
+                      if (e.key === "Enter") {
+                        e.preventDefault();
+                        addPartner();
                       }
                     }}
                   />
@@ -488,19 +499,23 @@ const Partner = () => {
         onClose={() => setNotification({ message: "", type: "" })}
       />
 
-      <div className="flex justify-between items-center mb-2">
-        <h1 className="font-bold text-gray-800 dark:text-gray-200">
-          {t("partners")}
-        </h1>
-        <div className="text-gray-600 dark:text-gray-400">
-          {filteredPartners.length > 0 && (
-            <span>
-              {search
-                ? `${t("found")}: ${filteredPartners.length}`
-                : `${t("total")}: ${filteredPartners.length}`}
-            </span>
-          )}
+      <div className="lg:hidden text-center">
+        <div className="flex justify-between">
+          <span>{t("partners")}</span>
+
+          <div className="text-gray-600 dark:text-gray-400 flex items-center gap-3">
+            {filteredPartners.length > 0 && (
+              <span>
+                {search
+                  ? `${t("found")}: ${filteredPartners.length}`
+                  : `${t("total")}: ${filteredPartners.length}`}
+              </span>
+            )}
+            <FaPrint className="text-blue-500 text-lg hover:text-xl hover:text-red-500 transition-all duration-100" />
+          </div>
         </div>
+
+        <hr className="m-1" />
       </div>
 
       {/* Add and search Partner Section */}
@@ -518,6 +533,19 @@ const Partner = () => {
         >
           <IoIosAddCircleOutline />
         </button>
+
+        <div className="text-gray-600 dark:text-gray-400 hidden lg:flex items-center gap-3">
+          <div>
+            {filteredPartners.length > 0 && (
+              <span>
+                {search
+                  ? `${t("found")}: ${filteredPartners.length}`
+                  : `${t("total")}: ${filteredPartners.length}`}
+              </span>
+            )}
+          </div>
+          <FaPrint className="text-blue-500 text-lg hover:text-xl hover:text-red-500 transition-all duration-100" />
+        </div>
 
         <div className="flex items-end gap-3">
           <div className="flex-grow relative">
@@ -600,7 +628,7 @@ const Partner = () => {
                       onClick={(e) => {
                         e.stopPropagation();
                         // deletePartner(p.id, p.name);
-                        setDeleteModal({open: true, data:p, index:index})
+                        setDeleteModal({ open: true, data: p, index: index });
                       }}
                       className="p-1 text-red-500 hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-400 disabled:opacity-50 disabled:cursor-not-allowed rounded transition-colors"
                       title={
@@ -649,7 +677,7 @@ const Partner = () => {
           <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-8 text-center">
             <div className="text-gray-400 text-6xl mb-4">👥</div>
             <h3 className="text-xl font-semibold text-gray-600 dark:text-gray-400 mb-2">
-              {search ? t("noSearchResults") : t("noPartners")}
+              {search ? t("noSearchResults") : t("empty")}
             </h3>
             <p className="text-gray-500 dark:text-gray-500">
               {search ? t("tryDifferentSearch") : t("addFirstPartner")}
@@ -701,11 +729,26 @@ const Partner = () => {
                 {["klient", "supplier", "both"].map((type) => (
                   <label key={type} className="flex items-center gap-2">
                     <input
+                      ref={(el) => (refUpdateRadioInput.current[type] = el)}
                       type="radio"
                       value={type}
                       checked={editType === type}
                       onChange={(e) => setEditType(e.target.value)}
                       className="text-blue-500 focus:ring-blue-500"
+                      onKeyDown={(e) => {
+                        if (e.key === "ArrowDown") {
+                          e.preventDefault();
+                          refUpdateCancelButton.current?.focus();
+                        }
+                        if (e.key === "ArrowUp") {
+                          e.preventDefault();
+                          editInputRef.current?.focus();
+                        }
+                        if (e.key === "Enter") {
+                          e.preventDefault();
+                          updatePartner();
+                        }
+                      }}
                     />
                     <span className="text-gray-700 dark:text-gray-300">
                       {t(type)}
@@ -717,19 +760,37 @@ const Partner = () => {
 
             <div className="flex justify-end gap-3 pt-4 border-t border-gray-200 dark:border-gray-600">
               <MyButton
-                variant="gray"
+                ref={refUpdateCancelButton}
+                variant="blue"
                 onClick={() => {
                   setOpenModal(false);
                   listItemRefs.current[selectedListItemRef]?.focus();
+                }}
+                onKeyDown={(e) => {
+                  if (e.key === "ArrowDown" || e.key === "ArrowRight") {
+                    e.preventDefault();
+                    refUpdateSaveButton.current?.focus();
+                  }
+                  if (e.key === "ArrowUp" || e.key === "ArrowLeft") {
+                    e.preventDefault();
+                    refUpdateRadioInput.current["supplier"]?.focus();
+                  }
                 }}
               >
                 {t("cancel")}
               </MyButton>
               <MyButton
+                ref={refUpdateSaveButton}
                 variant="blue"
                 onClick={updatePartner}
                 disabled={loadingEdit}
                 className="min-w-[100px]"
+                onKeyDown={(e) => {
+                  if (e.key === "ArrowUp" || e.key === "ArrowLeft") {
+                    e.preventDefault();
+                    refUpdateCancelButton.current?.focus();
+                  }
+                }}
               >
                 {loadingEdit ? (
                   <span className="flex items-center gap-2">

@@ -37,6 +37,20 @@
   "all": "Все",
   "total": "Всего",
   "save": "OK",
+
+  "onlyAdmin": "Доступ разрешён только для администратора",
+
+  
+  "noSearchResults": "Ничего не найдено",
+
+  "empty": "Пусто",
+
+  "tryDifferentSearch": "Попробуйте другой запрос",
+  
+  "clearSearch": "Очистить поиск",
+
+  "uploadPhoto": "Загрузить фото",
+  
   
 
 
@@ -52,7 +66,9 @@
   "searchEmployee": "Поиск работника",
   "employeers": "Работники",
   "editEmployee": "Изменить работника",
-  "deleteEmployee": "удалить работника?",
+  "deleteEmployee": "Удалить работника?",
+  "addFirstEmployee": "Добавьте первого сотрудника",
+  
 
   "partnerDeleted": "Партнёр успешно удалён",
   "deletePartner": "Удалить партнёра?",
@@ -65,7 +81,8 @@
   "partners": "Партнёры",
   "changePartnerName": "Изменить имя партнёра",
   "changePartnerType": "Изменить тип партнёра",
-  "filterPartnerType": "Фильтр по типу партнера",
+  "filter": "Фильтр",
+  "addFirstPartner": "Добавьте первого партнёра",
 
   "productDeleted": "Товар успешно удалён",
   "newProductAdded": "Товар успешно добавлен",

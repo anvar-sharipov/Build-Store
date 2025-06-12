@@ -17,14 +17,16 @@ import Harytlar from "./Components/Page/Harytlar";
 import { useTranslation } from "react-i18next";
 import Employee from "./Components/Page/Employee/Employee";
 import Partner from "./Components/Page/Partner/Partner";
+import { AuthProvider } from "./AuthContext";
 
 function SidebarLeft() {
+  const location = useLocation();
   const { t } = useTranslation();
   return (
     <nav className="hidden lg:flex fixed top-16 left-0 h-[calc(100vh-4rem)] w-52 flex-col p-4 bg-gray-900 overflow-y-auto z-20 mt-2">
       <ul className="">
         {[
-          { to: ROUTES.FAKTURA, label: t("faktura"), key: "F1" },
+          { to: ROUTES.MAIN, label: t("main"), key: "F1" },
           { to: ROUTES.HARYTLAR, label: t("towary"), key: "F2" },
           { to: ROUTES.EMPLOYEERS, label: t("employeers"), key: "F3" },
           { to: ROUTES.PARTNERS, label: t("partners"), key: "F4" },
@@ -32,7 +34,7 @@ function SidebarLeft() {
           <li key={to} className="flex justify-between items-center">
             <Link
               to={to}
-              className="text-blue-600 hover:text-blue-800 hover:underline transition-colors duration-200"
+              className={` ${to === location.pathname ? "text-gray-200 font-bold" : "text-blue-600 hover:text-blue-800 hover:underline transition-colors duration-200"} `}
             >
               {label}
             </Link>
@@ -72,26 +74,24 @@ function SidebarRight() {
 
   return (
     <aside className="hidden lg:flex fixed top-16 right-0 h-[calc(100vh-4rem)] w-48 flex-col p-4 bg-gray-00 overflow-y-auto z-20 mt-2">
- 
-        <h2 className="font-semibold mb-4 text-gray-300">
-          {t("filterPartnerType")}
-        </h2>
-        {filterOptions.map((option) => (
-          <label
-            key={option.key}
-            className="flex items-center mb-3 cursor-pointer select-none hover:text-blue-800 text-blue-600"
-          >
-            <input
-              type="radio"
-              name="partnerType"
-              checked={typeFilter === option.key}
-              onChange={() => setFilter(option.key)}
-              className="mr-3 accent-blue-600 cursor-pointer"
-            />
-            <span>{option.label}</span>
-          </label>
-        ))}
-      
+      <h2 className="font-semibold mb-4 text-gray-300">
+        {t("filter")}
+      </h2>
+      {filterOptions.map((option) => (
+        <label
+          key={option.key}
+          className="flex items-center mb-3 cursor-pointer select-none hover:text-blue-800 text-blue-600 hover:underline"
+        >
+          <input
+            type="radio"
+            name="partnerType"
+            checked={typeFilter === option.key}
+            onChange={() => setFilter(option.key)}
+            className="mr-3 accent-blue-600 cursor-pointer"
+          />
+          <span>{option.label}</span>
+        </label>
+      ))}
     </aside>
   );
 }
@@ -102,20 +102,22 @@ function App() {
       {/* <ThemeToggle /> */}
       <Router>
         <Header />
-        <main className="flex flex-grow gap-4 mt-4 lg:ml-52 lg:mr-48">
-          <SidebarLeft />
-          <section className="flex-grow overflow-auto max-h-[calc(100vh-4rem)] flex flex-col bg-white dark:bg-gray-800 rounded-lg shadow-sm p-4">
-            <Routes>
-              <Route path={ROUTES.FAKTURA} element={<ProductList />} />
-              <Route path={ROUTES.REGISTER} element={<Register />} />
-              <Route path={ROUTES.LOGIN} element={<Login />} />
-              <Route path={ROUTES.HARYTLAR} element={<Harytlar />} />
-              <Route path={ROUTES.EMPLOYEERS} element={<Employee />} />
-              <Route path={ROUTES.PARTNERS} element={<Partner />} />
-            </Routes>
-          </section>
-          <SidebarRight />
-        </main>
+        <AuthProvider>
+          <main className="flex flex-grow gap-4 mt-4 lg:ml-52 lg:mr-48">
+            <SidebarLeft />
+            <section className="flex-grow overflow-auto max-h-[calc(100vh-4rem)] flex flex-col bg-white dark:bg-gray-800 rounded-lg shadow-sm p-4">
+              <Routes>
+                <Route path={ROUTES.MAIN} element={<ProductList />} />
+                <Route path={ROUTES.REGISTER} element={<Register />} />
+                <Route path={ROUTES.LOGIN} element={<Login />} />
+                <Route path={ROUTES.HARYTLAR} element={<Harytlar />} />
+                <Route path={ROUTES.EMPLOYEERS} element={<Employee />} />
+                <Route path={ROUTES.PARTNERS} element={<Partner />} />
+              </Routes>
+            </section>
+            <SidebarRight />
+          </main>
+        </AuthProvider>
       </Router>
     </div>
   );
