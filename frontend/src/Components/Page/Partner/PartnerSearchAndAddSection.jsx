@@ -20,7 +20,6 @@ const PartnerSearchAndAddSection = ({
   const [isAnimating, setIsAnimating] = useState(false);
 
   // for tooltip add
-  const buttonRef = useRef(null);
   const [hovered, setHovered] = useState(false);
 
   // for tooltop download excel
@@ -54,16 +53,22 @@ const PartnerSearchAndAddSection = ({
   return (
     <div className="bg-gray-200 dark:bg-gray-800 rounded-lg shadow-md p-1 mb-2 flex items-center justify-between px-2">
       <button
-        ref={buttonRef}
+        ref={addIconButtonRef}
         onMouseEnter={() => setHovered(true)}
         onMouseLeave={() => setHovered(false)}
         className="text-2xl text-green-500 hover:text-green-600 transition-colors"
-        onClick={() => alert("Clicked!")}
+        onClick={() => setOpenModalAdd(true)}
+        onKeyDown={(e) => {
+          if (e.key === 'ArrowDown') {
+            searchInputRef.current?.focus();
+          }
+          
+        }}
       >
         <IoIosAddCircleOutline />
       </button>
 
-      <Tooltip targetRef={buttonRef} visible={hovered}>
+      <Tooltip targetRef={addIconButtonRef} visible={hovered}>
         {t("addPartner")} (INSERT)
       </Tooltip>
 

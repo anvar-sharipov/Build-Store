@@ -18,12 +18,37 @@ import { useTranslation } from "react-i18next";
 import Employee from "./Components/Page/Employee/Employee";
 import Partner from "./Components/Page/Partner/Partner";
 import { AuthProvider } from "./AuthContext";
+import { useState, useEffect } from "react";
 
 function SidebarLeft() {
   const location = useLocation();
   const { t } = useTranslation();
+
+  const [sidebarPosition, setSidebarPosition] = useState(0);
+
+  // Функция для отслеживания прокрутки
+  useEffect(() => {
+    const handleScroll = () => {
+      const scrollTop = window.scrollY;
+      if (scrollTop <= 160) {
+        setSidebarPosition(scrollTop);  // Двигаем сайдбар вверх
+      } else {
+        setSidebarPosition(160);  // Сайдбар остаётся на 200px
+      }
+    };
+
+    window.addEventListener('scroll', handleScroll);
+
+    // Очистка события при размонтировании компонента
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+
   return (
-    <nav className="hidden lg:flex fixed top-16 left-0 h-[calc(100vh-4rem)] w-52 flex-col p-4 bg-gray-900 overflow-y-auto z-20 mt-20">
+    <nav 
+    className="hidden lg:flex fixed top-16 left-0 h-[calc(100vh-4rem)] w-52 flex-col p-4 bg-gray-900 overflow-y-auto z-20 mt-20"
+    // className="hidden lg:flex fixed top-16 left-0 h-[calc(100vh-4rem)] w-52 flex-col p-4 bg-gray-900 overflow-y-auto z-20 mt-20"
+      style={{ top: `${80 - sidebarPosition}px` }} // Двигаем сайдбар в зависимости от прокрутки
+    >
       <ul>
         {[
           { to: ROUTES.MAIN, label: t("main"), key: "F1" },
@@ -31,7 +56,7 @@ function SidebarLeft() {
           { to: ROUTES.EMPLOYEERS, label: t("employeers"), key: "F3" },
           { to: ROUTES.PARTNERS, label: t("partners"), key: "F4" },
         ].map(({ to, label, key }) => (
-          <li key={to} className="flex justify-between items-center">
+          <li key={to} className="flex justify-between items-center border-b border-gray-600">
             <Link
               to={to}
               className={` ${to === location.pathname ? "text-gray-200 font-bold" : "text-blue-600 hover:text-blue-800 hover:underline transition-colors duration-200"} `}
@@ -50,6 +75,27 @@ function SidebarRight() {
   const location = useLocation();
   const [searchParams, setSearchParams] = useSearchParams();
   const { t } = useTranslation();
+
+  const [sidebarPosition, setSidebarPosition] = useState(0);
+
+  // Функция для отслеживания прокрутки
+  useEffect(() => {
+    const handleScroll = () => {
+      const scrollTop = window.scrollY;
+      if (scrollTop <= 160) {
+        setSidebarPosition(scrollTop);  // Двигаем сайдбар вверх
+      } else {
+        setSidebarPosition(160);  // Сайдбар остаётся на 200px
+      }
+    };
+
+    window.addEventListener('scroll', handleScroll);
+
+    // Очистка события при размонтировании компонента
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+
+  
 
   // Показывать сайдбар только на странице /partners
   if (location.pathname !== ROUTES.PARTNERS) return null;
@@ -73,14 +119,17 @@ function SidebarRight() {
   ];
 
   return (
-    <aside className="hidden lg:flex fixed top-16 right-0 h-[calc(100vh-4rem)] w-48 flex-col p-4 bg-gray-00 overflow-y-auto z-20 mt-20">
+    <aside 
+    className="hidden lg:flex fixed top-16 right-0 h-[calc(100vh-4rem)] w-48 flex-col p-4 bg-gray-00 overflow-y-auto z-20 mt-20"
+    style={{ top: `${80 - sidebarPosition}px` }} 
+    >
       <h2 className="font-semibold mb-4 text-gray-300">
         {t("filter")}
       </h2>
       {filterOptions.map((option) => (
         <label
           key={option.key}
-          className="flex items-center mb-3 cursor-pointer select-none hover:text-blue-800 text-blue-600 hover:underline"
+          className="flex items-center border-b border-gray-600 cursor-pointer select-none hover:text-blue-800 text-blue-600 hover:underline"
         >
           <input
             type="radio"
@@ -105,7 +154,7 @@ function App() {
         <AuthProvider>
           <main className="flex flex-grow gap-4 mt-4 lg:ml-52 lg:mr-48">
             <SidebarLeft />
-            <section className="flex-grow overflow-auto max-h-[calc(100vh-4rem)] flex flex-col bg-white dark:bg-gray-800 rounded-lg shadow-sm p-4">
+            <section className="flex-grow flex flex-col bg-white dark:bg-gray-800 rounded-lg shadow-sm p-4">
               <Routes>
                 <Route path={ROUTES.MAIN} element={<ProductList />} />
                 <Route path={ROUTES.REGISTER} element={<Register />} />
