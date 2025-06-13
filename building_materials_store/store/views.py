@@ -1,16 +1,18 @@
 from django.shortcuts import render
 import time
+from django.http import HttpResponse
+import openpyxl
+from openpyxl.utils import get_column_letter
 
-# Create your views here.
-from rest_framework import viewsets
+
+from rest_framework import viewsets, status, filters
 from .models import *
 from .serializers import *
 
 from rest_framework.views import APIView
 from rest_framework.response import Response
-from rest_framework import status
 from rest_framework.permissions import AllowAny
-from rest_framework.decorators import api_view
+from rest_framework.decorators import api_view, action
 
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated
@@ -150,13 +152,17 @@ class SupplierViewSet(viewsets.ModelViewSet):
 
 class EmployeeViewSet(viewsets.ModelViewSet):
     permission_classes = [IsAuthenticated]
-    
     queryset = Employee.objects.all().order_by('-pk')
     serializer_class = EmployeeSerializer
 
+    # Фильтрация и поиск
+    filter_backends = [filters.SearchFilter]
+    search_fields = ['name'] # сюда поля для поиска
+    # ordering_fields = ['name', 'email', 'id']  # опцио
+
     def create(self, request, *args, **kwargs):
         # Можно вставить задержку или лог
-        time.sleep(2)
+        # time.sleep(2)
 
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
@@ -189,6 +195,37 @@ class EmployeeViewSet(viewsets.ModelViewSet):
         self.perform_update(serializer)
         return Response(serializer.data)
     
+
+    @action(detail=False, methods=['get'], url_path='export_excel')
+    def export_excel(self, request):
+        # применяем поиск/фильтры, как и в list()
+        queryset = self.filter_queryset(self.get_queryset())
+
+        # создаем Excel
+        wb = openpyxl.Workbook()
+        ws = wb.active
+        ws.title = "Employees"
+
+        # Заголовки
+        headers = ["№", "Işgär"]
+        ws.append(headers)
+
+        # Строки
+        for index, emp in enumerate(queryset, 1):
+            ws.append([index, emp.name])
+
+        # Автоширина колонок
+        for i, column in enumerate(ws.columns, 1):
+            max_len = max(len(str(cell.value)) for cell in column)
+            ws.column_dimensions[get_column_letter(i)].width = max_len + 2
+
+        # Отдаём как файл
+        response = HttpResponse(
+            content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+        )
+        response['Content-Disposition'] = 'attachment; filename=employees.xlsx'
+        wb.save(response)
+        return response
 
 
 # @api_view(['GET', 'POST'])

@@ -205,7 +205,6 @@ const Partner = () => {
         name: editName,
         type: editType,
       });
-      console.log("ressss", res);
 
       showNotification(t("partnerUpdated"), "success");
       setPartnersRaw((prev) =>

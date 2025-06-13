@@ -14,9 +14,6 @@ export default function Register() {
   const { authUser, authGroup } = useContext(AuthContext);
   const navigate = useNavigate();
 
-  console.log("authUser", authUser);
-  console.log("authGroup", authGroup);
-
   useEffect(() => {
     if (authGroup === null) return; // Ждём загрузки
 
@@ -61,7 +58,6 @@ export default function Register() {
       .catch((error) => {
         const data = error.response?.data || {};
         let userMessage = "Ошибка регистрации";
-        console.log("errorrrrrrr", error);
 
         if (
           data.username?.[0] === "A user with that username already exists."

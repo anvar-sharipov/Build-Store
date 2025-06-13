@@ -18,6 +18,14 @@ import MyLoading from "../../UI/MyLoading";
 import { CiNoWaitingSign } from "react-icons/ci";
 import { motion, AnimatePresence } from "framer-motion";
 import { FaPrint } from "react-icons/fa6";
+import EmployeeDeleteModal from "./modals/EmployeeDeleteModal";
+import EmployeeAddModal from "./modals/EmployeeAddModal";
+import EmployeeEditModal from "./modals/EmployeeEditModal";
+import EmployeeSearchAndAddSection from "./EmployeeSearchAndAddSection";
+import EmployeeList from "./EmployeeList";
+import { empDownloadExcel } from "./EmpDownloadExcel";
+import { FaFileExcel } from "react-icons/fa";
+import { div } from "framer-motion/client";
 
 const Employee = () => {
   const { t } = useTranslation();
@@ -69,6 +77,8 @@ const Employee = () => {
     data: null,
     index: null,
   });
+
+  const [isAnimating, setIsAnimating] = useState(false);
 
   useEffect(() => {
     document.title = t("employeers");
@@ -231,8 +241,6 @@ const Employee = () => {
     if (e.key === "Delete") {
       e.preventDefault();
       setOpenDeleteModal({ open: true, data: s, index: i });
-      console.log("yayayayaya", openDeleteModal);
-
       // if (!loadingDeleteId) deleteEmployee(s.id, s.name);
     }
     if (e.key === "Enter" || e.key === " ") {
@@ -326,116 +334,57 @@ const Employee = () => {
     searchInputRef.current?.focus();
   };
 
+  useEffect(() => {
+    if (isAnimating) {
+      const timer = setTimeout(() => setIsAnimating(false), 300); // длина анимации 300мс
+      return () => clearTimeout(timer);
+    }
+  }, [isAnimating]);
+
   return (
     <div className="p-2">
-      {openModalAdd ? (
-        <MyModal
-          onClose={() => {
-            setOpenModalAdd(false);
-          }}
-        >
-          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-4 mb-6">
-            <h2 className="text-lg font-semibold mb-3 text-gray-700 dark:text-gray-300">
-              {t("addNewEmployee")}
-            </h2>
-            <div className="flex items-end gap-3">
-              <button
-                onClick={addEmployee}
-                disabled={loadingAdd}
-                className="text-4xl text-green-500 hover:text-green-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-                title={t("addEmployee")}
-              >
-                {loadingAdd ? (
-                  <CiNoWaitingSign className="animate-spin" />
-                ) : (
-                  <IoIosAddCircleOutline />
-                )}
-              </button>
-              <MyInput
-                ref={addInputRef}
-                name="new_employee"
-                type="text"
-                value={newEmployee}
-                onChange={(e) => setNewEmployee(e.target.value)}
-                placeholder={`${t("addNewEmployee")}...`}
-                className="flex-grow focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-blue-50 dark:focus:bg-gray-700"
-                onKeyDown={handleAddKeyDown}
-                disabled={loadingAdd}
-              />
-            </div>
-          </div>
-        </MyModal>
-      ) : (
-        <div></div>
+      {/* add Modal */}
+      {openModalAdd && (
+        <EmployeeAddModal
+          setOpenModalAdd={setOpenModalAdd}
+          addEmployee={addEmployee}
+          loadingAdd={loadingAdd}
+          addInputRef={addInputRef}
+          newEmployee={newEmployee}
+          setNewEmployee={setNewEmployee}
+          handleAddKeyDown={handleAddKeyDown}
+        />
       )}
+
+      {/* delete Modal */}
       {openDeleteModal.open && (
-        <MyModal
-          onClose={() => {
-            listItemRefs.current[openDeleteModal.index]?.focus();
-            setOpenDeleteModal({
-              open: false,
-              data: null,
-              index: null,
-            });
-          }}
-        >
-          <div className="p-6">
-            <h2 className="text-xl font-bold mb-6 text-gray-800 dark:text-gray-200 flex gap-2 items-center">
-              <button
-                disabled={loadingDeleteId !== null}
-                className="p-1 text-red-500 hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-400 disabled:opacity-50 disabled:cursor-not-allowed rounded transition-colors"
-              >
-                {loadingDeleteId !== null ? (
-                  <CiNoWaitingSign className="animate-spin" size={28} />
-                ) : (
-                  <RiDeleteBin2Fill size={28} />
-                )}
-              </button>
-              <span>{t("deleteEmployee")}</span>
-            </h2>
-            <div className="mb-4">{openDeleteModal.data.name}</div>
-            <div className="flex justify-end gap-3 pt-4 border-t border-gray-200 dark:border-gray-600">
-              <MyButton
-                ref={deleteCancelRef}
-                onKeyDown={(e) => {
-                  if (e.key === "ArrowRight") {
-                    deleteOKRef.current?.focus();
-                  }
-                }}
-                variant="blue"
-                onClick={() => {
-                  listItemRefs.current[openDeleteModal.index]?.focus();
-                  setOpenDeleteModal({
-                    open: false,
-                    data: null,
-                    index: null,
-                  });
-                }}
-              >
-                {t("cancel")}
-              </MyButton>
-              <MyButton
-                ref={deleteOKRef}
-                variant="blue"
-                onClick={() =>
-                  deleteEmployee(
-                    openDeleteModal.data.id,
-                    openDeleteModal.data.name
-                  )
-                }
-                // disabled={loadingEdit}
-                className="min-w-[100px]"
-                onKeyDown={(e) => {
-                  if (e.key === "ArrowLeft") {
-                    deleteCancelRef.current?.focus();
-                  }
-                }}
-              >
-                {t("save")}
-              </MyButton>
-            </div>
-          </div>
-        </MyModal>
+        <EmployeeDeleteModal
+          openDeleteModal={openDeleteModal}
+          listItemRefs={listItemRefs}
+          setOpenDeleteModal={setOpenDeleteModal}
+          loadingDeleteId={loadingDeleteId}
+          deleteCancelRef={deleteCancelRef}
+          deleteOKRef={deleteOKRef}
+          deleteEmployee={deleteEmployee}
+        />
+      )}
+
+      {/* Edit Modal */}
+      {openModal && selectedEmployee && (
+        <EmployeeEditModal
+          openModal={openModal}
+          selectedEmployee={selectedEmployee}
+          setOpenModal={setOpenModal}
+          listItemRefs={listItemRefs}
+          editInputRef={editInputRef}
+          editName={editName}
+          setEditName={setEditName}
+          handleEditKeyDown={handleEditKeyDown}
+          refCancelUpdateButton={refCancelUpdateButton}
+          refUpdateButton={refUpdateButton}
+          updateEmployee={updateEmployee}
+          loadingEdit={loadingEdit}
+        />
       )}
 
       <Notification
@@ -445,18 +394,33 @@ const Employee = () => {
       />
 
       <div className="lg:hidden text-center">
-        <div className="flex justify-between">
-          <span>{t("employeers")}</span>
+        <div className="flex justify-between items-center">
+          <span className="print:block">{t("employeers")}</span>
 
-          <div className="text-gray-600 dark:text-gray-400 flex items-center gap-3">
+          <div className="text-gray-600 dark:text-gray-400 flex items-center gap-3 print:hidden">
             {filtered.length > 0 && (
-              <span>
-                {search
-                  ? `${t("found")}: ${filtered.length}`
-                  : `${t("total")}: ${filtered.length}`}
-              </span>
+              <div className="flex gap-3 items-center">
+                <span>
+                  {search
+                    ? `${t("found")}: ${filtered.length}`
+                    : `${t("total")}: ${filtered.length}`}
+                </span>
+                <FaFileExcel
+                  size={30}
+                  className={`cursor-pointer rounded transition-transform duration-300 text-green-700 hover:text-green-600 ${
+                    isAnimating ? "scale-125" : "scale-100"
+                  }`}
+                  onClick={() => {
+                    empDownloadExcel(filtered, t);
+                    setIsAnimating(true);
+                  }}
+                  role="button"
+                  tabIndex={0}
+                  aria-label="Download Excel"
+                />
+              </div>
             )}
-            <FaPrint className="text-blue-500 text-lg hover:text-xl hover:text-red-500 transition-all duration-100" />
+            {/* <FaPrint className="text-blue-500 text-lg hover:text-xl hover:text-red-500 transition-all duration-100" /> */}
           </div>
         </div>
 
@@ -464,247 +428,38 @@ const Employee = () => {
       </div>
 
       {/* Add and search Employee Section */}
-      <div className="bg-gray-200 dark:bg-gray-800 rounded-lg shadow-md p-1 mb-2 flex items-center justify-between px-2">
-        <button
-          className="text-2xl text-green-500 hover:text-green-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-          onClick={() => setOpenModalAdd(true)}
-          ref={addIconButtonRef}
-          onKeyDown={(e) => {
-            if (e.key === "ArrowDown") {
-              e.preventDefault();
-              searchInputRef.current?.focus();
-            }
-          }}
-        >
-          <IoIosAddCircleOutline />
-        </button>
+      <EmployeeSearchAndAddSection
+        filtered={filtered}
+        search={search}
+        setSearch={setSearch}
+        clearSearch={clearSearch}
+        handleSearchKeyDown={handleSearchKeyDown}
+        setOpenModalAdd={setOpenModalAdd}
+        addIconButtonRef={addIconButtonRef}
+        searchInputRef={searchInputRef}
+      />
 
-        <div className="text-gray-600 dark:text-gray-400 hidden lg:flex items-center gap-3">
-          <div>
-            {filtered.length > 0 && (
-              <span>
-                {search
-                  ? `${t("found")}: ${filtered.length}`
-                  : `${t("total")}: ${filtered.length}`}
-              </span>
-            )}
-          </div>
-          <FaPrint className="text-blue-500 text-lg hover:text-xl hover:text-red-500 transition-all duration-100" />
-        </div>
-
-        <div className="flex items-end gap-3">
-          <div className="flex-grow relative">
-            <MyInput
-              ref={searchInputRef}
-              name="search_employee"
-              type="text"
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              placeholder={t("search")}
-              className="w-full focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-blue-50 dark:focus:bg-gray-700 h-7"
-              onKeyDown={handleSearchKeyDown}
-            />
-            {search && (
-              <button
-                onClick={clearSearch}
-                className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600 text-xl font-bold"
-                title={t("clearSearch")}
-              >
-                ×
-              </button>
-            )}
-          </div>
-          <button
-            onClick={() => searchInputRef.current?.focus()}
-            className="text-2xl text-blue-500 hover:text-blue-600 transition-colors"
-            title={t("search")}
-          >
-            <CiSearch />
-          </button>
-        </div>
-      </div>
-
-      {/* Results Section */}
-      {employees.length > 0 ? (
-        <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md overflow-hidden">
-          <div className="border border-gray-300 dark:border-gray-600 rounded-sm overflow-hidden">
-            {/* Строки */}
-            <ul className="divide-y divide-gray-300 dark:divide-gray-600">
-              {employees.map((s, index) => (
-                <li
-                  key={s.id}
-                  tabIndex={0}
-                  ref={(el) => (listItemRefs.current[index] = el)}
-                  onKeyDown={(e) => handleListKeyDown(e, index, s)}
-                  className="grid grid-cols-[auto_1fr_auto] px-4 hover:bg-gray-300 dark:hover:bg-gray-700 focus:outline-none focus:ring-2 focus:bg-blue-400 dark:focus:bg-blue-800 transition-colors cursor-pointer"
-                >
-                  <div className="text-sm text-gray-500 dark:text-gray-400 font-mono">
-                    {index + 1}.
-                  </div>
-                  <div className="font-medium text-gray-800 dark:text-gray-200 truncate">
-                    {s.name}
-                  </div>
-                  <div className="flex gap-1 justify-end">
-                    <button
-                      className={`p-1 text-gray-800 hover:text-green-700 hover:bg-green-50 dark:hover:bg-green-700 rounded transition-colors dark:text-green-500 ${
-                        loadingDeleteId === s.id && "opacity-0"
-                      }`}
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        setSelectedEmployee(s);
-                        setEditName(s.name);
-                        setEditId(s.id);
-                        setSelectedListItemRef(index);
-                        setOpenModal(true);
-                      }}
-                      title={t("editEmployee")}
-                    >
-                      <GrEdit size={14} />
-                    </button>
-                    <button
-                      disabled={loadingDeleteId === s.id}
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        setOpenDeleteModal({
-                          open: true,
-                          data: s,
-                          index: index,
-                        });
-                      }}
-                      className="p-1 text-red-500 hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-400 disabled:opacity-50 disabled:cursor-not-allowed rounded transition-colors"
-                      title={
-                        loadingDeleteId === s.id
-                          ? t("deletingEmployee")
-                          : t("deleteEmployee")
-                      }
-                      aria-busy={loadingDeleteId === s.id}
-                    >
-                      {loadingDeleteId === s.id ? (
-                        <CiNoWaitingSign className="animate-spin" size={14} />
-                      ) : (
-                        <RiDeleteBin2Fill size={14} />
-                      )}
-                    </button>
-                  </div>
-                </li>
-              ))}
-            </ul>
-          </div>
-
-          {hasMore && (
-            <div className="px-4 py-1 bg-gray-50 dark:bg-gray-700 border-t border-gray-200 dark:border-gray-600 text-center">
-              <button
-                className="text-blue-500 hover:text-blue-700 hover:underline font-medium px-4 rounded-md hover:bg-blue-50 dark:hover:bg-blue-900 transition-colors"
-                ref={loadMoreButtonRef}
-                tabIndex={0}
-                onClick={loadMore}
-                onKeyDown={(e) => {
-                  if (e.key === "ArrowUp") {
-                    e.preventDefault();
-                    listItemRefs.current[employees.length - 1]?.focus();
-                  } else if (e.key === "Enter" || e.key === " ") {
-                    e.preventDefault();
-                    loadMore();
-                  }
-                }}
-              >
-                {t("loadMore")} ({filtered.length - employees.length})
-              </button>
-            </div>
-          )}
-        </div>
-      ) : (
-        !loading && (
-          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-8 text-center">
-            <div className="text-gray-400 text-6xl mb-4">👥</div>
-            <h3 className="text-xl font-semibold text-gray-600 dark:text-gray-400 mb-2">
-              {search ? t("noSearchResults") : t("empty")}
-            </h3>
-            <p className="text-gray-500 dark:text-gray-500">
-              {search ? t("tryDifferentSearch") : t("addFirstEmployee")}
-            </p>
-            {search && (
-              <button
-                onClick={clearSearch}
-                className="mt-4 px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 transition-colors"
-              >
-                {t("clearSearch")}
-              </button>
-            )}
-          </div>
-        )
-      )}
-
-      {/* Edit Modal */}
-      {openModal && selectedEmployee && (
-        <MyModal
-          onClose={() => {
-            setOpenModal(false);
-            listItemRefs.current[selectedListItemRef]?.focus();
-          }}
-        >
-          <div className="p-6">
-            <h2 className="text-2xl font-bold mb-6 text-gray-800 dark:text-gray-200">
-              {t("editEmployee")}
-            </h2>
-            <div className="mb-4">
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                {t("editEmployee")}
-              </label>
-              <MyInput
-                ref={editInputRef}
-                value={editName}
-                onChange={(e) => setEditName(e.target.value)}
-                placeholder={t("addNewEmployee")}
-                className="w-full focus:ring-2 focus:ring-blue-500"
-                onKeyDown={handleEditKeyDown}
-              />
-            </div>
-            <div className="flex justify-end gap-3 pt-4 border-t border-gray-200 dark:border-gray-600">
-              <MyButton
-                ref={refCancelUpdateButton}
-                variant="blue"
-                onClick={() => {
-                  setOpenModal(false);
-                  listItemRefs.current[selectedListItemRef]?.focus();
-                }}
-                onKeyDown={(e) => {
-                  if (e.key === "ArrowRight" || e.key === "ArrowDown") {
-                    refUpdateButton.current?.focus();
-                  }
-                  if (e.key === "ArrowUp" || e.key === "ArrowLeft") {
-                    e.preventDefault();
-                    editInputRef.current?.focus();
-                  }
-                }}
-              >
-                {t("cancel")}
-              </MyButton>
-              <MyButton
-                ref={refUpdateButton}
-                variant="blue"
-                onClick={updateEmployee}
-                disabled={loadingEdit}
-                className="min-w-[100px]"
-                onKeyDown={(e) => {
-                  if (e.key === "ArrowLeft" || e.key === "ArrowUp") {
-                    refCancelUpdateButton.current?.focus();
-                  }
-                }}
-              >
-                {loadingEdit ? (
-                  <span className="flex items-center gap-2">
-                    <CiNoWaitingSign className="animate-spin" />
-                    {t("saving")}
-                  </span>
-                ) : (
-                  t("change")
-                )}
-              </MyButton>
-            </div>
-          </div>
-        </MyModal>
-      )}
+      {/* Results Section employee List */}
+      <EmployeeList
+        employees={employees}
+        loading={loading}
+        filteredLength={filtered.length}
+        loadMore={loadMore}
+        hasMore={hasMore}
+        t={t}
+        search={search}
+        clearSearch={clearSearch}
+        listItemRefs={listItemRefs}
+        handleListKeyDown={handleListKeyDown}
+        selectedEmployeeState={[selectedEmployee, setSelectedEmployee]}
+        setEditName={setEditName}
+        setEditId={setEditId}
+        setSelectedListItemRef={setSelectedListItemRef}
+        setOpenModal={setOpenModal}
+        loadingDeleteId={loadingDeleteId}
+        setOpenDeleteModal={setOpenDeleteModal}
+        loadMoreButtonRef={loadMoreButtonRef}
+      />
 
       {loading && <MyLoading />}
     </div>

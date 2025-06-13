@@ -16,11 +16,6 @@ export const AuthProvider = ({ children }) => {
       .then((res) => {
         setAuthUser(res.data.authUser);
         setAuthGroup(res.data.authGroup);
-        // console.log("resss", res.data.authUser);
-        // console.log("resss", res.data.authGroup);
-        
-        // console.log("authUserg", authUser);
-        // console.log("authGroupg", authGroup);
       })
       .catch(() => {
         navigate("/login");
@@ -28,8 +23,6 @@ export const AuthProvider = ({ children }) => {
   }, []);
 
   useEffect(() => {
-  console.log("authUser обновлён:", authUser);
-  console.log("authGroup обновлён:", authGroup);
 }, [authUser, authGroup]);
 
   return (

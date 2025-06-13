@@ -1,0 +1,128 @@
+import { IoIosAddCircleOutline } from "react-icons/io";
+import { FaFileExcel } from "react-icons/fa";
+import { CiSearch } from "react-icons/ci";
+import { useTranslation } from "react-i18next";
+import MyInput from "../../UI/MyInput";
+import { useEffect, useState } from "react";
+
+import { empDownloadExcel } from "./EmpDownloadExcel";
+
+const EmployeeSearchAndAddSection = ({
+  filtered,
+  search,
+  setSearch,
+  clearSearch,
+  handleSearchKeyDown,
+  setOpenModalAdd,
+  addIconButtonRef,
+  searchInputRef,
+}) => {
+  const { t } = useTranslation();
+
+  const [isAnimating, setIsAnimating] = useState(false);
+
+  const handleDownload = () => {
+    setIsAnimating(true);
+    empDownloadExcel(filtered, t);
+  };
+
+  useEffect(() => {
+    if (isAnimating) {
+      const timer = setTimeout(() => setIsAnimating(false), 300); // длина анимации 300мс
+      return () => clearTimeout(timer);
+    }
+  }, [isAnimating]);
+
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      if (e.ctrlKey && e.key.toLowerCase() === "e") {
+        e.preventDefault();
+        handleDownload();
+      }
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [filtered]);
+
+  return (
+    <div className="bg-gray-200 dark:bg-gray-800 rounded-lg shadow-md p-1 mb-2 flex items-center justify-between px-2 print:hidden">
+      <button
+        className="text-2xl text-green-500 hover:text-green-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+        onClick={() => setOpenModalAdd(true)}
+        ref={addIconButtonRef}
+        onKeyDown={(e) => {
+          if (e.key === "ArrowDown") {
+            e.preventDefault();
+            searchInputRef.current?.focus();
+          }
+        }}
+      >
+        <IoIosAddCircleOutline />
+      </button>
+
+      <div className="text-gray-600 dark:text-gray-400 hidden lg:flex items-center gap-3">
+        <div>
+          {filtered.length > 0 && (
+            <div className="flex gap-3 items-center">
+              <span>
+                {search
+                  ? `${t("found")}: ${filtered.length}`
+                  : `${t("total")}: ${filtered.length}`}
+              </span>
+              <FaFileExcel
+                size={30}
+                className={`cursor-pointer rounded transition-transform duration-300 text-green-700 hover:text-green-600 ${
+                  isAnimating ? "scale-125" : "scale-100"
+                }`}
+                onClick={handleDownload}
+                role="button"
+                tabIndex={0}
+                aria-label="Download Excel"
+                onKeyDown={(e) => {
+                  if (e.key === "Enter" || e.key === " ") {
+                    e.preventDefault();
+                    handleDownload();
+                  }
+                }}
+              />
+            </div>
+          )}
+        </div>
+      </div>
+
+      <div className="flex items-end gap-3">
+        <div className="flex-grow relative">
+          <MyInput
+            ref={searchInputRef}
+            name="search_employee"
+            type="text"
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            placeholder={t("search")}
+            className="w-full focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-blue-50 dark:focus:bg-gray-700 h-7"
+            onKeyDown={handleSearchKeyDown}
+          />
+          {search && (
+            <button
+              onClick={clearSearch}
+              className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600 text-xl font-bold"
+              title={t("clearSearch")}
+            >
+              ×
+            </button>
+          )}
+        </div>
+        <button
+          onClick={() => searchInputRef.current?.focus()}
+          className="text-2xl text-blue-500 hover:text-blue-600 transition-colors"
+          title={t("search")}
+        >
+          <CiSearch />
+        </button>
+      </div>
+    </div>
+  );
+};
+
+export default EmployeeSearchAndAddSection;

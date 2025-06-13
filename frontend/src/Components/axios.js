@@ -58,7 +58,6 @@ myAxios.interceptors.response.use(
         
       } catch (err) {
         // Не удалось обновить — очищаем токены и редирект на логин
-        console.log("Token refresh failed:", err.message);
         localStorage.removeItem("access");
         localStorage.removeItem("refresh");
         

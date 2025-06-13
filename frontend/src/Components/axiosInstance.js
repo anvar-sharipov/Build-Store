@@ -35,8 +35,6 @@ axiosInstance.interceptors.response.use(
           const response = await axios.post('http://localhost:8000/api/token/refresh/', { refresh: refreshToken });
 
           const newAccessToken = response.data.access;
-          console.log('newAccessToken', newAccessToken);
-          console.log('response.data.refresh', response.data.refresh);
           
 
           // Если сервер вернул новый refresh токен — обновляем его
@@ -50,7 +48,7 @@ axiosInstance.interceptors.response.use(
           originalRequest.headers['Authorization'] = 'Bearer ' + newAccessToken;
           return axiosInstance(originalRequest);
         } catch (err) {
-          console.log('Токен обновления истек или недействителен — очищаем и редиректим');
+
           
           // Токен обновления истек или недействителен — очищаем и редиректим
           localStorage.removeItem('access');
