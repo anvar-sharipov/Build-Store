@@ -50,6 +50,10 @@
   "clearSearch": "Очистить поиск",
 
   "uploadPhoto": "Загрузить фото",
+
+  "downloadExcel": "Скачать в Excel",
+
+
   
   
 
@@ -65,13 +69,16 @@
   "addNewEmployee": "Добавить нового работника",
   "searchEmployee": "Поиск работника",
   "employeers": "Работники",
+  "employee": "Работник",
   "editEmployee": "Изменить работника",
   "deleteEmployee": "Удалить работника?",
+  "addEmployee": "Добавить работника",
   "addFirstEmployee": "Добавьте первого сотрудника",
   
 
   "partnerDeleted": "Партнёр успешно удалён",
   "deletePartner": "Удалить партнёра?",
+  "addPartner": "Добавить партнёра",
   "newPartnerAdded": "Партнёр успешно добавлен",
   "newPartnerAddedError": "Ошибка: Партнёр не был добавлен",
   "partnerUpdated": "Партнёр успешно изменён",
@@ -79,8 +86,10 @@
   "addNewPartner": "Добавить нового партнёра",
   "searchPartner": "Поиск партнёра",
   "partners": "Партнёры",
+  "partner": "Партнёр",
   "changePartnerName": "Изменить имя партнёра",
   "changePartnerType": "Изменить тип партнёра",
+  "partnerType": "Тип партнёра",
   "filter": "Фильтр",
   "addFirstPartner": "Добавьте первого партнёра",
 

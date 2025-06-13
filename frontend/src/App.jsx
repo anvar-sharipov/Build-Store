@@ -10,7 +10,7 @@ import ProductList from "./Components/Page/Faktura";
 import Register from "./Components/Register";
 import Login from "./Components/Login";
 import "./index.css";
-import Header from "./Components/Header";
+import Header from "./Components/Header/Header";
 import { ROUTES } from "./routes";
 import Harytlar from "./Components/Page/Harytlar";
 // import ThemeToggle from "./Components/ThemeToggle";
@@ -23,8 +23,8 @@ function SidebarLeft() {
   const location = useLocation();
   const { t } = useTranslation();
   return (
-    <nav className="hidden lg:flex fixed top-16 left-0 h-[calc(100vh-4rem)] w-52 flex-col p-4 bg-gray-900 overflow-y-auto z-20 mt-2">
-      <ul className="">
+    <nav className="hidden lg:flex fixed top-16 left-0 h-[calc(100vh-4rem)] w-52 flex-col p-4 bg-gray-900 overflow-y-auto z-20 mt-20">
+      <ul>
         {[
           { to: ROUTES.MAIN, label: t("main"), key: "F1" },
           { to: ROUTES.HARYTLAR, label: t("towary"), key: "F2" },
@@ -73,7 +73,7 @@ function SidebarRight() {
   ];
 
   return (
-    <aside className="hidden lg:flex fixed top-16 right-0 h-[calc(100vh-4rem)] w-48 flex-col p-4 bg-gray-00 overflow-y-auto z-20 mt-2">
+    <aside className="hidden lg:flex fixed top-16 right-0 h-[calc(100vh-4rem)] w-48 flex-col p-4 bg-gray-00 overflow-y-auto z-20 mt-20">
       <h2 className="font-semibold mb-4 text-gray-300">
         {t("filter")}
       </h2>

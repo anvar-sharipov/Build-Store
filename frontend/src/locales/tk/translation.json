@@ -49,6 +49,8 @@
 
   "uploadPhoto": "Suraty ýüklä",
 
+  "downloadExcel": "Excel-de ýüklä",
+
 
 
 
@@ -62,12 +64,15 @@
   "addNewEmployee": "Täze işgär goş",
   "searchEmployee": "Işgär gozle",
   "employeers": "işgärler",
+  "employee": "işgär",
   "editEmployee": "Işgäri üýtgetmek",
   "deleteEmployee": "Işgäri aýyrmak?",
+  "addEmployee": "Işgär goşmak",
   "addFirstEmployee": "Ilki işgäriňizi goşuň",
 
   "partnerDeleted": "Hyzmatdaş üstünlikli pozuldy",
   "deletePartner": "Hyzmatdaş pozmak?",
+  "addPartner": "Hyzmatdaşy goşmak",
   "newPartnerAdded": "Täze hyzmatdaş üstünlikli goşuldy",
   "newPartnerAddedError": "Ýalňyşlyk: hyzmatdaş goşulmady",
   "partnerUpdated": "Hyzmatdaş üstünlikli täzelendi",
@@ -75,8 +80,10 @@
   "addNewPartner": "Täze hyzmatdaş goş",
   "searchPartner": "Hyzmatdaş gozle",
   "partners": "Hyzmatdaşlar",
+  "partner": "Hyzmatdaş",
   "changePartnerName": "Hyzmatdaş adyny üýtget",
-  "changePartnerType": "Hyzmatdaş tipyny üýtget",
+  "changePartnerType": "Hyzmatdaşyň görnüşini üýtget",
+  "partnerType": "Hyzmatdaşyň görnüşini",
   "filter": "Süzgi",
   "addFirstPartner": "Ilki hyzmatdaşyňyzy goşuň",
 

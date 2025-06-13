@@ -1,31 +1,18 @@
 import { useRef, useState, useEffect, useMemo, useContext } from "react";
 import { AuthContext } from "../../../AuthContext";
 import { useTranslation } from "react-i18next";
-import { CiSearch } from "react-icons/ci";
-import { FcPlus } from "react-icons/fc";
 import Fuse from "fuse.js";
 import myAxios from "../../axios";
-
-import MyInput from "../../UI/MyInput";
-import MyButton from "../../UI/MyButton";
-import ThemeToggle from "../../ThemeToggle";
-import MyModal from "../../UI/MyModal";
 import Notification from "../../Notification";
-import { RiDeleteBin2Fill } from "react-icons/ri";
-import { GrEdit } from "react-icons/gr";
-import { IoIosAddCircleOutline } from "react-icons/io";
 import MyLoading from "../../UI/MyLoading";
-import { CiNoWaitingSign } from "react-icons/ci";
-import { motion, AnimatePresence } from "framer-motion";
-import { FaPrint } from "react-icons/fa6";
 import EmployeeDeleteModal from "./modals/EmployeeDeleteModal";
 import EmployeeAddModal from "./modals/EmployeeAddModal";
 import EmployeeEditModal from "./modals/EmployeeEditModal";
 import EmployeeSearchAndAddSection from "./EmployeeSearchAndAddSection";
 import EmployeeList from "./EmployeeList";
 import { empDownloadExcel } from "./EmpDownloadExcel";
-import { FaFileExcel } from "react-icons/fa";
-import { div } from "framer-motion/client";
+import { RiFileExcel2Fill } from "react-icons/ri";
+
 
 const Employee = () => {
   const { t } = useTranslation();
@@ -405,7 +392,8 @@ const Employee = () => {
                     ? `${t("found")}: ${filtered.length}`
                     : `${t("total")}: ${filtered.length}`}
                 </span>
-                <FaFileExcel
+
+                <RiFileExcel2Fill
                   size={30}
                   className={`cursor-pointer rounded transition-transform duration-300 text-green-700 hover:text-green-600 ${
                     isAnimating ? "scale-125" : "scale-100"
@@ -418,6 +406,7 @@ const Employee = () => {
                   tabIndex={0}
                   aria-label="Download Excel"
                 />
+                
               </div>
             )}
             {/* <FaPrint className="text-blue-500 text-lg hover:text-xl hover:text-red-500 transition-all duration-100" /> */}

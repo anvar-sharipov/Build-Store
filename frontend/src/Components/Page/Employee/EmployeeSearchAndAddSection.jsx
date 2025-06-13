@@ -1,11 +1,12 @@
 import { IoIosAddCircleOutline } from "react-icons/io";
-import { FaFileExcel } from "react-icons/fa";
+import { RiFileExcel2Fill } from "react-icons/ri";
 import { CiSearch } from "react-icons/ci";
 import { useTranslation } from "react-i18next";
 import MyInput from "../../UI/MyInput";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 
 import { empDownloadExcel } from "./EmpDownloadExcel";
+import Tooltip from "../../ToolTip";
 
 const EmployeeSearchAndAddSection = ({
   filtered,
@@ -20,6 +21,13 @@ const EmployeeSearchAndAddSection = ({
   const { t } = useTranslation();
 
   const [isAnimating, setIsAnimating] = useState(false);
+
+  // for tooltip for add button
+  const [hovered, setHovered] = useState(false);
+
+  // for tooltip for download excel button
+  const downloadExcelButtonRef = useRef(null);
+  const [downloadExcelHovered, setDownloadExcelHovered] = useState(false);
 
   const handleDownload = () => {
     setIsAnimating(true);
@@ -47,19 +55,26 @@ const EmployeeSearchAndAddSection = ({
 
   return (
     <div className="bg-gray-200 dark:bg-gray-800 rounded-lg shadow-md p-1 mb-2 flex items-center justify-between px-2 print:hidden">
-      <button
-        className="text-2xl text-green-500 hover:text-green-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-        onClick={() => setOpenModalAdd(true)}
-        ref={addIconButtonRef}
-        onKeyDown={(e) => {
-          if (e.key === "ArrowDown") {
-            e.preventDefault();
-            searchInputRef.current?.focus();
-          }
-        }}
-      >
-        <IoIosAddCircleOutline />
-      </button>
+      <div>
+        <button
+          onMouseEnter={() => setHovered(true)}
+          onMouseLeave={() => setHovered(false)}
+          className="text-2xl text-green-500 hover:text-green-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+          onClick={() => setOpenModalAdd(true)}
+          ref={addIconButtonRef}
+          onKeyDown={(e) => {
+            if (e.key === "ArrowDown") {
+              e.preventDefault();
+              searchInputRef.current?.focus();
+            }
+          }}
+        >
+          <IoIosAddCircleOutline />
+        </button>
+        <Tooltip targetRef={addIconButtonRef} visible={hovered}>
+          {t("addEmployee")} (INSERT)
+        </Tooltip>
+      </div>
 
       <div className="text-gray-600 dark:text-gray-400 hidden lg:flex items-center gap-3">
         <div>
@@ -70,7 +85,10 @@ const EmployeeSearchAndAddSection = ({
                   ? `${t("found")}: ${filtered.length}`
                   : `${t("total")}: ${filtered.length}`}
               </span>
-              <FaFileExcel
+              <RiFileExcel2Fill
+                ref={downloadExcelButtonRef}
+                onMouseEnter={() => setDownloadExcelHovered(true)}
+                onMouseLeave={() => setDownloadExcelHovered(false)}
                 size={30}
                 className={`cursor-pointer rounded transition-transform duration-300 text-green-700 hover:text-green-600 ${
                   isAnimating ? "scale-125" : "scale-100"
@@ -86,6 +104,10 @@ const EmployeeSearchAndAddSection = ({
                   }
                 }}
               />
+              <Tooltip targetRef={downloadExcelButtonRef} visible={downloadExcelHovered}
+              >
+                {t("downloadExcel")} (CTRL+E)
+              </Tooltip>
             </div>
           )}
         </div>
