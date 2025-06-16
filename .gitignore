@@ -1,6 +1,7 @@
 building_env/
 building_materials_store/.env
 building_materials_store/store/__pycache__/
+building_materials_store/building_materials_store/__pycache__/
 *.pyc
 __pycache__/
 .env
