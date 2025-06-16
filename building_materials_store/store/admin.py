@@ -63,11 +63,11 @@ admin.site.register(Category, CategoryAdmin)
 # admin.site.register(Client, ClientAdmin)
 
 
-class SupplierAdmin(admin.ModelAdmin):
+class AgentAdmin(admin.ModelAdmin):
     search_fields = ('name',)
     list_display = ('name',)
 
-admin.site.register(Supplier, SupplierAdmin)
+admin.site.register(Agent, AgentAdmin)
 
 
 class EmployeeAdmin(admin.ModelAdmin):

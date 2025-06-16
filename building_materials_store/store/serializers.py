@@ -88,9 +88,9 @@ class GroupSerializers(serializers.ModelSerializer):
 
     
 
-class SupplierSerializer(serializers.ModelSerializer):
+class AgentSerializer(serializers.ModelSerializer):
     class Meta:
-        model = Supplier
+        model = Agent
         fields = ['id', 'name']
 
 

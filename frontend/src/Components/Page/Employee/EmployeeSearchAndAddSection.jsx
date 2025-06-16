@@ -59,7 +59,7 @@ const EmployeeSearchAndAddSection = ({
         <button
           onMouseEnter={() => setHovered(true)}
           onMouseLeave={() => setHovered(false)}
-          className="text-2xl text-green-500 hover:text-green-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+          className="text-2xl text-green-500 hover:text-green-600 transition-colors"
           onClick={() => setOpenModalAdd(true)}
           ref={addIconButtonRef}
           onKeyDown={(e) => {

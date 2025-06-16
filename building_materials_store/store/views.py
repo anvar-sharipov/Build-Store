@@ -3,6 +3,7 @@ import time
 from django.http import HttpResponse
 import openpyxl
 from openpyxl.utils import get_column_letter
+from icecream import ic
 
 
 from rest_framework import viewsets, status, filters
@@ -117,9 +118,15 @@ class GroupViewSet(viewsets.ModelViewSet):
             status=status.HTTP_201_CREATED
         )
 
-class SupplierViewSet(viewsets.ModelViewSet):
-    queryset = Supplier.objects.all().order_by('-pk')
-    serializer_class = SupplierSerializer
+
+
+class AgentViewSet(viewsets.ModelViewSet):
+    queryset = Agent.objects.all().order_by('-pk')
+    serializer_class = AgentSerializer
+
+    def list(self, request, *args, **kwargs):
+        # time.sleep(1)  # задержка 2 секунды
+        return super().list(request, *args, **kwargs)
 
     
     def destroy(self, request, *args, **kwargs):
@@ -129,25 +136,15 @@ class SupplierViewSet(viewsets.ModelViewSet):
         #     )
         instance = self.get_object()
         self.perform_destroy(instance)
-        return Response({'message': 'supplierDeleted'}, status=status.HTTP_200_OK)
+        return Response({'message': 'AgentDeleted'}, status=status.HTTP_200_OK)
     
     def create(self, request, *args, **kwargs):
-        # Здесь можно обработать событие "добавления"
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         self.perform_create(serializer)
-        time.sleep(2)
+        return Response({'data': serializer.data, "type": "success"}, status=status.HTTP_201_CREATED)
 
-        # # Возвращаем кастомный ответ (например, сообщение и сам объект)
-        # return Response(
-        #     {
-        #         'message': 'supplierAdded',
-        #         'supplier': serializer.data
-        #     },
-        #     status=status.HTTP_201_CREATED
-        # )
-    
-
+ 
 
 
 class EmployeeViewSet(viewsets.ModelViewSet):

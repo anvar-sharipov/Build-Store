@@ -2,10 +2,10 @@ import React, { useEffect } from "react";
 import { IoCloseSharp } from "react-icons/io5";
 import { motion, AnimatePresence } from "framer-motion";
 
-const MyModal = ({ onClose, children }) => {
+const MyModal = ({ onClose, children, loading }) => {
   useEffect(() => {
     const handleKeyDown = (event) => {
-      if (event.key === "Escape") {
+      if (event.key === "Escape" && !loading) {
         onClose();
       }
     };
@@ -27,7 +27,9 @@ const MyModal = ({ onClose, children }) => {
         >
           {/* Кнопка закрытия */}
           <button
-            onClick={onClose}
+            onClick={() => {
+              if (!loading) onClose()
+            }}
             className="absolute top-3 right-3 text-gray-500 hover:text-gray-700 dark:hover:text-gray-300 focus:outline-none flex items-center gap-1"
             aria-label="Close modal"
           >

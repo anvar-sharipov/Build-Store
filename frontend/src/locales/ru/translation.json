@@ -93,6 +93,18 @@
   "filter": "Фильтр",
   "addFirstPartner": "Добавьте первого партнёра",
 
+
+
+  "agents": "Агенты",
+  "errorAgentList": "Ошибка при загрузке списка агентов",
+  "addAgent": "Добавить агентa",
+  "addNewAgent": "Добавить нового агентa",
+  "agentCantBeEmpty": "Название агента не может быть пустым",
+  "newAgentAdded": "Агент успешно добавлен",
+
+ 
+
+  
   "productDeleted": "Товар успешно удалён",
   "newProductAdded": "Товар успешно добавлен",
   "newProductAddedError": "Ошибка: Товар не был добавлен",
@@ -103,3 +115,4 @@
 
   
 }
+

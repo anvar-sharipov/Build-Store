@@ -5,4 +5,5 @@ export const ROUTES = {
   HARYTLAR: "/products",
   PARTNERS: "/partners",
   EMPLOYEERS: "/employers",
+  AGENTS: "/agents",
 };

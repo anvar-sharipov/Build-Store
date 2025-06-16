@@ -114,15 +114,15 @@ class Category(models.Model):
 
 
 # Udalit potom
-class Supplier(models.Model):
-    name = models.CharField(verbose_name='Üpjünçiniň ady', max_length=2000)
+class Agent(models.Model):
+    name = models.CharField(verbose_name='Agent', max_length=2000)
 
     def __str__(self):
         return self.name
 
     class Meta:
-        verbose_name = 'Üpjünçi'
-        verbose_name_plural = 'Üpjünçiler'
+        verbose_name = 'Agent'
+        verbose_name_plural = 'Agentler'
 
 
 

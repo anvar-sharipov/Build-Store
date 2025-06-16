@@ -87,6 +87,15 @@
   "filter": "Süzgi",
   "addFirstPartner": "Ilki hyzmatdaşyňyzy goşuň",
 
+
+  "agents": "Agentler",
+  "errorAgentList": "Agentleriň sanawyny ýüklemekde ýalňyşlyk",
+  "addAgent": "Agenty goşmak",
+  "addNewAgent": "Täze agent goş",
+  "agentCantBeEmpty": "Agentyň ady boş bolup bilmez",
+  "newAgentAdded": "Agent üstünlikli goşuldy",
+
+
   "productDeleted": "Haryt üstünlikli pozuldy",
   "newProductAdded": "Täze haryt üstünlikli goşuldy",
   "newProductAddedError": "Ýalňyşlyk: haryt goşulmady",

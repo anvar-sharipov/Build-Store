@@ -19,6 +19,7 @@ import Employee from "./Components/Page/Employee/Employee";
 import Partner from "./Components/Page/Partner/Partner";
 import { AuthProvider } from "./AuthContext";
 import { useState, useEffect } from "react";
+import Agent from "./Components/Page/Agent/Agent";
 
 function SidebarLeft() {
   const location = useLocation();
@@ -55,6 +56,7 @@ function SidebarLeft() {
           { to: ROUTES.HARYTLAR, label: t("towary"), key: "F2" },
           { to: ROUTES.EMPLOYEERS, label: t("employeers"), key: "F3" },
           { to: ROUTES.PARTNERS, label: t("partners"), key: "F4" },
+          { to: ROUTES.AGENTS, label: t("agents"), key: "F5" },
         ].map(({ to, label, key }) => (
           <li key={to} className="flex justify-between items-center border-b border-gray-600">
             <Link
@@ -162,6 +164,7 @@ function App() {
                 <Route path={ROUTES.HARYTLAR} element={<Harytlar />} />
                 <Route path={ROUTES.EMPLOYEERS} element={<Employee />} />
                 <Route path={ROUTES.PARTNERS} element={<Partner />} />
+                <Route path={ROUTES.AGENTS} element={ <Agent /> } />
               </Routes>
             </section>
             <SidebarRight />

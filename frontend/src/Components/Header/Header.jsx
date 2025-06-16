@@ -79,6 +79,9 @@ const Header = () => {
       } else if (event.key === "F4") {
         event.preventDefault();
         navigate(ROUTES.PARTNERS);
+      } else if (event.key === "F5") {
+        event.preventDefault();
+        navigate(ROUTES.AGENTS);
       }
     };
     window.addEventListener("keydown", handleKeyDown);
