@@ -125,7 +125,7 @@ class AgentViewSet(viewsets.ModelViewSet):
     serializer_class = AgentSerializer
 
     def list(self, request, *args, **kwargs):
-        # time.sleep(1)  # задержка 2 секунды
+        time.sleep(1)  # задержка 2 секунды
         return super().list(request, *args, **kwargs)
 
     

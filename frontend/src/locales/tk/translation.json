@@ -51,6 +51,10 @@
 
   "downloadExcel": "Excel-de ýüklä",
 
+  "edit": "Üýtget",
+
+  "saving": "Ýatda saklanylýar...",
+
 
 
 
@@ -94,6 +98,10 @@
   "addNewAgent": "Täze agent goş",
   "agentCantBeEmpty": "Agentyň ady boş bolup bilmez",
   "newAgentAdded": "Agent üstünlikli goşuldy",
+  "deleteAgent": "Agenty pozmak?",
+  "editAgent": "Agenty üýtgetmek",
+  "agentEdited": "Agent üstünlikli täzelendi",
+  "agentDeleted": "Agent üstünlikli pozuldy",
 
 
   "productDeleted": "Haryt üstünlikli pozuldy",
