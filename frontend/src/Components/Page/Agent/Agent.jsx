@@ -3,7 +3,7 @@ import myAxios from "../../axios";
 import { useTranslation } from "react-i18next";
 import MyModal from "../../UI/MyModal";
 import GenericList from "../../common/GenericList";
-import AgentAddModal from "./modals/agentAddModal";
+import AgentAddModal from "./modals/AgentAddModal";
 import Notification from "../../Notification";
 import { IoIosAddCircleOutline } from "react-icons/io";
 import Tooltip from "../../ToolTip";
@@ -14,6 +14,7 @@ import AgentEditModal from "./modals/AgentEditModal";
 import { GrEdit } from "react-icons/gr";
 import { RiDeleteBin2Fill } from "react-icons/ri";
 import MyLoading from "../../UI/MyLoading";
+import { AgentDownloadExcel } from "./AgentDownloadExcel";
 
 const Agent = () => {
   const { t } = useTranslation();
@@ -112,6 +113,7 @@ const Agent = () => {
   // excel
   const handleDownloadExcel = () => {
     setExcelIconIsAnimating(true);
+    AgentDownloadExcel(filteredList, t)
   };
   useEffect(() => {
     if (excelIconIsAnimating) {
@@ -131,8 +133,10 @@ const Agent = () => {
     const handleKey = (e) => {
       if (e.key === "Insert") {
         e.preventDefault();
-
         setOpenAddModal(true);
+      } else if (e.ctrlKey && e.key.toLowerCase() === "e") {
+        e.preventDefault();
+        handleDownloadExcel();
       }
     };
     window.addEventListener("keydown", handleKey);
