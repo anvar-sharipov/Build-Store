@@ -1,9 +1,7 @@
-import React from "react";
-
-const MyLoading = () => {
+const MyLoading = ({ spinnerClass = "w-12 h-12", containerClass = "h-32" }) => {
   return (
-    <div className="flex justify-center items-center h-32">
-      <div className="w-12 h-12 border-4 border-t-transparent border-blue-500 border-solid rounded-full animate-spin"></div>
+    <div className={`flex justify-center items-center ${containerClass}`}>
+      <div className={`border-4 border-t-transparent border-blue-500 border-solid rounded-full animate-spin ${spinnerClass}`} />
     </div>
   );
 };

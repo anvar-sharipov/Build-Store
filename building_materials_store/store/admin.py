@@ -77,6 +77,15 @@ class EmployeeAdmin(admin.ModelAdmin):
 admin.site.register(Employee, EmployeeAdmin)
 
 
+
+@admin.register(Partner)
+class PartnerAdmin(admin.ModelAdmin):
+    list_display = ('id', 'name', 'type', 'agent')  # Показываем имя, тип и агента
+    list_filter = ('type', 'agent')                # Фильтрация по типу и агенту
+    search_fields = ('name', 'agent__name')        # Поиск по имени партнера и имени агента
+    autocomplete_fields = ['agent']                # Автозаполнение для ForeignKey
+
+
 # class DriverAdmin(admin.ModelAdmin):
 #     search_fields = ('name',)
 #     list_display = ('name',)

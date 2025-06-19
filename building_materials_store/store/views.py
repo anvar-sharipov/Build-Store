@@ -123,6 +123,7 @@ class GroupViewSet(viewsets.ModelViewSet):
 class AgentViewSet(viewsets.ModelViewSet):
     queryset = Agent.objects.all().order_by('-pk')
     serializer_class = AgentSerializer
+    permission_classes = [IsAuthenticated]
 
     def list(self, request, *args, **kwargs):
         time.sleep(1)  # задержка 2 секунды

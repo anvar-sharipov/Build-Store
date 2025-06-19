@@ -15,6 +15,9 @@ import { GrEdit } from "react-icons/gr";
 import { RiDeleteBin2Fill } from "react-icons/ri";
 import MyLoading from "../../UI/MyLoading";
 import { AgentDownloadExcel } from "./AgentDownloadExcel";
+import { FaClipboardList } from "react-icons/fa";
+import Fuse from 'fuse.js';
+import AgentsPartnersListModal from "./modals/AgentsPartnersListModal";
 
 const Agent = () => {
   const { t } = useTranslation();
@@ -26,6 +29,19 @@ const Agent = () => {
   const [loading, setLoading] = useState(false);
   const [loadingDelete, setLoadingDelete] = useState(false);
   const [loadingEdit, setLoadingEdit] = useState(false);
+
+  // iconsref for tooltip
+  // const editIconRef = useRef(null);
+  // const [editIconHovered, setEditIconHovered] = useState(false);
+  // const deleteIconRef = useRef(null);
+  // const [deleteIconHovered, setDeleteIconHovered] = useState(false);
+  const partnerListIconRefs = useRef([]);
+  const [hoveredPartnerIndex, setHoveredPartnerIndex] = useState(null);
+  const editIconRefs = useRef([]);
+  const [hoveredEditIndex, setHoveredEditIndex] = useState(null);
+  const deleteIconRefs = useRef([]);
+  const [hoveredDeleteIndex, setHoveredDeleteIndex] = useState(null);
+  
 
   const [notification, setNotification] = useState({ message: "", type: "" });
 
@@ -41,6 +57,11 @@ const Agent = () => {
     data: null,
     index: null,
   });
+  const [openPartnerListModal, setOpenPartnerListModal] = useState({
+    open: false,
+    data: null,
+    index: null,
+  });
 
   // add
   const [newAgent, setNewAgent] = useState("");
@@ -52,12 +73,23 @@ const Agent = () => {
   const [addIconHovered, setAddIconHovered] = useState(false);
 
   // useMemo
-  const filteredList = useMemo(() => {
-    if (!searchQuery) return agentList;
-    return agentList.filter((agent) =>
-      agent.name.toLowerCase().includes(searchQuery.toLowerCase())
-    );
-  }, [agentList, searchQuery]);
+  const fuse = useMemo(() => {
+  return new Fuse(agentList, {
+    keys: ['name'],
+    threshold: 0.3, // степень "размытия" — чем меньше, тем точнее
+  });
+}, [agentList]);
+
+const filteredList = useMemo(() => {
+  if (!searchQuery) return agentList;
+  return fuse.search(searchQuery).map(result => result.item);
+}, [searchQuery, fuse]);
+  // const filteredList = useMemo(() => {
+  //   if (!searchQuery) return agentList;
+  //   return agentList.filter((agent) =>
+  //     agent.name.toLowerCase().includes(searchQuery.toLowerCase())
+  //   );
+  // }, [agentList, searchQuery]);
 
   // excel
   const excelIconRef = useRef(null);
@@ -80,10 +112,8 @@ const Agent = () => {
 
   // Для дебаунса клавиш
   const debounceRef = useRef(null);
-  
 
   const listEndRef = useRef(null);
-  
 
   const visibleItems = useMemo(() => {
     const start = 0;
@@ -97,12 +127,10 @@ const Agent = () => {
 
   // // Навешиваем обработчик только если нет модалей
   useEffect(() => {
-    if (!openEditModal?.open && !openDeleteModal?.open && !openAddModal) {
+    if (!openEditModal?.open && !openDeleteModal?.open && !openAddModal && !openPartnerListModal.open) {
       searchInputRef.current.focus();
-    };
-    
-  }, [openEditModal?.open, openDeleteModal?.open, openAddModal]);
-
+    }
+  }, [openEditModal?.open, openDeleteModal?.open, openAddModal, openPartnerListModal.open]);
 
   // ##############################################################################################################################################
 
@@ -113,7 +141,7 @@ const Agent = () => {
   // excel
   const handleDownloadExcel = () => {
     setExcelIconIsAnimating(true);
-    AgentDownloadExcel(filteredList, t)
+    AgentDownloadExcel(filteredList, t);
   };
   useEffect(() => {
     if (excelIconIsAnimating) {
@@ -137,7 +165,7 @@ const Agent = () => {
       } else if (e.ctrlKey && e.key.toLowerCase() === "e") {
         e.preventDefault();
         handleDownloadExcel();
-      }
+      } 
     };
     window.addEventListener("keydown", handleKey);
     return () => window.removeEventListener("keydown", handleKey);
@@ -233,18 +261,18 @@ const Agent = () => {
     }
   };
 
-
   const prevHasMoreRef = useRef(true);
 
-useEffect(() => {
-  if (prevHasMoreRef.current && !hasMore) {
-    // Кнопка исчезла → фокус на последний li
-    const lastIndex = visibleItems.length - 1;
-    listItemRefs.current[lastIndex]?.focus();
-  }
-  prevHasMoreRef.current = hasMore;
-}, [hasMore, visibleItems.length]);
- 
+  useEffect(() => {
+    if (prevHasMoreRef.current && !hasMore && !(document.activeElement === searchInputRef.current)) {
+      // Кнопка исчезла → фокус на последний li
+      console.log('tut4');
+      
+      const lastIndex = visibleItems.length - 1;
+      listItemRefs.current[lastIndex]?.focus();
+    }
+    prevHasMoreRef.current = hasMore;
+  }, [hasMore, visibleItems.length]);
 
   return (
     <div className="p-2">
@@ -254,6 +282,13 @@ useEffect(() => {
         onClose={() => setNotification({ message: "", type: "" })}
       />
       {/* add modal */}
+      {openPartnerListModal.open && (
+        <AgentsPartnersListModal 
+        setOpenPartnerListModal={setOpenPartnerListModal}
+        openPartnerListModal={openPartnerListModal}
+        t={t}
+        />
+      )}
       {openAddModal && (
         <AgentAddModal
           addInputRef={addInputRef}
@@ -302,9 +337,9 @@ useEffect(() => {
             className="text-2xl text-green-500 hover:text-green-600 transition-colors"
             onClick={() => setOpenAddModal(true)}
             onKeyDown={(e) => {
-              if (e.key === 'ArrowDown') {
+              if (e.key === "ArrowDown") {
                 e.preventDefault();
-                searchInputRef.current.focus()
+                searchInputRef.current.focus();
               }
             }}
           >
@@ -351,9 +386,12 @@ useEffect(() => {
               onKeyDown={(e) => {
                 if (e.key === "ArrowUp") {
                   e.preventDefault();
+                  console.log('tut1');
                   addIconRef.current?.focus();
-                } if (e.key === "ArrowDown" && filteredList.length > 0) {
+                }
+                if (e.key === "ArrowDown" && filteredList.length > 0) {
                   e.preventDefault();
+                  console.log('tut2');
                   listItemRefs.current[0]?.focus();
                 }
               }}
@@ -367,93 +405,141 @@ useEffect(() => {
         <MyLoading />
       ) : (
         <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md overflow-hidden">
-        <div className="border border-gray-300 dark:border-gray-600 rounded-sm overflow-hidden">
-          <ul className="divide-y divide-gray-300 dark:divide-gray-600">
-            {visibleItems.map((item, index) => (
-              <li
-                key={item.id}
-                ref={(el) => (listItemRefs.current[index] = el)}
-                tabIndex={0}
-                onClick={() => setFocusedIndex(index)}
-                onKeyDown={(e) => {
-                  if (e.key === "Delete") {
-                    e.preventDefault();
-                    setOpenDeleteModal({ open: true, data: item, index });
-                  } else if (e.key === "Enter" || e.key === " ") {
-                    e.preventDefault();
-                    setOpenEditModal({ open: true, data: item, index });
-                  } else if (e.key === "ArrowDown" && index + 1 < visibleItems.length) {
-                    e.preventDefault()
-                    listItemRefs.current[index+1]?.focus();
-                  } else if (e.key === "ArrowUp" && index !== 0) {
-                    e.preventDefault()
-                    listItemRefs.current[index-1]?.focus();
-                  } else if (e.key === "ArrowUp" && index === 0) {
-                    e.preventDefault()
-                    searchInputRef.current?.focus();
-                  } else if (e.key === "ArrowDown" && index + 1 === visibleItems.length) {
-                    e.preventDefault()
-                    loadMoreButtonRef.current?.focus();
-                  }
-                }}
-                className={`grid grid-cols-[auto_1fr_auto] px-4 transition-colors cursor-pointer 
+          <div className="border border-gray-300 dark:border-gray-600 rounded-sm overflow-hidden">
+            <ul className="divide-y divide-gray-300 dark:divide-gray-600">
+              {visibleItems.map((item, index) => (
+                <li
+                  key={item.id}
+                  ref={(el) => (listItemRefs.current[index] = el)}
+                  tabIndex={0}
+                  onClick={() => setFocusedIndex(index)}
+                  onKeyDown={(e) => {
+                    if (e.key === "Delete") {
+                      e.preventDefault();
+                      setOpenDeleteModal({ open: true, data: item, index });
+                    } else if (e.ctrlKey && e.key === "Enter") {
+                      e.preventDefault();
+                      setOpenPartnerListModal({ open: true, data: item, index });
+                    } else if (e.key === "Enter" || e.key === " ") {
+                      e.preventDefault();
+                      setOpenEditModal({ open: true, data: item, index });
+                    } else if (
+                      e.key === "ArrowDown" &&
+                      index + 1 < visibleItems.length
+                    ) {
+                      e.preventDefault();
+                      listItemRefs.current[index + 1]?.focus();
+                    } else if (e.key === "ArrowUp" && index !== 0) {
+                      e.preventDefault();
+                      listItemRefs.current[index - 1]?.focus();
+                    } else if (e.key === "ArrowUp" && index === 0) {
+                      e.preventDefault();
+                      searchInputRef.current?.focus();
+                    } else if (
+                      e.key === "ArrowDown" &&
+                      index + 1 === visibleItems.length
+                    ) {
+                      e.preventDefault();
+                      loadMoreButtonRef.current?.focus();
+                    } 
+                  }}
+                  className={`grid grid-cols-[auto_1fr_auto] px-4 transition-colors cursor-pointer 
                       hover:bg-gray-300 dark:hover:bg-gray-700 
                       focus:outline-none focus:ring-2 focus:bg-blue-400 dark:focus:bg-blue-800`}
-              >
-                <div className="text-sm text-gray-500 dark:text-gray-400 font-mono">
-                  {index + 1}.
-                </div>
-                <div className="font-medium text-gray-800 dark:text-gray-200 truncate">
-                  {item.name}
-                </div>
-                <div className="flex gap-1 justify-end">
-                  <button
-                    className="p-1 text-gray-800 hover:text-green-700 hover:bg-green-200 dark:hover:bg-green-700 rounded transition-colors dark:text-green-500 print:hidden"
-                    onClick={() =>
-                      setOpenEditModal({ open: true, data: item, index })
-                    }
-                  >
-                    <GrEdit size={14} />
-                  </button>
-                  <button
-                    className="p-1 text-red-500 hover:text-red-700 hover:bg-red-200 dark:hover:bg-red-400 disabled:opacity-50 disabled:cursor-not-allowed rounded transition-colors print:hidden"
-                    onClick={() =>
-                      setOpenDeleteModal({ open: true, data: item, index })
-                    }
-                  >
-                    <RiDeleteBin2Fill size={14} />
-                  </button>
-                </div>
-              </li>
-            ))}
-          </ul>
-        </div>
-
-        {hasMore && (
-          <div className="px-4 py-1 bg-gray-50 dark:bg-gray-700 border-t border-gray-200 dark:border-gray-600 text-center">
-            <button
-              ref={loadMoreButtonRef}
-              className="text-blue-500 hover:text-blue-700 hover:underline font-medium px-4 rounded-md hover:bg-blue-50 dark:hover:bg-blue-900 transition-colors"
-              onClick={() => setCurrentPage((prev) => prev + 1)}
-              onKeyDown={(e) => {
-                if (e.key === "Enter" || e.key === " ") {
-                  e.preventDefault();
-                  setCurrentPage((prev) => prev + 1);
-                  // Опционально: можно установить фокус на первый новый элемент
-                  // listItemRefs.focus(visibleItems.length);
-                } else if (e.key === "ArrowUp") {
-                  listItemRefs.current[visibleItems.length - 1].focus();
-                }
-              }}
-            >
-              {t("loadMore")}
-            </button>
+                >
+                  <div className="text-sm text-gray-500 dark:text-gray-400 font-mono">
+                    {index + 1}.
+                  </div>
+                  <div className="font-medium text-gray-800 dark:text-gray-200 truncate">
+                    {item.name}
+                  </div>
+                  <div className="flex gap-1 justify-end">
+                    <button
+                      ref={(el) => (partnerListIconRefs.current[index] = el)}
+                      onMouseEnter={() => setHoveredPartnerIndex(index)}
+                      onMouseLeave={() => setHoveredPartnerIndex(null)}
+                      className="p-1 text-gray-800 hover:text-green-700 hover:bg-green-200 dark:hover:bg-green-700 rounded transition-colors dark:text-green-500 print:hidden"
+                      onClick={() =>
+                        setOpenPartnerListModal({ open: true, data: item, index })
+                      }
+                    >
+                      <FaClipboardList size={14} />
+                    </button>
+                    <button
+                      ref={(el) => (editIconRefs.current[index] = el)}
+                      onMouseEnter={() => setHoveredEditIndex(index)}
+                      onMouseLeave={() => setHoveredEditIndex(null)}
+                      className="p-1 text-gray-800 hover:text-green-700 hover:bg-green-200 dark:hover:bg-green-700 rounded transition-colors dark:text-green-500 print:hidden"
+                      onClick={() =>
+                        setOpenEditModal({ open: true, data: item, index })
+                      }
+                    >
+                      <GrEdit size={14} />
+                    </button>
+                    <button
+                      ref={(el) => (deleteIconRefs.current[index] = el)}
+                      onMouseEnter={() => setHoveredDeleteIndex(index)}
+                      onMouseLeave={() => setHoveredDeleteIndex(null)}
+                      className="p-1 text-red-500 hover:text-red-700 hover:bg-red-200 dark:hover:bg-red-400 disabled:opacity-50 disabled:cursor-not-allowed rounded transition-colors print:hidden"
+                      onClick={() =>
+                        setOpenDeleteModal({ open: true, data: item, index })
+                      }
+                    >
+                      <RiDeleteBin2Fill size={14} />
+                    </button>
+                  </div>
+                </li>
+              ))}
+            </ul>
           </div>
-        )}
-      </div>
-      )}
-      
 
+          {hasMore && (
+            <div className="px-4 py-1 bg-gray-50 dark:bg-gray-700 border-t border-gray-200 dark:border-gray-600 text-center">
+              <button
+                ref={loadMoreButtonRef}
+                className="text-blue-500 hover:text-blue-700 hover:underline font-medium px-4 rounded-md hover:bg-blue-50 dark:hover:bg-blue-900 transition-colors"
+                onClick={() => setCurrentPage((prev) => prev + 1)}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter" || e.key === " ") {
+                    e.preventDefault();
+                    setCurrentPage((prev) => prev + 1);
+                    // Опционально: можно установить фокус на первый новый элемент
+                    // listItemRefs.focus(visibleItems.length);
+                  } else if (e.key === "ArrowUp") {
+                    listItemRefs.current[visibleItems.length - 1].focus();
+                  }
+                }}
+              >
+                {t("loadMore")}
+              </button>
+            </div>
+          )}
+        </div>
+      )}
+      <Tooltip
+        visible={hoveredPartnerIndex !== null}
+        targetRef={{
+          current: partnerListIconRefs.current[hoveredPartnerIndex],
+        }}
+      >
+        {t("agentsPartnersList")} (CTRL+ENTER)
+      </Tooltip>
+      <Tooltip
+        visible={hoveredEditIndex !== null}
+        targetRef={{
+          current: editIconRefs.current[hoveredEditIndex],
+        }}
+      >
+        {t("edit")} (ENTER)
+      </Tooltip>
+      <Tooltip
+        visible={hoveredDeleteIndex !== null}
+        targetRef={{
+          current: deleteIconRefs.current[hoveredDeleteIndex],
+        }}
+      >
+        {t("delete")} (DELETE)
+      </Tooltip>
     </div>
   );
 };

@@ -89,9 +89,14 @@ class GroupSerializers(serializers.ModelSerializer):
     
 
 class AgentSerializer(serializers.ModelSerializer):
+    partners = serializers.SerializerMethodField()
     class Meta:
         model = Agent
-        fields = ['id', 'name']
+        fields = ['id', 'name', 'partners']
+
+    def get_partners(self, agent):
+        partners = Partner.objects.filter(agent=agent)
+        return PartnerSerializer(partners, many=True).data
 
 
 class EmployeeSerializer(serializers.ModelSerializer):
@@ -103,8 +108,17 @@ class EmployeeSerializer(serializers.ModelSerializer):
 
 class PartnerSerializer(serializers.ModelSerializer):
     type_display = serializers.CharField(source='get_type_display', read_only=True)
+    # agent = AgentSerializer(read_only=True)  # для чтения
+    agent = serializers.PrimaryKeyRelatedField(read_only=True)
+    agent_id = serializers.PrimaryKeyRelatedField(
+        queryset=Agent.objects.all(),
+        source='agent',
+        write_only=True,
+        required=False,       # ✅ не обязательно
+        allow_null=True       # ✅ разрешает null
+    )
+    agent_name = serializers.CharField(source='agent.name', read_only=True)
+
     class Meta:
         model = Partner
-        fields = ['id', 'name', 'type', 'type_display']
-
-
+        fields = ['id', 'name', 'type', 'type_display', 'agent', 'agent_id', 'agent_name']

@@ -6,7 +6,8 @@ import { saveAs } from "file-saver";
     const worksheetData = data.map((partner, idx) => ({
       "№": idx + 1,
       [t('partner')]: partner.name,
-      [t('partnerType')]: partner.type_display
+      [t('partnerType')]: partner.type_display,
+      [t('agent')]: partner.agent_name
     }));
 
     const worksheet = XLSX.utils.json_to_sheet(worksheetData);

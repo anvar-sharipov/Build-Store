@@ -2,15 +2,15 @@
 import { saveAs } from "file-saver";
 
 
- export const AgentDownloadExcel = (data, t) => {
-    const worksheetData = data.map((emp, idx) => ({
+ export const AgentDownloadExcel = (agents, t) => {
+    const worksheetData = agents.map((agent, idx) => ({
       "№": idx + 1,
-      [t('employee')]: emp.name,
+      [t('agent')]: agent.name,
     }));
 
     const worksheet = XLSX.utils.json_to_sheet(worksheetData);
     const workbook = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(workbook, worksheet, "Employees");
+    XLSX.utils.book_append_sheet(workbook, worksheet, "Agents");
 
     const excelBuffer = XLSX.write(workbook, {
       bookType: "xlsx",
@@ -24,5 +24,5 @@ import { saveAs } from "file-saver";
     const date = new Date();
   const formattedDate = date.toISOString().slice(0, 10);
 
-    saveAs(blob, `${t('employeers')}_${formattedDate}.xlsx`);
+    saveAs(blob, `${t('agents')}_${formattedDate}.xlsx`);
   };

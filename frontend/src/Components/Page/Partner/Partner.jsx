@@ -13,7 +13,6 @@ import PartnerList from "./PartnerList";
 import { PartnerDownloadExcel } from "./PartnerDownloadExcel";
 import { RiFileExcel2Fill } from "react-icons/ri";
 
-
 const Partner = () => {
   const { t } = useTranslation();
   const [notification, setNotification] = useState({ message: "", type: "" });
@@ -24,6 +23,7 @@ const Partner = () => {
   };
 
   const [partnersRaw, setPartnersRaw] = useState([]);
+  const [agentList, setAgentList] = useState([]);
   const [newPartner, setNewPartner] = useState("");
   const [search, setSearch] = useState("");
   const [loading, setLoading] = useState(true);
@@ -36,6 +36,7 @@ const Partner = () => {
 
   const [partnerType, setPartnerType] = useState("supplier");
   const [selectedListItemRef, setSelectedListItemRef] = useState("");
+  const [selectedAgent, setSelectedAgent] = useState(null);
 
   const itemsPerPage = 10;
 
@@ -44,6 +45,7 @@ const Partner = () => {
 
   // Refs
   const addInputRef = useRef(null);
+  const addAgentInputRef = useRef(null);
   const searchInputRef = useRef(null);
   const listItemRefs = useRef([]);
   const loadMoreButtonRef = useRef(null);
@@ -61,6 +63,7 @@ const Partner = () => {
   const [openModal, setOpenModal] = useState(false);
   const [editId, setEditId] = useState("");
   const [editName, setEditName] = useState("");
+  const [editAgent, setEditAgent] = useState("");
   const [editType, setEditType] = useState("supplier");
   const [deleteModal, setDeleteModal] = useState({
     open: false,
@@ -106,7 +109,23 @@ const Partner = () => {
 
   useEffect(() => {
     fetchPartners();
+    fetchAgents();
   }, []);
+
+  // get
+  const fetchAgents = async () => {
+    setLoading(true);
+    // await new Promise((r) => setTimeout(r, 100));
+    try {
+      const res = await myAxios.get("agents/");
+      setAgentList(res.data);
+    } catch (e) {
+      console.error("Ошибка при загрузке agents:", e);
+      showNotification(t("errorAgentList"), "error");
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const fetchPartners = async () => {
     setLoading(true);
@@ -122,7 +141,11 @@ const Partner = () => {
   };
 
   const addPartner = async () => {
+    console.log("da1");
+
     if (!newPartner.trim()) {
+      console.log("da2");
+
       showNotification("partnerNameRequired", "error");
       return;
     }
@@ -132,6 +155,7 @@ const Partner = () => {
       const res = await myAxios.post("partners/", {
         name: newPartner,
         type: partnerType,
+        agent_id: selectedAgent?.id ?? null,
       });
       setPartnersRaw((prev) => [res.data, ...prev]);
       showNotification("newPartnerAdded", "success");
@@ -177,6 +201,7 @@ const Partner = () => {
       const res = await myAxios.put(`partners/${editId}/`, {
         name: editName,
         type: editType,
+        agent_id: selectedAgent?.id ?? null,
       });
 
       showNotification(t("partnerUpdated"), "success");
@@ -228,6 +253,8 @@ const Partner = () => {
         editInputRef.current?.focus();
         editInputRef.current?.select();
       }, 100);
+    } else {
+      setEditAgent('')
     }
   }, [openModal]);
 
@@ -243,6 +270,7 @@ const Partner = () => {
       setOpenModal(true);
       setSelectedListItemRef(i);
       setEditName(p.name);
+      setEditAgent(p.agent_name);
       setEditType(p.type);
       setEditId(p.id);
     } else if (e.key === "ArrowDown") {
@@ -281,6 +309,10 @@ const Partner = () => {
       e.preventDefault();
       radioRefs.current[partnerType]?.focus();
     }
+    if (e.key === "ArrowDown") {
+      e.preventDefault();
+      addAgentInputRef.current?.focus();
+    }
     if (e.key === "Escape") {
       setNewPartner("");
     }
@@ -289,7 +321,13 @@ const Partner = () => {
   const handleEditKeyDown = (e) => {
     if (e.key === "Enter") {
       e.preventDefault();
-      updatePartner();
+      if (!selectedAgent && editAgent) {
+        console.log("editAgent", editAgent);
+
+        showNotification(t("agentNotFound"), "error");
+      } else {
+        updatePartner();
+      }
     }
     if (e.key === "Escape") {
       setOpenModal(false);
@@ -349,6 +387,10 @@ const Partner = () => {
       {/* add Modal */}
       {openModalAdd && (
         <PartnerAddModal
+          showNotification={showNotification}
+          selectedAgent={selectedAgent}
+          setSelectedAgent={setSelectedAgent}
+          agentList={agentList}
           openModalAdd={openModalAdd}
           setOpenModalAdd={setOpenModalAdd}
           t={t}
@@ -356,6 +398,7 @@ const Partner = () => {
           partnerType={partnerType}
           setPartnerType={setPartnerType}
           addInputRef={addInputRef}
+          addAgentInputRef={addAgentInputRef}
           addPartner={addPartner}
           loadingAdd={loadingAdd}
           newPartner={newPartner}
@@ -367,13 +410,19 @@ const Partner = () => {
       {/* Edit Modal */}
       {openModal && selectedPartner && (
         <PartnerUpdateModal
+          showNotification={showNotification}
+          selectedAgent={selectedAgent}
+          setSelectedAgent={setSelectedAgent}
+          agentList={agentList}
           setOpenModal={setOpenModal}
           listItemRefs={listItemRefs}
           setselectedListItemRefOpenModal={selectedListItemRef}
           t={t}
           editInputRef={editInputRef}
           editName={editName}
+          editAgent={editAgent}
           setEditName={setEditName}
+          setEditAgent={setEditAgent}
           handleEditKeyDown={handleEditKeyDown}
           refUpdateRadioInput={refUpdateRadioInput}
           editType={editType}

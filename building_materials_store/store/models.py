@@ -113,7 +113,6 @@ class Category(models.Model):
 
 
 
-# Udalit potom
 class Agent(models.Model):
     name = models.CharField(verbose_name='Agent', max_length=2000)
 
@@ -140,7 +139,14 @@ class Partner(models.Model):
     ]
 
     name = models.CharField(verbose_name='Partneryn ady', max_length=2000)
-    
+    # СВЯЗЬ С AGENT
+    agent = models.ForeignKey(
+        'Agent',
+        on_delete=models.PROTECT,  # или CASCADE, если хочешь удалять партнёра при удалении агента
+        null=True,
+        blank=True,
+        verbose_name='Agent'
+    )
     type = models.CharField(
         max_length=20,
         choices=PARTNER_TYPE_CHOICES,

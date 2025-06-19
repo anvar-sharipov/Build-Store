@@ -1,40 +1,46 @@
-import TypeBadge from "./TypeBadge"
+import TypeBadge from "./TypeBadge";
 import { GrEdit } from "react-icons/gr";
 import { RiDeleteBin2Fill } from "react-icons/ri";
 import { CiNoWaitingSign } from "react-icons/ci";
 
-
-
-
 const PartnerList = ({
-    partners,
-      listItemRefs,
-      handleListKeyDown,
-      loadingDeleteId,
-      setSelectedPartner,
-      setEditName,
-      setEditType,
-      setEditId,
-      setSelectedListItemRef,
-      setOpenModal,
-      t,
-      setDeleteModal,
-      hasMore,
-      loadMoreButtonRef,
-      loadMore,
-      filteredPartners,
-      loading,
-      search,
-      clearSearch,
+  partners,
+  listItemRefs,
+  handleListKeyDown,
+  loadingDeleteId,
+  setSelectedPartner,
+  setEditName,
+  setEditType,
+  setEditId,
+  setSelectedListItemRef,
+  setOpenModal,
+  t,
+  setDeleteModal,
+  hasMore,
+  loadMoreButtonRef,
+  loadMore,
+  filteredPartners,
+  loading,
+  search,
+  clearSearch,
 }) => {
   return (
     <div>
-        {partners.length > 0 ? (
+      {partners.length > 0 ? (
         <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md overflow-hidden">
           <div className="border border-gray-300 dark:border-gray-600 rounded-sm overflow-hidden">
             <ul className="divide-y divide-gray-300 dark:divide-gray-600">
               {partners.map((p, index) => (
                 <li
+                  onDoubleClick={(e) => {
+                    e.stopPropagation();
+                    setSelectedPartner(p);
+                    setEditName(p.name);
+                    setEditType(p.type);
+                    setEditId(p.id);
+                    setSelectedListItemRef(index);
+                    setOpenModal(true);
+                  }}
                   key={p.id}
                   tabIndex={0}
                   ref={(el) => (listItemRefs.current[index] = el)}
@@ -141,7 +147,7 @@ const PartnerList = ({
         )
       )}
     </div>
-  )
-}
+  );
+};
 
-export default PartnerList
+export default PartnerList;

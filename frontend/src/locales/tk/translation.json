@@ -55,6 +55,8 @@
 
   "saving": "Ýatda saklanylýar...",
 
+  "unlink": "Aýyrmak",
+
 
 
 
@@ -90,9 +92,11 @@
   "partnerType": "Hyzmatdaşyň görnüşini",
   "filter": "Süzgi",
   "addFirstPartner": "Ilki hyzmatdaşyňyzy goşuň",
+  "agentNotFound": "Görkezilen agent tapylmady",
 
 
   "agents": "Agentler",
+  "agent": "Agent",
   "errorAgentList": "Agentleriň sanawyny ýüklemekde ýalňyşlyk",
   "addAgent": "Agenty goşmak",
   "addNewAgent": "Täze agent goş",
@@ -102,6 +106,8 @@
   "editAgent": "Agenty üýtgetmek",
   "agentEdited": "Agent üstünlikli täzelendi",
   "agentDeleted": "Agent üstünlikli pozuldy",
+  "agentsPartnersList": "Agentiň hyzmatdaşlarynyň sanawyny görkez",
+  "confirmUnlinkPartner": "Partnýory aýyrmak isleýärsiňizmi?",
 
 
   "productDeleted": "Haryt üstünlikli pozuldy",
