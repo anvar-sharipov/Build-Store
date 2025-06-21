@@ -21,6 +21,7 @@ urlpatterns = [
     # path('suppliers/', suppliers_list, name='suppliers_list'),
     path('user/', current_user),
     path('userinfo/', MySecureView.as_view()),
+    path('assign-partners/', AssignPartnersToAgentView.as_view(), name='assign_partners'),
     
 ]
 

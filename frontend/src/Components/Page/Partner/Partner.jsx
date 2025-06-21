@@ -42,6 +42,10 @@ const Partner = () => {
 
   const [searchParams] = useSearchParams();
   const filterType = searchParams.get("type") || "all";
+  useEffect(() => {
+    // focus w input search posle klika na filter w side right
+    searchInputRef.current?.focus();
+  }, [searchParams.get("type")]);
 
   // Refs
   const addInputRef = useRef(null);
@@ -72,6 +76,15 @@ const Partner = () => {
   });
 
   const [isAnimating, setIsAnimating] = useState(false);
+
+    // focus na search input posle smeny dark, light
+  useEffect(() => {
+    const onThemeToggled = () => {
+      searchInputRef.current?.focus();
+    };
+    window.addEventListener("theme-toggled", onThemeToggled);
+    return () => window.removeEventListener("theme-toggled", onThemeToggled);
+  }, []);
 
   useEffect(() => {
     if (openModalAdd) {
@@ -254,7 +267,7 @@ const Partner = () => {
         editInputRef.current?.select();
       }, 100);
     } else {
-      setEditAgent('')
+      setEditAgent("");
     }
   }, [openModal]);
 

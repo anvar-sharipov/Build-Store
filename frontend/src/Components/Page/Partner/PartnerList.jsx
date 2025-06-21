@@ -2,6 +2,7 @@ import TypeBadge from "./TypeBadge";
 import { GrEdit } from "react-icons/gr";
 import { RiDeleteBin2Fill } from "react-icons/ri";
 import { CiNoWaitingSign } from "react-icons/ci";
+import { myClass } from "../../tailwindClasses";
 
 const PartnerList = ({
   partners,
@@ -29,7 +30,7 @@ const PartnerList = ({
       {partners.length > 0 ? (
         <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md overflow-hidden">
           <div className="border border-gray-300 dark:border-gray-600 rounded-sm overflow-hidden">
-            <ul className="divide-y divide-gray-300 dark:divide-gray-600">
+            <ul className={myClass.ul}>
               {partners.map((p, index) => (
                 <li
                   onDoubleClick={(e) => {
@@ -45,7 +46,7 @@ const PartnerList = ({
                   tabIndex={0}
                   ref={(el) => (listItemRefs.current[index] = el)}
                   onKeyDown={(e) => handleListKeyDown(e, index, p)}
-                  className="grid grid-cols-[auto_1fr_auto] px-4 hover:bg-gray-300 dark:hover:bg-gray-700 focus:outline-none focus:ring-2 focus:bg-blue-400 dark:focus:bg-blue-800 transition-colors cursor-pointer"
+                  className={myClass.li}
                 >
                   <div className="text-sm text-gray-500 dark:text-gray-400 font-mono">
                     {index + 1}.
@@ -106,7 +107,7 @@ const PartnerList = ({
           {hasMore && (
             <div className="px-4 py-1 bg-gray-50 dark:bg-gray-700 border-t border-gray-200 dark:border-gray-600 text-center">
               <button
-                className="text-blue-500 hover:text-blue-700 hover:underline font-medium px-4 rounded-md hover:bg-blue-50 dark:hover:bg-blue-900 transition-colors"
+                className={myClass.showMore}
                 ref={loadMoreButtonRef}
                 tabIndex={0}
                 onClick={loadMore}

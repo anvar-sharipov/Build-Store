@@ -12,7 +12,6 @@ User = get_user_model()
 
 class MyTokenObtainPairSerializer(TokenObtainPairSerializer):
     def validate(self, attrs):
-        print('tut login')
         attrs['username'] = attrs['username'].lower()
         attrs['password'] = attrs['password'].lower()
         data = super().validate(attrs)

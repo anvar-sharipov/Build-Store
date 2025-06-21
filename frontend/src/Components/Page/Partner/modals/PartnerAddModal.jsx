@@ -26,19 +26,17 @@ const PartnerAddModal = ({
   const [agentQuery, setAgentQuery] = useState("");
   const [filteredAgents, setFilteredAgents] = useState([]);
   const agentItemRefs = useRef([]);
-
   const [choosedAgent, setChoosedAgent] = useState(false);
-
-  // pri klike wse li skrywat li
   const wrapperRef = useRef(null);
   const [showAgentDropdown, setShowAgentDropdown] = useState(false);
+
   useEffect(() => {
-    const handleFocusOut = (e) => {
+    const handleFocusOut = () => {
       setTimeout(() => {
         if (!wrapperRef.current?.contains(document.activeElement)) {
           setShowAgentDropdown(false);
         }
-      }, 100); // задержка нужна, чтобы успел перейти фокус
+      }, 100);
     };
     document.addEventListener("focusin", handleFocusOut);
     return () => document.removeEventListener("focusin", handleFocusOut);
@@ -60,32 +58,32 @@ const PartnerAddModal = ({
   }, [agentQuery, agentList]);
 
   return (
-    <MyModal
-      onClose={() => {
-        setOpenModalAdd(false);
-      }}
-    >
-      <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-4 mb-6 flex flex-col gap-3">
-        <div className="flex gap-2 items-center">
+    <MyModal onClose={() => setOpenModalAdd(false)}>
+      <div className="bg-white dark:bg-gray-900 rounded-2xl shadow-xl px-6 py-8 sm:p-10 space-y-6 border border-gray-200 dark:border-gray-700">
+        {/* Header */}
+        <div className="flex justify-between items-center mb-4">
+          <h2 className="text-2xl font-semibold text-gray-800 dark:text-white">
+            {t("addNewPartner")}
+          </h2>
           <button
             onClick={addPartner}
             disabled={loadingAdd}
-            className="text-4xl text-green-500 hover:text-green-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+            className="flex items-center gap-2 text-white bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 px-4 py-2 rounded-xl shadow-md transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
             title={t("addPartner")}
           >
             {loadingAdd ? (
-              <CiNoWaitingSign className="animate-spin" />
+              <CiNoWaitingSign className="animate-spin text-xl" />
             ) : (
-              <IoIosAddCircleOutline />
+              <>
+                <IoIosAddCircleOutline size={20} />
+                <span>{t("addPartner")}</span>
+              </>
             )}
           </button>
-          <h2 className="text-lg font-semibold mb-3 text-gray-700 dark:text-gray-300 mt-3">
-            {t("addNewPartner")}
-          </h2>
         </div>
 
-        {/* Type selection for adding */}
-        <div className="flex gap-4 mb-3">
+        {/* Radio Buttons */}
+        <div className="flex flex-wrap gap-4">
           {["klient", "supplier", "both"].map((type) => (
             <label key={type} className="flex items-center gap-2">
               <input
@@ -94,7 +92,7 @@ const PartnerAddModal = ({
                 value={type}
                 checked={partnerType === type}
                 onChange={(e) => setPartnerType(e.target.value)}
-                className="text-blue-500 focus:ring-blue-500"
+                className="text-blue-600 focus:ring-2 focus:ring-blue-500"
                 onKeyDown={(e) => {
                   if (e.key === "ArrowDown") {
                     e.preventDefault();
@@ -106,15 +104,14 @@ const PartnerAddModal = ({
                   }
                 }}
               />
-              <span className="text-gray-700 dark:text-gray-300">
-                {t(type)}
-              </span>
+              <span className="text-gray-800 dark:text-gray-200">{t(type)}</span>
             </label>
           ))}
         </div>
 
-        <div className="flex items-center gap-2">
-          <label className="block font-medium text-gray-700 dark:text-gray-300 mb-1 w-20">
+        {/* Partner name input */}
+        <div className="flex items-center gap-3">
+          <label className="w-24 text-gray-700 dark:text-gray-300 font-medium">
             {t("partner")}
           </label>
           <MyInput
@@ -124,15 +121,16 @@ const PartnerAddModal = ({
             value={newPartner}
             onChange={(e) => setNewPartner(e.target.value)}
             placeholder={`${t("addNewPartner")}...`}
-            className="flex-grow focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-blue-50 dark:focus:bg-gray-700"
+            className="flex-grow focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400"
             onKeyDown={(e) => handleAddKeyDown(e)}
             disabled={loadingAdd}
           />
         </div>
 
-        <div className="mb-4 relative">
-          <div className="flex gap-2 items-center">
-            <label className="block font-medium text-gray-700 dark:text-gray-300 mb-1 w-20">
+        {/* Agent search input */}
+        <div className="relative" ref={wrapperRef}>
+          <div className="flex items-center gap-3">
+            <label className="w-24 text-gray-700 dark:text-gray-300 font-medium">
               {t("agent")}
             </label>
             <MyInput
@@ -145,7 +143,7 @@ const PartnerAddModal = ({
                 setShowAgentDropdown(true);
               }}
               placeholder={`${t("addAgent")}...`}
-              className={`w-full focus:ring-2 focus:ring-blue-500`}
+              className="w-full focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400"
               disabled={loadingAdd}
               onKeyDown={(e) => {
                 if (e.key === "ArrowUp") {
@@ -168,14 +166,15 @@ const PartnerAddModal = ({
             />
           </div>
 
+          {/* Dropdown list */}
           {showAgentDropdown && filteredAgents.length > 0 && (
-            <ul className="absolute z-20 bg-gray-100 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded mt-1 max-h-40 overflow-y-auto w-full shadow-md">
+            <ul className="absolute mt-2 z-50 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-md shadow-lg w-full max-h-52 overflow-y-auto focus:outline-none">
               {filteredAgents.map((agent, index) => (
                 <li
                   key={agent.id}
                   ref={(el) => (agentItemRefs.current[index] = el)}
                   tabIndex={0}
-                  className="grid grid-cols-[auto_1fr_auto] px-4 hover:bg-gray-300 dark:hover:bg-gray-700 focus:outline-none focus:ring-2 focus:bg-blue-400 dark:focus:bg-blue-800 transition-colors cursor-pointer"
+                  className="px-4 py-2 hover:bg-blue-100 dark:hover:bg-blue-900 cursor-pointer transition-colors"
                   onClick={() => {
                     setSelectedAgent(agent);
                     setAgentQuery(agent.name);

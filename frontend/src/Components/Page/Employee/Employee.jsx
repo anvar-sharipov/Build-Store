@@ -67,6 +67,15 @@ const Employee = () => {
 
   const [isAnimating, setIsAnimating] = useState(false);
 
+  // focus na search input posle smeny dark, light
+  useEffect(() => {
+    const onThemeToggled = () => {
+      searchInputRef.current?.focus();
+    };
+    window.addEventListener("theme-toggled", onThemeToggled);
+    return () => window.removeEventListener("theme-toggled", onThemeToggled);
+  }, []);
+
   useEffect(() => {
     document.title = t("employeers");
     searchInputRef.current?.focus();

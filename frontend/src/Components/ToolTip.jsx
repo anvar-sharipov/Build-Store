@@ -16,9 +16,10 @@ export default function Tooltip({ targetRef, visible, children }) {
         left: rect.left + rect.width / 2,
         transform: 'translateX(-50%)',
         zIndex: 10000,
-        backgroundColor: 'black',
-        color: 'white',
-        padding: '4px 8px',
+        backgroundColor: 'white',
+        border: 'black 1px solid',
+        color: 'gray',
+        padding: '2px 4px',
         borderRadius: 4,
         whiteSpace: 'nowrap',
         pointerEvents: 'none', // чтобы мышь не мешала

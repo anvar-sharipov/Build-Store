@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState, useMemo, useCallback } from "react";
+import { useSearchParams } from "react-router-dom";
 import myAxios from "../../axios";
 import { useTranslation } from "react-i18next";
 import MyModal from "../../UI/MyModal";
@@ -16,12 +17,18 @@ import { RiDeleteBin2Fill } from "react-icons/ri";
 import MyLoading from "../../UI/MyLoading";
 import { AgentDownloadExcel } from "./AgentDownloadExcel";
 import { FaClipboardList } from "react-icons/fa";
-import Fuse from 'fuse.js';
+import Fuse from "fuse.js";
 import AgentsPartnersListModal from "./modals/AgentsPartnersListModal";
+import { MdOutlineFilterListOff } from "react-icons/md";
+import { CiSearch } from "react-icons/ci";
+import PartnerList from "../Partner/PartnerList";
+import MySearchInput from "../../UI/MySearchInput";
+import { myClass } from "../../tailwindClasses";
 
 const Agent = () => {
   const { t } = useTranslation();
   const [agentList, setAgentList] = useState([]);
+  const [partnerList, setPartnerList] = useState([]);
   // const [filteredList, setFilteredList] = useState([]);
   const [searchQuery, setSearchQuery] = useState("");
 
@@ -37,13 +44,25 @@ const Agent = () => {
   // const [deleteIconHovered, setDeleteIconHovered] = useState(false);
   const partnerListIconRefs = useRef([]);
   const [hoveredPartnerIndex, setHoveredPartnerIndex] = useState(null);
+  const partnerAddIconRefs = useRef([]);
+  const [hoveredAddPartnerIndex, setHoveredAddPartnerIndex] = useState(null);
   const editIconRefs = useRef([]);
   const [hoveredEditIndex, setHoveredEditIndex] = useState(null);
   const deleteIconRefs = useRef([]);
   const [hoveredDeleteIndex, setHoveredDeleteIndex] = useState(null);
-  
 
   const [notification, setNotification] = useState({ message: "", type: "" });
+
+  const hoverTimeoutRef = useRef(null);
+
+  // focus na search input posle smeny dark, light
+  useEffect(() => {
+    const onThemeToggled = () => {
+      searchInputRef.current?.focus();
+    };
+    window.addEventListener("theme-toggled", onThemeToggled);
+    return () => window.removeEventListener("theme-toggled", onThemeToggled);
+  }, []);
 
   // modals
   const [openAddModal, setOpenAddModal] = useState(false);
@@ -62,6 +81,11 @@ const Agent = () => {
     data: null,
     index: null,
   });
+  const [openAddPartnersModal, setOpenAddPartnersModal] = useState({
+    open: false,
+    data: null,
+    index: null,
+  });
 
   // add
   const [newAgent, setNewAgent] = useState("");
@@ -72,24 +96,41 @@ const Agent = () => {
   const addIconRef = useRef(null);
   const [addIconHovered, setAddIconHovered] = useState(false);
 
-  // useMemo
-  const fuse = useMemo(() => {
-  return new Fuse(agentList, {
-    keys: ['name'],
-    threshold: 0.3, // степень "размытия" — чем меньше, тем точнее
-  });
-}, [agentList]);
+  // // filter for sidebar right
+  const [searchParams] = useSearchParams();
 
-const filteredList = useMemo(() => {
-  if (!searchQuery) return agentList;
-  return fuse.search(searchQuery).map(result => result.item);
-}, [searchQuery, fuse]);
-  // const filteredList = useMemo(() => {
-  //   if (!searchQuery) return agentList;
-  //   return agentList.filter((agent) =>
-  //     agent.name.toLowerCase().includes(searchQuery.toLowerCase())
-  //   );
-  // }, [agentList, searchQuery]);
+  // search i filter
+
+  const filteredList = useMemo(() => {
+    // Получаем значение фильтра из URL
+    const sortOrder = searchParams.get("sort") || "desc";
+    let list = agentList;
+
+    // применяем поиск
+    if (searchQuery) {
+      const localFuse = new Fuse(list, {
+        keys: ["name"],
+        threshold: 0.3,
+      });
+      list = localFuse.search(searchQuery).map((result) => result.item);
+    }
+
+    list = [...list].sort((a, b) => {
+      const countA = a.partners?.length || 0;
+      const countB = b.partners?.length || 0;
+
+      if (sortOrder === "asc") {
+        return countA - countB;
+      } else {
+        return countB - countA;
+      }
+    });
+    return list;
+  }, [searchQuery, agentList, searchParams]);
+  useEffect(() => {
+    // focus w input search posle klika na filter w side right
+    searchInputRef.current?.focus();
+  }, [searchParams.get("sort")]);
 
   // excel
   const excelIconRef = useRef(null);
@@ -110,10 +151,10 @@ const filteredList = useMemo(() => {
   const [focusedIndex, setFocusedIndex] = useState(-1);
   const listItemRefs = useRef([]);
 
-  // Для дебаунса клавиш
-  const debounceRef = useRef(null);
+  // // Для дебаунса клавиш
+  // const debounceRef = useRef(null);
 
-  const listEndRef = useRef(null);
+  // const listEndRef = useRef(null);
 
   const visibleItems = useMemo(() => {
     const start = 0;
@@ -127,12 +168,35 @@ const filteredList = useMemo(() => {
 
   // // Навешиваем обработчик только если нет модалей
   useEffect(() => {
-    if (!openEditModal?.open && !openDeleteModal?.open && !openAddModal && !openPartnerListModal.open) {
+    if (
+      !openEditModal?.open &&
+      !openDeleteModal?.open &&
+      !openAddModal &&
+      !openPartnerListModal.open &&
+      !openAddPartnersModal.open
+    ) {
       searchInputRef.current.focus();
     }
-  }, [openEditModal?.open, openDeleteModal?.open, openAddModal, openPartnerListModal.open]);
+  }, [
+    openEditModal?.open,
+    openDeleteModal?.open,
+    openAddModal,
+    openPartnerListModal.open,
+    openAddPartnersModal.open,
+  ]);
 
-  // ##############################################################################################################################################
+  const fetchPartners = async () => {
+    setLoading(true);
+    try {
+      const res = await myAxios.get("partners/");
+      setPartnerList(res.data);
+    } catch (e) {
+      console.error("Ошибка при загрузке:", e);
+      showNotification("partnerLoadError", "error");
+    } finally {
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
     searchInputRef.current?.focus();
@@ -165,7 +229,7 @@ const filteredList = useMemo(() => {
       } else if (e.ctrlKey && e.key.toLowerCase() === "e") {
         e.preventDefault();
         handleDownloadExcel();
-      } 
+      }
     };
     window.addEventListener("keydown", handleKey);
     return () => window.removeEventListener("keydown", handleKey);
@@ -184,6 +248,7 @@ const filteredList = useMemo(() => {
   useEffect(() => {
     setTimeout(() => {
       fetchAgents();
+      fetchPartners();
     }, 0);
   }, []);
 
@@ -205,7 +270,6 @@ const filteredList = useMemo(() => {
   // add
   const handleAddAgent = async () => {
     if (!newAgent.trim()) {
-      console.log("dadadadda");
       showNotification(t("agentCantBeEmpty"), "error");
       return;
     }
@@ -264,10 +328,13 @@ const filteredList = useMemo(() => {
   const prevHasMoreRef = useRef(true);
 
   useEffect(() => {
-    if (prevHasMoreRef.current && !hasMore && !(document.activeElement === searchInputRef.current)) {
+    if (
+      prevHasMoreRef.current &&
+      !hasMore &&
+      !(document.activeElement === searchInputRef.current)
+    ) {
       // Кнопка исчезла → фокус на последний li
-      console.log('tut4');
-      
+
       const lastIndex = visibleItems.length - 1;
       listItemRefs.current[lastIndex]?.focus();
     }
@@ -283,12 +350,17 @@ const filteredList = useMemo(() => {
       />
       {/* add modal */}
       {openPartnerListModal.open && (
-        <AgentsPartnersListModal 
-        setOpenPartnerListModal={setOpenPartnerListModal}
-        openPartnerListModal={openPartnerListModal}
-        t={t}
+        <AgentsPartnersListModal
+          setOpenPartnerListModal={setOpenPartnerListModal}
+          openPartnerListModal={openPartnerListModal}
+          t={t}
+          partnerList={partnerList}
+          setPartnerList={setPartnerList}
+          showNotification={showNotification}
+          fetchAgents={fetchAgents}
         />
       )}
+
       {openAddModal && (
         <AgentAddModal
           addInputRef={addInputRef}
@@ -332,9 +404,16 @@ const filteredList = useMemo(() => {
         <div>
           <button
             ref={addIconRef}
-            onMouseEnter={() => setAddIconHovered(true)}
-            onMouseLeave={() => setAddIconHovered(false)}
-            className="text-2xl text-green-500 hover:text-green-600 transition-colors"
+            onMouseEnter={() => {
+              hoverTimeoutRef.current = setTimeout(() => {
+                setAddIconHovered(true);
+              }, 500);
+            }}
+            onMouseLeave={() => {
+              clearTimeout(hoverTimeoutRef.current);
+              setAddIconHovered(false);
+            }}
+            className={myClass.addButton}
             onClick={() => setOpenAddModal(true)}
             onKeyDown={(e) => {
               if (e.key === "ArrowDown") {
@@ -343,7 +422,7 @@ const filteredList = useMemo(() => {
               }
             }}
           >
-            <IoIosAddCircleOutline />
+            <IoIosAddCircleOutline size={20} />
           </button>
           <Tooltip visible={addIconHovered} targetRef={addIconRef}>
             {t("addAgent")} (INSERT)
@@ -364,8 +443,15 @@ const filteredList = useMemo(() => {
                   }`}
                   ref={excelIconRef}
                   onClick={handleDownloadExcel}
-                  onMouseEnter={() => setExcelIconHovered(true)}
-                  onMouseLeave={() => setExcelIconHovered(false)}
+                  onMouseEnter={() => {
+                    hoverTimeoutRef.current = setTimeout(() => {
+                      setExcelIconHovered(true);
+                    }, 500);
+                  }}
+                  onMouseLeave={() => {
+                    clearTimeout(hoverTimeoutRef.current);
+                    setExcelIconHovered(false);
+                  }}
                 />
               </div>
             )}
@@ -376,27 +462,25 @@ const filteredList = useMemo(() => {
         </div>
 
         <div className="flex items-end gap-3">
-          <div className="flex-grow relative">
-            <input
-              ref={searchInputRef}
-              className="w-full h-7 px-2 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+          <MySearchInput 
+          ref={searchInputRef}
+          
               placeholder={t("search")}
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               onKeyDown={(e) => {
                 if (e.key === "ArrowUp") {
                   e.preventDefault();
-                  console.log('tut1');
+
                   addIconRef.current?.focus();
                 }
                 if (e.key === "ArrowDown" && filteredList.length > 0) {
                   e.preventDefault();
-                  console.log('tut2');
+
                   listItemRefs.current[0]?.focus();
                 }
               }}
-            />
-          </div>
+          />
         </div>
       </div>
 
@@ -406,7 +490,7 @@ const filteredList = useMemo(() => {
       ) : (
         <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md overflow-hidden">
           <div className="border border-gray-300 dark:border-gray-600 rounded-sm overflow-hidden">
-            <ul className="divide-y divide-gray-300 dark:divide-gray-600">
+            <ul className={myClass.ul}>
               {visibleItems.map((item, index) => (
                 <li
                   key={item.id}
@@ -419,7 +503,11 @@ const filteredList = useMemo(() => {
                       setOpenDeleteModal({ open: true, data: item, index });
                     } else if (e.ctrlKey && e.key === "Enter") {
                       e.preventDefault();
-                      setOpenPartnerListModal({ open: true, data: item, index });
+                      setOpenPartnerListModal({
+                        open: true,
+                        data: item,
+                        index,
+                      });
                     } else if (e.key === "Enter" || e.key === " ") {
                       e.preventDefault();
                       setOpenEditModal({ open: true, data: item, index });
@@ -441,11 +529,9 @@ const filteredList = useMemo(() => {
                     ) {
                       e.preventDefault();
                       loadMoreButtonRef.current?.focus();
-                    } 
+                    }
                   }}
-                  className={`grid grid-cols-[auto_1fr_auto] px-4 transition-colors cursor-pointer 
-                      hover:bg-gray-300 dark:hover:bg-gray-700 
-                      focus:outline-none focus:ring-2 focus:bg-blue-400 dark:focus:bg-blue-800`}
+                  className={myClass.li}
                 >
                   <div className="text-sm text-gray-500 dark:text-gray-400 font-mono">
                     {index + 1}.
@@ -456,19 +542,46 @@ const filteredList = useMemo(() => {
                   <div className="flex gap-1 justify-end">
                     <button
                       ref={(el) => (partnerListIconRefs.current[index] = el)}
-                      onMouseEnter={() => setHoveredPartnerIndex(index)}
-                      onMouseLeave={() => setHoveredPartnerIndex(null)}
-                      className="p-1 text-gray-800 hover:text-green-700 hover:bg-green-200 dark:hover:bg-green-700 rounded transition-colors dark:text-green-500 print:hidden"
+                      onMouseEnter={() => {
+                        hoverTimeoutRef.current = setTimeout(() => {
+                          setHoveredPartnerIndex(index);
+                        }, 500);
+                      }}
+                      onMouseLeave={() => {
+                        clearTimeout(hoverTimeoutRef.current);
+                        setHoveredPartnerIndex(null);
+                      }}
+                      className={`p-1 text-gray-500 hover:text-green-700 hover:bg-green-200 dark:hover:bg-green-700 rounded transition-colors dark:text-gray-200 print:hidden ${
+                        item.partners.length === 0 &&
+                        "text-red-300 dark:text-red-200"
+                      }`}
                       onClick={() =>
-                        setOpenPartnerListModal({ open: true, data: item, index })
+                        setOpenPartnerListModal({
+                          open: true,
+                          data: item,
+                          index,
+                        })
                       }
                     >
-                      <FaClipboardList size={14} />
+                      <div className="flex items-center">
+                        <FaClipboardList size={14} />
+                        <span className="text-xs text-gray-600 dark:text-gray-400">
+                          {item.partners.length}
+                        </span>
+                      </div>
                     </button>
+
                     <button
                       ref={(el) => (editIconRefs.current[index] = el)}
-                      onMouseEnter={() => setHoveredEditIndex(index)}
-                      onMouseLeave={() => setHoveredEditIndex(null)}
+                      onMouseEnter={() => {
+                        hoverTimeoutRef.current = setTimeout(() => {
+                          setHoveredEditIndex(index);
+                        }, 500);
+                      }}
+                      onMouseLeave={() => {
+                        clearTimeout(hoverTimeoutRef.current);
+                        setHoveredEditIndex(null);
+                      }}
                       className="p-1 text-gray-800 hover:text-green-700 hover:bg-green-200 dark:hover:bg-green-700 rounded transition-colors dark:text-green-500 print:hidden"
                       onClick={() =>
                         setOpenEditModal({ open: true, data: item, index })
@@ -478,8 +591,15 @@ const filteredList = useMemo(() => {
                     </button>
                     <button
                       ref={(el) => (deleteIconRefs.current[index] = el)}
-                      onMouseEnter={() => setHoveredDeleteIndex(index)}
-                      onMouseLeave={() => setHoveredDeleteIndex(null)}
+                      onMouseEnter={() => {
+                        hoverTimeoutRef.current = setTimeout(() => {
+                          setHoveredDeleteIndex(index);
+                        }, 500);
+                      }}
+                      onMouseLeave={() => {
+                        clearTimeout(hoverTimeoutRef.current);
+                        setHoveredDeleteIndex(null);
+                      }}
                       className="p-1 text-red-500 hover:text-red-700 hover:bg-red-200 dark:hover:bg-red-400 disabled:opacity-50 disabled:cursor-not-allowed rounded transition-colors print:hidden"
                       onClick={() =>
                         setOpenDeleteModal({ open: true, data: item, index })
@@ -497,7 +617,7 @@ const filteredList = useMemo(() => {
             <div className="px-4 py-1 bg-gray-50 dark:bg-gray-700 border-t border-gray-200 dark:border-gray-600 text-center">
               <button
                 ref={loadMoreButtonRef}
-                className="text-blue-500 hover:text-blue-700 hover:underline font-medium px-4 rounded-md hover:bg-blue-50 dark:hover:bg-blue-900 transition-colors"
+                className={myClass.showMore}
                 onClick={() => setCurrentPage((prev) => prev + 1)}
                 onKeyDown={(e) => {
                   if (e.key === "Enter" || e.key === " ") {
@@ -523,6 +643,14 @@ const filteredList = useMemo(() => {
         }}
       >
         {t("agentsPartnersList")} (CTRL+ENTER)
+      </Tooltip>
+      <Tooltip
+        visible={hoveredAddPartnerIndex !== null}
+        targetRef={{
+          current: partnerAddIconRefs.current[hoveredAddPartnerIndex],
+        }}
+      >
+        {t("addNewPartner")} (CTRL+ENTER)
       </Tooltip>
       <Tooltip
         visible={hoveredEditIndex !== null}

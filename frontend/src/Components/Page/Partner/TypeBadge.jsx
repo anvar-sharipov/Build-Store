@@ -14,6 +14,8 @@ const TypeBadge = ({ type, text, typeText }) => {
     both: <FaExchangeAlt className="inline mr-1" />,
   };
 
+  
+
   return (
     <span
       className={`inline-flex items-center px-1 rounded-full text-xs font-semibold ${styles[type]}`}

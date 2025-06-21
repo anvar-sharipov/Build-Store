@@ -21,22 +21,26 @@ const PartnerDeleteModal = ({
         listItemRefs.current[deleteModal.index]?.focus();
       }}
     >
-      <div className="p-6">
-        <h2 className="text-xl font-bold mb-6 text-gray-800 dark:text-gray-200 flex gap-2 items-center">
-          <button
-            disabled={loadingDeleteId !== null}
-            className="p-1 text-red-500 hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-400 disabled:opacity-50 disabled:cursor-not-allowed rounded transition-colors"
-          >
+      <div className="bg-white dark:bg-gray-900 p-6 sm:p-8 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700 space-y-6">
+        {/* Заголовок */}
+        <div className="flex items-center gap-3 text-red-600 dark:text-red-400">
+          <div className="text-2xl">
             {loadingDeleteId !== null ? (
-              <CiNoWaitingSign className="animate-spin" size={28} />
+              <CiNoWaitingSign className="animate-spin" />
             ) : (
-              <RiDeleteBin2Fill size={28} />
+              <RiDeleteBin2Fill />
             )}
-          </button>
-          <span>{t("deletePartner")}</span>
-        </h2>
-        <div className="flex justify-between mb-4">
-          <div>{deleteModal.data.name}</div>
+          </div>
+          <h2 className="text-xl font-bold text-gray-800 dark:text-gray-100">
+            {t("deletePartner")}
+          </h2>
+        </div>
+
+        {/* Информация о партнёре */}
+        <div className="flex justify-between items-center border-b border-gray-300 dark:border-gray-600 pb-4">
+          <div className="text-lg font-medium text-gray-700 dark:text-gray-200">
+            {deleteModal.data.name}
+          </div>
           <TypeBadge
             typeText={t(deleteModal.data.type)}
             text={deleteModal.data.type_display}
@@ -44,39 +48,33 @@ const PartnerDeleteModal = ({
           />
         </div>
 
-        <div className="flex justify-end gap-3 pt-4 border-t border-gray-200 dark:border-gray-600">
+        {/* Кнопки управления */}
+        <div className="flex justify-end gap-4 pt-4">
           <MyButton
             ref={deleteCancelRef}
-            onKeyDown={(e) => {
-              if (e.key === "ArrowRight") {
-                deleteOKRef.current?.focus();
-              }
-            }}
             variant="blue"
             onClick={() => {
               listItemRefs.current[deleteModal.index]?.focus();
-              setDeleteModal({
-                open: false,
-                data: null,
-                index: null,
-              });
+              setDeleteModal({ open: false, data: null, index: null });
             }}
+            onKeyDown={(e) => {
+              if (e.key === "ArrowRight") deleteOKRef.current?.focus();
+            }}
+            className="min-w-[100px]"
           >
             {t("cancel")}
           </MyButton>
           <MyButton
             ref={deleteOKRef}
-            variant="blue"
+            variant="red"
             onClick={() =>
               deletePartner(deleteModal.data.id, deleteModal.data.name)
             }
-            // disabled={loadingEdit}
-            className="min-w-[100px]"
             onKeyDown={(e) => {
-              if (e.key === "ArrowLeft") {
-                deleteCancelRef.current?.focus();
-              }
+              if (e.key === "ArrowLeft") deleteCancelRef.current?.focus();
             }}
+            className="min-w-[100px]"
+            disabled={loadingDeleteId !== null}
           >
             {t("delete")}
           </MyButton>

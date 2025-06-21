@@ -21,9 +21,8 @@ const LargeScreenLinks = ({
   return (
     <nav className="flex items-center justify-between">
       {/* Logo */}
-    
-        <img src="public/POLISEM.png" alt="polisem-icon" width={200} />
-    
+
+      <img src="/polisem.png" alt="polisem-icon" width={200} />
 
       {/* Burger button */}
       <div className="lg:hidden text-gray-300">
@@ -57,7 +56,12 @@ const LargeScreenLinks = ({
         </div>
         <LanguageSwitcher i18n={i18n} />
         <div
-          onClick={() => setDarkMode(!darkMode)}
+          onClick={() => {
+            setDarkMode(!darkMode);
+            setTimeout(() => {
+              window.dispatchEvent(new Event("theme-toggled"));
+            }, 0);
+          }}
           aria-label="Toggle theme"
           className="hover:underline text-blue-500 hover:text-blue-700 flex gap-1 items-center cursor-pointer"
         >

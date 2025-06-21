@@ -57,6 +57,10 @@
 
   "unlink": "Aýyrmak",
 
+  "ascendingOrder": "Artyp gelýär",  
+  "descendingOrder": "Azalyp gelýär",
+  "sort": "Tertiplemek",
+
 
 
 
@@ -93,6 +97,7 @@
   "filter": "Süzgi",
   "addFirstPartner": "Ilki hyzmatdaşyňyzy goşuň",
   "agentNotFound": "Görkezilen agent tapylmady",
+  "changeInfoAboutPartner": "Maglumatlary täzeleň",
 
 
   "agents": "Agentler",
@@ -108,6 +113,9 @@
   "agentDeleted": "Agent üstünlikli pozuldy",
   "agentsPartnersList": "Agentiň hyzmatdaşlarynyň sanawyny görkez",
   "confirmUnlinkPartner": "Partnýory aýyrmak isleýärsiňizmi?",
+  "selectPartners": "Partnýory saýlaň",
+  "joinedPertnerList": "Goşulan hyzmatdaşlaryň sanawy",
+  "partnerSuccessUpdated": "Hyzmatdaşlar üstünlikli täzelendi",
 
 
   "productDeleted": "Haryt üstünlikli pozuldy",

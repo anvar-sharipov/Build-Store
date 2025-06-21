@@ -5,6 +5,8 @@ import { PartnerDownloadExcel } from "./PartnerDownloadExcel";
 import { RiFileExcel2Fill } from "react-icons/ri";
 import { useState, useEffect, useRef } from "react";
 import Tooltip from "../../ToolTip";
+import MySearchInput from "../../UI/MySearchInput";
+import { myClass } from "../../tailwindClasses";
 
 const PartnerSearchAndAddSection = ({
   setOpenModalAdd,
@@ -56,16 +58,15 @@ const PartnerSearchAndAddSection = ({
         ref={addIconButtonRef}
         onMouseEnter={() => setHovered(true)}
         onMouseLeave={() => setHovered(false)}
-        className="text-2xl text-green-500 hover:text-green-600 transition-colors"
+        className={myClass.addButton}
         onClick={() => setOpenModalAdd(true)}
         onKeyDown={(e) => {
-          if (e.key === 'ArrowDown') {
+          if (e.key === "ArrowDown") {
             searchInputRef.current?.focus();
           }
-          
         }}
       >
-        <IoIosAddCircleOutline />
+        <IoIosAddCircleOutline size={20} />
       </button>
 
       <Tooltip targetRef={addIconButtonRef} visible={hovered}>
@@ -108,36 +109,15 @@ const PartnerSearchAndAddSection = ({
       </div>
 
       <div className="flex items-end gap-3">
-        <div className="flex-grow relative">
-          <div className="flex-grow relative">
-            <MyInput
-              ref={searchInputRef}
-              name="search_partner"
-              type="text"
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              placeholder={t("search")}
-              className="w-full focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-blue-50 dark:focus:bg-gray-700 h-7"
-              onKeyDown={handleSearchKeyDown}
-            />
-            {search && (
-              <button
-                onClick={clearSearch}
-                className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600 text-xl font-bold"
-                title={t("clearSearch")}
-              >
-                ×
-              </button>
-            )}
-          </div>
-        </div>
-        <button
-          onClick={() => searchInputRef.current?.focus()}
-          className="text-2xl text-blue-500 hover:text-blue-600 transition-colors"
-          title={t("search")}
-        >
-          <CiSearch />
-        </button>
+        <MySearchInput
+          ref={searchInputRef}
+          name="search_partner"
+          type="text"
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+          placeholder={t("search")}
+          onKeyDown={handleSearchKeyDown}
+        />
       </div>
     </div>
   );

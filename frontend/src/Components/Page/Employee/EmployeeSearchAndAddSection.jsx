@@ -7,6 +7,8 @@ import { useEffect, useState, useRef } from "react";
 
 import { empDownloadExcel } from "./EmpDownloadExcel";
 import Tooltip from "../../ToolTip";
+import MySearchInput from "../../UI/MySearchInput";
+import { myClass } from "../../tailwindClasses";
 
 const EmployeeSearchAndAddSection = ({
   filtered,
@@ -59,7 +61,7 @@ const EmployeeSearchAndAddSection = ({
         <button
           onMouseEnter={() => setHovered(true)}
           onMouseLeave={() => setHovered(false)}
-          className="text-2xl text-green-500 hover:text-green-600 transition-colors"
+          className={myClass.addButton}
           onClick={() => setOpenModalAdd(true)}
           ref={addIconButtonRef}
           onKeyDown={(e) => {
@@ -69,7 +71,7 @@ const EmployeeSearchAndAddSection = ({
             }
           }}
         >
-          <IoIosAddCircleOutline />
+          <IoIosAddCircleOutline size={20} />
         </button>
         <Tooltip targetRef={addIconButtonRef} visible={hovered}>
           {t("addEmployee")} (INSERT)
@@ -104,7 +106,9 @@ const EmployeeSearchAndAddSection = ({
                   }
                 }}
               />
-              <Tooltip targetRef={downloadExcelButtonRef} visible={downloadExcelHovered}
+              <Tooltip
+                targetRef={downloadExcelButtonRef}
+                visible={downloadExcelHovered}
               >
                 {t("downloadExcel")} (CTRL+E)
               </Tooltip>
@@ -114,7 +118,16 @@ const EmployeeSearchAndAddSection = ({
       </div>
 
       <div className="flex items-end gap-3">
-        <div className="flex-grow relative">
+        <MySearchInput
+          ref={searchInputRef}
+          name="search_employee"
+          type="text"
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+          placeholder={t("search")}
+          onKeyDown={handleSearchKeyDown}
+        />
+        {/* <div className="flex-grow relative">
           <MyInput
             ref={searchInputRef}
             name="search_employee"
@@ -141,7 +154,7 @@ const EmployeeSearchAndAddSection = ({
           title={t("search")}
         >
           <CiSearch />
-        </button>
+        </button> */}
       </div>
     </div>
   );

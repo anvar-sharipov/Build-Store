@@ -20,6 +20,7 @@ import Partner from "./Components/Page/Partner/Partner";
 import { AuthProvider } from "./AuthContext";
 import { useState, useEffect } from "react";
 import Agent from "./Components/Page/Agent/Agent";
+import SidebarRight from "./Components/Sidebar/SideRight";
 
 function SidebarLeft() {
   const location = useLocation();
@@ -73,79 +74,7 @@ function SidebarLeft() {
   );
 }
 
-function SidebarRight() {
-  const location = useLocation();
-  const [searchParams, setSearchParams] = useSearchParams();
-  const { t } = useTranslation();
 
-  const [sidebarPosition, setSidebarPosition] = useState(0);
-
-  // Функция для отслеживания прокрутки
-  useEffect(() => {
-    const handleScroll = () => {
-      const scrollTop = window.scrollY;
-      if (scrollTop <= 160) {
-        setSidebarPosition(scrollTop);  // Двигаем сайдбар вверх
-      } else {
-        setSidebarPosition(160);  // Сайдбар остаётся на 200px
-      }
-    };
-
-    window.addEventListener('scroll', handleScroll);
-
-    // Очистка события при размонтировании компонента
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, []);
-
-  
-
-  // Показывать сайдбар только на странице /partners
-  if (location.pathname !== ROUTES.PARTNERS) return null;
-
-  const typeFilter = searchParams.get("type") || "all";
-
-  const setFilter = (value) => {
-    if (value === "all") {
-      searchParams.delete("type");
-      setSearchParams(searchParams);
-    } else {
-      setSearchParams({ type: value });
-    }
-  };
-
-  const filterOptions = [
-    { key: "klient", label: t("klient") },
-    { key: "supplier", label: t("supplier") },
-    { key: "both", label: t("both") },
-    { key: "all", label: t("all") },
-  ];
-
-  return (
-    <aside 
-    className="hidden lg:flex fixed top-16 right-0 h-[calc(100vh-4rem)] w-48 flex-col p-4 bg-gray-00 overflow-y-auto z-20 mt-20"
-    style={{ top: `${80 - sidebarPosition}px` }} 
-    >
-      <h2 className="font-semibold mb-4 text-gray-300">
-        {t("filter")}
-      </h2>
-      {filterOptions.map((option) => (
-        <label
-          key={option.key}
-          className="flex items-center border-b border-gray-600 cursor-pointer select-none hover:text-blue-800 text-blue-600 hover:underline"
-        >
-          <input
-            type="radio"
-            name="partnerType"
-            checked={typeFilter === option.key}
-            onChange={() => setFilter(option.key)}
-            className="mr-3 accent-blue-600 cursor-pointer"
-          />
-          <span>{option.label}</span>
-        </label>
-      ))}
-    </aside>
-  );
-}
 
 function App() {
   return (

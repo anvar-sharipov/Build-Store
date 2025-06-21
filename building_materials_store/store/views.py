@@ -50,17 +50,13 @@ class PartnerViewSet(viewsets.ModelViewSet):
     queryset = Partner.objects.all().order_by('-pk')
     serializer_class = PartnerSerializer
 
-    # def create(self, request, *args, **kwargs):
-    #     serializer = self.get_serializer(data=request.data)
-    #     serializer.is_valid(raise_exception=True)
-    #     self.perform_create(serializer)
-    #     return Response(
-    #         {
-    #             'message': 'partnerAdded',
-    #             'partner': serializer.data
-    #         },
-    #         status=status.HTTP_201_CREATED
-    #     )
+    def get_queryset(self):
+        queryset = super().get_queryset()
+        agent_id = self.request.query_params.get('agent_id')
+        if agent_id:
+            queryset = queryset.filter(agent_id=agent_id)
+        return queryset
+
     def destroy(self, request, *args, **kwargs):
         instance = self.get_object()
         # time.sleep(2)
@@ -80,12 +76,6 @@ class PartnerViewSet(viewsets.ModelViewSet):
         self.perform_update(serializer)
         return Response(serializer.data) # res.data
     
-        # return Response({
-        #     "message": "partnerUpdated",
-        #     "data": serializer.data
-        # }) # res.data.data
-    
-   
 
         
 
@@ -126,7 +116,7 @@ class AgentViewSet(viewsets.ModelViewSet):
     permission_classes = [IsAuthenticated]
 
     def list(self, request, *args, **kwargs):
-        time.sleep(1)  # задержка 2 секунды
+        # time.sleep(1)  # задержка 2 секунды
         return super().list(request, *args, **kwargs)
 
     
@@ -254,3 +244,29 @@ class MySecureView(APIView):
             return Response({"authUser": f"{request.user}", "authGroup": "worker"})
         else:
             return Response({"message": "Нет доступа"}, status=403)
+        
+
+
+
+class AssignPartnersToAgentView(APIView):
+    def post(self, request):
+        time.sleep(2)
+        partners_id = request.data.get("partners_id")
+        agent_id = request.data.get("igent_id")
+
+        if agent_id is None:
+            return Response({"error": "Invalid data"}, status=status.HTTP_400_BAD_REQUEST)
+
+        try:
+            agent = Agent.objects.get(id=agent_id)
+        except Agent.DoesNotExist:
+            return Response({"error": "Agent not found"}, status=404)
+
+        # Обнулить старые связи
+        Partner.objects.filter(agent=agent).update(agent=None)
+
+        # Назначить новые связи
+        if isinstance(partners_id, list):
+            Partner.objects.filter(id__in=partners_id).update(agent=agent)
+
+        return Response({"message": "partnerSuccessUpdated"}, status=200)
