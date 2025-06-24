@@ -199,6 +199,11 @@ const Agent = () => {
   };
 
   useEffect(() => {
+    document.title = t("agents");
+  }, []);
+
+
+  useEffect(() => {
     searchInputRef.current?.focus();
   }, [t]);
 
@@ -348,6 +353,41 @@ const Agent = () => {
         type={notification.type}
         onClose={() => setNotification({ message: "", type: "" })}
       />
+
+      <div className="lg:hidden text-center">
+        <div className="flex justify-between items-center">
+          <span className="print:block">{t("agents")}</span>
+          <div className="text-gray-600 dark:text-gray-400 flex items-center gap-3 print:hidden">
+            {filteredList.length > 0 && (
+              <div className="flex gap-3 items-center">
+                <span>
+                  {searchQuery
+                    ? `${t("found")}: ${filteredList.length}`
+                    : `${t("total")}: ${filteredList.length}`}
+                </span>
+
+                <RiFileExcel2Fill
+                  size={30}
+                  className={`cursor-pointer rounded transition-transform duration-300 text-green-700 hover:text-green-600 ${
+                    excelIconIsAnimating ? "scale-125" : "scale-100"
+                  }`}
+                  onClick={() => {
+                    AgentDownloadExcel(filteredList, t);
+                    setExcelIconIsAnimating(true);
+                  }}
+                  role="button"
+                  tabIndex={0}
+                  aria-label="Download Excel"
+                />
+              </div>
+            )}
+            {/* <FaPrint className="text-blue-500 text-lg hover:text-xl hover:text-red-500 transition-all duration-100" /> */}
+          </div>
+        </div>
+
+        <hr className="m-1" />
+      </div>
+
       {/* add modal */}
       {openPartnerListModal.open && (
         <AgentsPartnersListModal
@@ -462,24 +502,23 @@ const Agent = () => {
         </div>
 
         <div className="flex items-end gap-3">
-          <MySearchInput 
-          ref={searchInputRef}
-          
-              placeholder={t("search")}
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              onKeyDown={(e) => {
-                if (e.key === "ArrowUp") {
-                  e.preventDefault();
+          <MySearchInput
+            ref={searchInputRef}
+            placeholder={t("search")}
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === "ArrowUp") {
+                e.preventDefault();
 
-                  addIconRef.current?.focus();
-                }
-                if (e.key === "ArrowDown" && filteredList.length > 0) {
-                  e.preventDefault();
+                addIconRef.current?.focus();
+              }
+              if (e.key === "ArrowDown" && filteredList.length > 0) {
+                e.preventDefault();
 
-                  listItemRefs.current[0]?.focus();
-                }
-              }}
+                listItemRefs.current[0]?.focus();
+              }
+            }}
           />
         </div>
       </div>
@@ -487,7 +526,7 @@ const Agent = () => {
       {/* List */}
       {loading ? (
         <MyLoading />
-      ) : (
+      ) : visibleItems.length > 0 ? (
         <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md overflow-hidden">
           <div className="border border-gray-300 dark:border-gray-600 rounded-sm overflow-hidden">
             <ul className={myClass.ul}>
@@ -633,6 +672,27 @@ const Agent = () => {
                 {t("loadMore")}
               </button>
             </div>
+          )}
+        </div>
+      ) : (
+        <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-8 text-center">
+          <div className="text-gray-400 text-6xl mb-4">👥</div>
+          <h3 className="text-xl font-semibold text-gray-600 dark:text-gray-400 mb-2">
+            {searchQuery ? t("noSearchResults") : t("empty")}
+          </h3>
+          <p className="text-gray-500 dark:text-gray-500">
+            {searchQuery ? t("tryDifferentSearch") : t("addFirstAgent")}
+          </p>
+          {searchQuery && (
+            <button
+              onClick={() => {
+                setSearchQuery("");
+                searchInputRef.current?.focus();
+              }}
+              className="mt-4 px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 transition-colors"
+            >
+              {t("clearSearch")}
+            </button>
           )}
         </div>
       )}

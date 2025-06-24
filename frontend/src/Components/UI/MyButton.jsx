@@ -5,6 +5,7 @@ const variantClasses = {
   green: "gap-1 border-2 border-green-500 rounded-md px-3 py-1 hover:bg-green-500 hover:text-white transition focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2", 
   blue: "gap-1 border-2 border-blue-500 rounded-md px-3 py-1 hover:bg-blue-500 hover:text-white transition focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2",
   red: "gap-1 border-2 border-red-500 rounded-md px-3 py-1 hover:bg-red-500 hover:text-white transition focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2",
+  gray: "gap-1 border-2 border-gray-500 rounded-md px-3 py-1 hover:bg-gray-500 hover:text-white transition focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2",
   disabled: "bg-gray-400 cursor-not-allowed"
 };
 

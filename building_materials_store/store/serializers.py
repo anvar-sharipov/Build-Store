@@ -19,13 +19,43 @@ class MyTokenObtainPairSerializer(TokenObtainPairSerializer):
         return data
     
 
+
+
+
+
+
+
+
+
+class ProductUnitSerializer(serializers.ModelSerializer):
+    unit_name = serializers.CharField(source='unit.name', read_only=True)
+    base_unit_name = serializers.CharField(source='product.base_unit.name', read_only=True)
+
+    class Meta:
+        model = ProductUnit
+        fields = ['id', 'unit', 'unit_name', 'conversion_factor', 'is_default_for_sale', 'base_unit_name']
+
+
 class ProductSerializer(serializers.ModelSerializer):
-    # unit_of_measurement = serializers.StringRelatedField()
-    category = serializers.StringRelatedField()
+    category_name = serializers.SerializerMethodField()
+    base_unit_name = serializers.SerializerMethodField()
+    units = ProductUnitSerializer(many=True, read_only=True)
+
 
     class Meta:
         model = Product
-        fields = ['id', 'name', 'sku', 'quantity', 'purchase_price', 'retail_price', 'wholesale_price', 'description', 'category']
+        fields = ['id', 'name', 'base_unit', 'category', 'quantity', 'purchase_price', 'retail_price', 'wholesale_price', 'category_name', 'base_unit_name', 'units']
+
+    def get_category_name(self, obj):
+        return obj.category.name
+
+    def get_base_unit_name(self, obj):
+        return obj.base_unit.name
+
+
+
+
+
 
 
 
@@ -121,3 +151,19 @@ class PartnerSerializer(serializers.ModelSerializer):
     class Meta:
         model = Partner
         fields = ['id', 'name', 'type', 'type_display', 'agent', 'agent_id', 'agent_name']
+
+
+
+
+
+class UnitOfMeasurementSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = UnitOfMeasurement
+        fields = ['id', 'name']
+
+
+
+class CategorySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Category
+        fields = ['id', 'name']

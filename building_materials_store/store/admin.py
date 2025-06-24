@@ -30,26 +30,43 @@ class CustomUserAdmin(UserAdmin):
     ordering = ("username",)
 
 
+
+
+
+
+
+
     
-
-class ProductAdmin(admin.ModelAdmin):
-    list_display = (
-        'name', 'sku', 'quantity',
-        'purchase_price', 'retail_price', 'wholesale_price',
-        'unit_of_measurement', 'category'
-    )
-    search_fields = ('name', 'sku')
-    list_filter = ('category', 'unit_of_measurement')
-    autocomplete_fields = ['unit_of_measurement', 'category']
-    ordering = ('name',)
-admin.site.register(Product, ProductAdmin)
-
-
+@admin.register(UnitOfMeasurement)
 class UnitOfMeasurementAdmin(admin.ModelAdmin):
-    search_fields = ('name',)
     list_display = ('name',)
-admin.site.register(UnitOfMeasurement, UnitOfMeasurementAdmin)
+    search_fields = ('name',)
 
+
+class ProductUnitInline(admin.TabularInline):
+    model = ProductUnit
+    extra = 1
+    autocomplete_fields = ('unit',)
+    fields = ('unit', 'conversion_factor', 'is_default_for_sale')
+    verbose_name = "Alternatiw ölçeg"
+    verbose_name_plural = "Alternatiw ölçegler"
+
+
+@admin.register(Product)
+class ProductAdmin(admin.ModelAdmin):
+    list_display = ('id', 'name', 'base_unit', 'wholesale_price', 'retail_price')
+    search_fields = ('name',)
+    autocomplete_fields = ('base_unit',)
+    inlines = [ProductUnitInline]
+
+
+
+
+
+
+
+
+        
 
 class CategoryAdmin(admin.ModelAdmin):
     search_fields = ('name',)

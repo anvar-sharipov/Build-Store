@@ -41,46 +41,72 @@ class CustomUser(AbstractUser):
 # категория	        kategoriýa
 
 
+
+
+
+
+
+
+class UnitOfMeasurement(models.Model):
+    name = models.CharField(max_length=100, verbose_name="ady")  # например: "литр", "банка", "коробка"
+    def __str__(self):
+        return self.name
+    class Meta:
+        verbose_name = 'ölçeg birligi'
+        verbose_name_plural = 'ölçeg birlikleri'
+
+
+
 class Product(models.Model):
-    name = models.CharField(verbose_name='harytyn ady', max_length=1000)
-    sku = models.CharField(verbose_name='artikul', max_length=250, unique=True, blank=True, null=True)
+    name = models.CharField(verbose_name='ady', max_length=1000)
+    base_unit = models.ForeignKey(UnitOfMeasurement, verbose_name='esasy ölçeg birligi', on_delete=models.PROTECT)
+
+    category = models.ForeignKey('Category', verbose_name='Kategoriya', on_delete=models.PROTECT)
     quantity = models.DecimalField(verbose_name='mukdary', max_digits=10, decimal_places=2)
-    purchase_price = models.DecimalField(verbose_name='sena pokupki', max_digits=10, decimal_places=2, default=0)
-    retail_price = models.DecimalField(verbose_name='sena prodaji', max_digits=10, decimal_places=2, default=0)
-    wholesale_price = models.DecimalField(verbose_name='sena optom', max_digits=10, decimal_places=2, default=0)
-    unit_of_measurement = models.ForeignKey(
-        'UnitOfMeasurement',
-        verbose_name='ölçeg birligi',
-        on_delete=models.PROTECT
-    )
-    description = models.TextField(verbose_name='beýany', blank=True)
-    category = models.ForeignKey(
-        'Category',
-        verbose_name='kategoriýa',
-        on_delete=models.SET_NULL,
-        null=True,
-        blank=True
-    )
+    purchase_price = models.DecimalField(verbose_name='Satyn alyş (покупка) bahasy', max_digits=10, decimal_places=2, default=0)
+    retail_price = models.DecimalField(verbose_name='Topar bahasy (розница)', max_digits=10, decimal_places=2, default=0)
+    wholesale_price = models.DecimalField(verbose_name='Arzanladyş bahasy (оптом)', max_digits=10, decimal_places=2, default=0)
+
 
     def __str__(self):
-        return f"{self.name} ({self.quantity} {self.unit_of_measurement})"
-
+        return self.name
     class Meta:
         verbose_name = 'haryt'
         verbose_name_plural = 'harytlar'
 
 
 
-
-class UnitOfMeasurement(models.Model):
-    name = models.CharField(verbose_name='ölçeg birligi', max_length=20, unique=True)
+class ProductUnit(models.Model):
+    product = models.ForeignKey(Product, related_name='units', on_delete=models.CASCADE)
+    unit = models.ForeignKey(UnitOfMeasurement, on_delete=models.PROTECT)
+    conversion_factor = models.DecimalField(
+        max_digits=10,
+        decimal_places=4,
+        help_text="Сколько базовых единиц в 1 этой единице (напр: 1 банка = 18 литров → 18)"
+    )
+    is_default_for_sale = models.BooleanField(default=False, help_text="Основная единица для продажи")
 
     def __str__(self):
-        return self.name
+        return f"{self.product.name} - {self.unit.name} ({self.conversion_factor} {self.product.base_unit.name})"
 
     class Meta:
-        verbose_name = 'ölçeg birligi'
-        verbose_name_plural = 'ölçeg birlikleri'
+        verbose_name = 'ölçeg görnüşi'
+        verbose_name_plural = 'ölçeg görnüşleri'
+        unique_together = ('product', 'unit')
+
+
+
+
+
+# class UnitOfMeasurement(models.Model):
+#     name = models.CharField(verbose_name='ölçeg birligi', max_length=20, unique=True)
+
+#     def __str__(self):
+#         return self.name
+
+#     class Meta:
+#         verbose_name = 'ölçeg birligi'
+#         verbose_name_plural = 'ölçeg birlikleri'
 
 
 

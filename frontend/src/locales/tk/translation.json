@@ -59,7 +59,25 @@
 
   "ascendingOrder": "Artyp gelýär",  
   "descendingOrder": "Azalyp gelýär",
+  "asc": "Artma tertibinde",
+  "desc": "Azalma tertibinde",
   "sort": "Tertiplemek",
+
+  "inputCantBeEmpty": "Boş bolmaly däl", 
+
+  "acceptFilter": "Filtri ulan",
+  "cancelFilter": "Filtri aýyrmak",
+
+  "min": "Iň pes",
+  "max": "Iň ýokary",
+
+  "priceFrom": "Iň pes",
+  "priceTo": "Iň ýokary",
+
+  "categories": "Kategoriýalar",
+
+
+  
 
 
 
@@ -116,6 +134,17 @@
   "selectPartners": "Partnýory saýlaň",
   "joinedPertnerList": "Goşulan hyzmatdaşlaryň sanawy",
   "partnerSuccessUpdated": "Hyzmatdaşlar üstünlikli täzelendi",
+  "addFirstAgent": "Ilki agenty goşuň",
+
+
+  "unit": "Ölçeg birligi",
+  "unit2": "Ölçeg birligi",
+  "addFirstUnit": "Ölçeg birligi goşuň",
+  "addUnit": "Ölçeg birligi goşmak",
+  "newUnitAdded": "Ölçeg birligi üstünlikli goşuldy",
+  "unitDeleted": "Ölçeg birligi üstünlikli öçürildi",
+  "unitEdited": "Ölçeg birligi üstünlikli täzelendi",
+  "changeUnitName": "Ölçeg birligi üýtgetmek?",
 
 
   "productDeleted": "Haryt üstünlikli pozuldy",
@@ -124,6 +153,11 @@
   "productUpdated": "Haryt üstünlikli täzelendi",
   "productUpdatedError": "Ýalňyşlyk: haryt täzelenmedi",
   "addNewProduct": "Täze haryt goş",
-  "products": "Harytlar"
+  "products": "Harytlar",
+  "noneSort": "Tertipsiz",
+  "wholesale_price": "Arzan bahasy",
+  "retail_price": "Satyş bahasy",
+  "name": "Ady"
+  
 
 }

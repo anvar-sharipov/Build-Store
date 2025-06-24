@@ -395,7 +395,6 @@ const Employee = () => {
       <div className="lg:hidden text-center">
         <div className="flex justify-between items-center">
           <span className="print:block">{t("employeers")}</span>
-
           <div className="text-gray-600 dark:text-gray-400 flex items-center gap-3 print:hidden">
             {filtered.length > 0 && (
               <div className="flex gap-3 items-center">

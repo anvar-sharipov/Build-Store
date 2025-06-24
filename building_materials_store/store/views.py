@@ -12,11 +12,23 @@ from .serializers import *
 
 from rest_framework.views import APIView
 from rest_framework.response import Response
-from rest_framework.permissions import AllowAny
+from rest_framework.permissions import AllowAny, BasePermission, IsAuthenticated, SAFE_METHODS
 from rest_framework.decorators import api_view, action
 
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated
+from django.shortcuts import render, get_object_or_404
+from rest_framework.generics import CreateAPIView
+from django_filters.rest_framework import DjangoFilterBackend
+from .filters import ProductFilter
+
+from rest_framework.pagination import PageNumberPagination
+# swoy pagination 
+class CustomPageNumberPagination(PageNumberPagination):
+    page_size = 1              # Кол-во элементов на странице по умолчанию
+    page_size_query_param = 'page_size'  # Позволяет клиенту указать page_size в запросе (?page_size=50)
+    max_page_size = 100          # Максимальное кол-во элементов на странице, чтобы не перегружать сервер
+
 
 
 @api_view(['GET'])
@@ -29,6 +41,24 @@ def current_user(request):
     })
 
 
+# swoyo razgranichenie dostupa
+class IsInAdminOrWarehouseGroup(BasePermission):
+    """
+    Чтение — всем авторизованным.
+    Изменение — только группам 'admin' и 'warehouse_manager'.
+    """
+    def has_permission(self, request, view):
+        user = request.user
+        # Сначала проверяем – аутентификация выполнена?
+        if not user or not user.is_authenticated:
+            return False
+        # Разрешаем чтение всем аутентифицированным
+        if request.method in SAFE_METHODS:
+            return True # GET, HEAD, OPTIONS
+        # Для мутации — проверяем группы пользователя
+        allowed = user.groups.filter(name__in=['admin', 'warehouse_manager']).exists()
+        return allowed
+
 
 
 
@@ -38,10 +68,51 @@ class MyTokenObtainPairView(TokenObtainPairView):
 
 
 
-class ProductViewSet(viewsets.ReadOnlyModelViewSet):
-    permission_classes = [IsAuthenticated]
-    queryset = Product.objects.all()
+
+
+
+# стал полнофункциональным ModelViewSet (CRUD),
+# работал с одной точки входа (/api/products/),
+# использовал групповое разграничение доступа:
+# GET, HEAD, OPTIONS → всем авторизованным,
+# POST, PUT, PATCH, DELETE → только тем, кто в группе admin или warehouse_manager.
+
+class ProductViewSet(viewsets.ModelViewSet):
     serializer_class = ProductSerializer
+    pagination_class = CustomPageNumberPagination
+
+    filter_backends = [DjangoFilterBackend]
+    filterset_class = ProductFilter
+
+    def get_permissions(self):
+        return [IsInAdminOrWarehouseGroup()]
+
+    def get_queryset(self):
+        qs = Product.objects.all()
+        qs = qs.select_related('category', 'base_unit')
+        qs = qs.prefetch_related('units__unit')
+        return qs.distinct()
+
+    def list(self, request, *args, **kwargs):
+        # time.sleep(1)  # для теста задержка
+        queryset = self.filter_queryset(self.get_queryset())
+
+        page = self.paginate_queryset(queryset)
+        if page is not None:
+            serializer = self.get_serializer(page, many=True)
+            return self.get_paginated_response(serializer.data)
+
+        serializer = self.get_serializer(queryset, many=True)
+        return Response(serializer.data)
+
+    def retrieve(self, request, *args, **kwargs):
+        # time.sleep(1)  # задержка для теста
+        return super().retrieve(request, *args, **kwargs)
+
+
+
+
+
 
 
 
@@ -68,7 +139,7 @@ class PartnerViewSet(viewsets.ModelViewSet):
     
 
     def update(self, request, *args, **kwargs):
-        time.sleep(2)
+        # time.sleep(2)
         partial = kwargs.pop('partial', False)
         instance = self.get_object()
         serializer = self.get_serializer(instance, data=request.data, partial=partial)
@@ -175,7 +246,7 @@ class EmployeeViewSet(viewsets.ModelViewSet):
         return Response(status=status.HTTP_200_OK)
     
     def update(self, request, *args, **kwargs):
-        time.sleep(2)
+        # time.sleep(2)
         partial = kwargs.pop('partial', False)
         instance = self.get_object()
         serializer = self.get_serializer(instance, data=request.data, partial=partial)
@@ -250,7 +321,7 @@ class MySecureView(APIView):
 
 class AssignPartnersToAgentView(APIView):
     def post(self, request):
-        time.sleep(2)
+        # time.sleep(2)
         partners_id = request.data.get("partners_id")
         agent_id = request.data.get("igent_id")
 
@@ -270,3 +341,61 @@ class AssignPartnersToAgentView(APIView):
             Partner.objects.filter(id__in=partners_id).update(agent=agent)
 
         return Response({"message": "partnerSuccessUpdated"}, status=200)
+    
+
+
+class CategoryViewSet(viewsets.ReadOnlyModelViewSet):
+    queryset = Category.objects.all()
+    serializer_class = CategorySerializer
+    permission_classes = [IsAuthenticated]
+
+    
+    # def destroy(self, request, *args, **kwargs):
+    #     # return Response(
+    #     #         {'message': 'supplierHasSupplies'},
+    #     #         status=status.HTTP_400_BAD_REQUEST
+    #     #     )
+    #     instance = self.get_object()
+    #     self.perform_destroy(instance)
+    #     return Response({'message': 'AgentDeleted'}, status=status.HTTP_200_OK)
+    
+    # def create(self, request, *args, **kwargs):
+    #     serializer = self.get_serializer(data=request.data)
+    #     serializer.is_valid(raise_exception=True)
+    #     self.perform_create(serializer)
+    #     return Response({'data': serializer.data, "type": "success"}, status=status.HTTP_201_CREATED)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+class UnitOfMeasurementViewSet(viewsets.ModelViewSet):
+    queryset = UnitOfMeasurement.objects.all()
+    serializer_class = UnitOfMeasurementSerializer
+
+    def create(self, request, *args, **kwargs):
+        # time.sleep(2)
+        return super().create(request, *args, **kwargs)
+
+    def update(self, request, *args, **kwargs):
+        # time.sleep(2)
+        return super().update(request, *args, **kwargs)
+
+    def partial_update(self, request, *args, **kwargs):
+        # time.sleep(2)
+        return super().partial_update(request, *args, **kwargs)

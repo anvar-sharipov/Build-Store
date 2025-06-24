@@ -1,7 +1,10 @@
 // Components/Sidebar/SidebarRight.jsx
 import { useLocation, useSearchParams } from "react-router-dom";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useContext } from "react";
 import { useTranslation } from "react-i18next";
+import myAxios from "../../axios";
+import ProductsFilter from "./filters/productsFilter";
+import { SearchContext } from "../../context/SearchContext";
 
 // настройки для разных страниц
 const FILTER_CONFIG = {
@@ -24,15 +27,19 @@ const FILTER_CONFIG = {
 export default function SidebarRight() {
   // узнаём, на какой странице мы сейчас
   const location = useLocation();
+  const { searchQuery, setSearchQuery, searchParams, setSearchParams } = useContext(SearchContext);
 
   // чтобы читать и менять параметры в адресной строке  (http://site.com/partners?type=supplier)
-  const [searchParams, setSearchParams] = useSearchParams();
+  // const [searchParams, setSearchParams] = useSearchParams();
 
   const { t } = useTranslation();
 
   const [offset, setOffset] = useState(0);
+  // const [currentPath, setCurrentPath] = useState('')
+  // setCurrentPath(location.pathname)
   const currentPath = location.pathname;
-  const config = FILTER_CONFIG[currentPath];
+  // const config = FILTER_CONFIG[currentPath];
+  const config = FILTER_CONFIG[currentPath] ?? {};
 
   // слушаем прокрутку страницы
   useEffect(() => {
@@ -44,8 +51,37 @@ export default function SidebarRight() {
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
+  // ################################################################################################################################################################## START filter po /product
+
+  const [categories, setCategories] = useState([]);
+
+  useEffect(() => {
+    if (currentPath === "/products") {
+      const fetchCategories = async () => {
+        try {
+          const res = await myAxios.get("/categories");
+          setCategories(res.data);
+          console.log("Категории:", res.data);
+        } catch (e) {
+          console.error("Ошибка при загрузке категорий", e);
+        }
+      };
+      fetchCategories();
+    }
+  }, [currentPath]);
+
+  // selectedCategories и handleCategoryToggle всегда объявлены
+  const selectedCategories =
+    currentPath === "/products"
+      ? searchParams.get("categories")?.split(",") || []
+      : [];
+
+  // ########################################################################################################################################################################## END filter po /product
+
   //   Если текущая страница не найдена в FILTER_CONFIG — не показываем сайдбар
-  if (!config) return null;
+  // if (!config && currentPath !== "/products") return null;
+  if (!(currentPath in FILTER_CONFIG) && currentPath !== "/products")
+    return null;
 
   const typeOptions = config.type || [];
   const sortOptions = config.sort || [];
@@ -65,15 +101,15 @@ export default function SidebarRight() {
     }
     setSearchParams(searchParams);
   };
-
+  // w-48
   return (
     <aside
-      className="hidden lg:flex fixed top-16 right-0 h-[calc(100vh-4rem)] w-48 flex-col p-4 dark:bg-gray-900 shadow-lg overflow-y-auto z-20 mt-20"
+      className="hidden lg:flex fixed top-16 right-0 h-[calc(100vh-4rem)] w-72 flex-col p-4 dark:bg-gray-900 shadow-lg overflow-y-auto z-20 mt-20"
       style={{ top: `${80 - offset}px` }}
     >
-      <h2 className="font-semibold mb-4 text-gray-700 dark:text-gray-300 border-b pb-2">
+      {/* <h2 className="font-semibold mb-4 text-gray-700 dark:text-gray-300 border-b pb-2">
         {t("filter")}
-      </h2>
+      </h2> */}
 
       {/* Сортировка (для partners) */}
       {typeOptions.map((option) => {
@@ -122,6 +158,16 @@ export default function SidebarRight() {
             );
           })}
         </>
+      )}
+
+      {currentPath === "/products" && (
+        <ProductsFilter
+          searchParams={searchParams}
+          setSearchParams={setSearchParams}
+          categories={categories}
+          setSearchQuery={setSearchQuery}
+          t={t}
+        />
       )}
     </aside>
   );
