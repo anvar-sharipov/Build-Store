@@ -6,14 +6,19 @@ import { RiFileExcel2Fill } from "react-icons/ri";
 import MySearchInput from "../../../UI/MySearchInput";
 import { SearchContext } from "../../../context/SearchContext";
 
-const ProductAddAndSearchSection = ({ t, products, listItemRefs }) => {
+const ProductAddAndSearchSection = ({
+  t,
+  products,
+  listItemRefs,
+  totalCount,
+  searchInputRef,
+}) => {
   const { searchQuery, setSearchQuery, searchParams, setSearchParams } =
     useContext(SearchContext);
   const addIconRef = useRef(null);
   const hoverTimeoutRef = useRef(null);
   const [addIconHovered, setAddIconHovered] = useState(false);
   const [openAddModal, setOpenAddModal] = useState(false);
-  const searchInputRef = useRef(null);
   const [excelIconIsAnimating, setExcelIconIsAnimating] = useState(false);
   const excelIconRef = useRef(null);
   const [excelIconHovered, setExcelIconHovered] = useState(false);
@@ -90,7 +95,7 @@ const ProductAddAndSearchSection = ({ t, products, listItemRefs }) => {
           {products.length > 0 && (
             <div className="flex gap-3 items-center">
               <span>
-                {t("total")}: {products.length}
+                {t("total")}: {totalCount}
               </span>
               <RiFileExcel2Fill
                 size={30}
@@ -129,9 +134,8 @@ const ProductAddAndSearchSection = ({ t, products, listItemRefs }) => {
 
               addIconRef.current?.focus();
             }
-            if (e.key === "ArrowDown" && products.length > 0) {
+            if (e.key === "ArrowDown") {
               e.preventDefault();
-
               listItemRefs.current[0]?.focus();
             }
           }}

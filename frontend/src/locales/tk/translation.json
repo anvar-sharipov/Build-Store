@@ -76,6 +76,15 @@
 
   "categories": "Kategoriýalar",
 
+  "tags": "Tegler",
+
+  "status": "Status",
+
+  "onlyActive": "Diňe işjeňler",
+  "onlyInactive": "Diňe işjeň däl",
+
+  "quantityInStock": "Skladdaky mukdary",
+
 
   
 
@@ -135,6 +144,9 @@
   "joinedPertnerList": "Goşulan hyzmatdaşlaryň sanawy",
   "partnerSuccessUpdated": "Hyzmatdaşlar üstünlikli täzelendi",
   "addFirstAgent": "Ilki agenty goşuň",
+
+  "brands": "Brendler",
+  "brand": "Brend",
 
 
   "unit": "Ölçeg birligi",

@@ -1,5 +1,7 @@
-from django.db import models
+from django.db import models, IntegrityError, transaction
 from django.contrib.auth.models import AbstractUser
+from django.core.exceptions import ValidationError
+
 
 
 class CustomUser(AbstractUser):
@@ -48,32 +50,187 @@ class CustomUser(AbstractUser):
 
 
 class UnitOfMeasurement(models.Model):
-    name = models.CharField(max_length=100, verbose_name="ady")  # например: "литр", "банка", "коробка"
+    name = models.CharField(max_length=100, verbose_name="Наименование")  # Например: "литр", "банка", "коробка"
+
     def __str__(self):
         return self.name
+
     class Meta:
-        verbose_name = 'ölçeg birligi'
-        verbose_name_plural = 'ölçeg birlikleri'
+        verbose_name = 'Единица измерения'
+        verbose_name_plural = 'Единицы измерения'
 
 
 
 class Product(models.Model):
-    name = models.CharField(verbose_name='ady', max_length=1000)
-    base_unit = models.ForeignKey(UnitOfMeasurement, verbose_name='esasy ölçeg birligi', on_delete=models.PROTECT)
+    name = models.CharField(verbose_name='Наименование', max_length=1000)
+    description = models.TextField(verbose_name='Описание', blank=True, null=True)
 
-    category = models.ForeignKey('Category', verbose_name='Kategoriya', on_delete=models.PROTECT)
-    quantity = models.DecimalField(verbose_name='mukdary', max_digits=10, decimal_places=2)
-    purchase_price = models.DecimalField(verbose_name='Satyn alyş (покупка) bahasy', max_digits=10, decimal_places=2, default=0)
-    retail_price = models.DecimalField(verbose_name='Topar bahasy (розница)', max_digits=10, decimal_places=2, default=0)
-    wholesale_price = models.DecimalField(verbose_name='Arzanladyş bahasy (оптом)', max_digits=10, decimal_places=2, default=0)
+    base_unit = models.ForeignKey('UnitOfMeasurement', verbose_name='Базовая единица', on_delete=models.PROTECT)
+    category = models.ForeignKey('Category', verbose_name='Категория', on_delete=models.PROTECT)
+
+    sku = models.CharField(verbose_name='Артикул (SKU)', max_length=100, unique=True, null=True, blank=True)
+    qr_code = models.CharField(verbose_name='QR-код', max_length=1000, blank=True, null=True, unique=True)
+
+    quantity = models.DecimalField(verbose_name='Количество', max_digits=10, decimal_places=2, default=0)
+
+    purchase_price = models.DecimalField(verbose_name='Цена закупки', max_digits=10, decimal_places=2, default=0)
+    retail_price = models.DecimalField(verbose_name='Розничная цена', max_digits=10, decimal_places=2, default=0)
+    wholesale_price = models.DecimalField(verbose_name='Оптовая цена', max_digits=10, decimal_places=2, default=0)
+    discount_price = models.DecimalField(verbose_name='Цена со скидкой', max_digits=10, decimal_places=2, blank=True, null=True)
+
+    brand = models.ForeignKey('Brand', verbose_name='Бренд', on_delete=models.PROTECT)
+    model = models.ForeignKey('Model', verbose_name='Модель', on_delete=models.PROTECT, blank=True, null=True)
+
+    weight = models.DecimalField(verbose_name='Вес (кг)', max_digits=10, decimal_places=3, blank=True, null=True)
+
+    volume = models.DecimalField(verbose_name='Объём (м³)', max_digits=10, decimal_places=4, blank=True, null=True)
+    length = models.DecimalField(verbose_name='Длина (см)', max_digits=10, decimal_places=2, blank=True, null=True)
+    width = models.DecimalField(verbose_name='Ширина (см)', max_digits=10, decimal_places=2, blank=True, null=True)
+    height = models.DecimalField(verbose_name='Высота (см)', max_digits=10, decimal_places=2, blank=True, null=True)
+
+    is_active = models.BooleanField(verbose_name='Активен', default=True)
+    created_at = models.DateTimeField(verbose_name='Создан', auto_now_add=True)
+    updated_at = models.DateTimeField(verbose_name='Обновлён', auto_now=True)
+
+    tags = models.ManyToManyField('Tag', verbose_name='Теги', blank=True)
+
+
+    # def clean(self):
+    #     super().clean()
+    #     if not self.sku:
+    #         raise ValidationError({'sku': 'Артикул (SKU) должен быть заполнен.'})
+    #     if not self.qr_code:
+    #         raise ValidationError({'qr_code': 'QR-код должен быть заполнен.'})
+
+    def save(self, *args, **kwargs):
+        if not self.sku:
+            for _ in range(10):  # Попытки сгенерировать уникальный sku
+                last_id = Product.objects.order_by('-id').first()
+                next_id = (last_id.id + 1) if last_id else 1
+                self.sku = f"PRD{str(next_id).zfill(4)}"
+
+                if not self.qr_code:
+                    self.qr_code = self.sku
+
+                try:
+                    with transaction.atomic():
+                        # self.full_clean()  # Проверка, что sku и qr_code теперь валидны
+                        super().save(*args, **kwargs)
+                    return
+                except IntegrityError:
+                    # Если sku уже существует, пробуем с новым next_id
+                    continue
+            raise Exception("Не удалось сохранить товар после 10 попыток")
+        else:
+            if not self.qr_code:
+                self.qr_code = self.sku
+            # self.full_clean()  # Проверка перед сохранением
+            super().save(*args, **kwargs)
+
 
 
     def __str__(self):
         return self.name
-    class Meta:
-        verbose_name = 'haryt'
-        verbose_name_plural = 'harytlar'
 
+    class Meta:
+        verbose_name = 'Товар'
+        verbose_name_plural = 'Товары'
+
+
+
+class Brand(models.Model):
+    name = models.CharField(verbose_name='Бренд', max_length=255, unique=True)
+
+    def __str__(self):
+        return self.name
+
+    class Meta:
+        verbose_name = 'Бренд'
+        verbose_name_plural = 'Бренды'
+
+
+class Model(models.Model):
+    brand = models.ForeignKey(Brand, verbose_name='Бренд', on_delete=models.CASCADE)
+    name = models.CharField(verbose_name='Модель', max_length=255)
+
+    def __str__(self):
+        return f"{self.brand.name} - {self.name}"
+
+    class Meta:
+        verbose_name = 'Модель'
+        verbose_name_plural = 'Модели'
+        unique_together = ('brand', 'name')
+
+
+def product_image_path(instance, filename):
+    return f'products/{instance.product.id}/{filename}'
+
+class ProductImage(models.Model):
+    product = models.ForeignKey(Product, related_name='images', on_delete=models.CASCADE, verbose_name='Товар')
+    image = models.ImageField(upload_to=product_image_path, verbose_name='Изображение')
+    alt_text = models.CharField(max_length=255, blank=True, null=True, verbose_name='Альтернативный текст')
+
+    class Meta:
+        verbose_name = 'Изображение товара'
+        verbose_name_plural = 'Изображения товаров'
+
+
+# dlya ucheta sroka godnosti towara
+class ProductBatch(models.Model):
+    product = models.ForeignKey(
+        Product, 
+        related_name='batches', 
+        on_delete=models.CASCADE,
+        verbose_name='Товар'
+    )
+
+    batch_number = models.CharField(
+        max_length=100, 
+        blank=True, 
+        null=True, 
+        verbose_name='Номер партии'
+    )
+
+    quantity = models.PositiveIntegerField(
+        verbose_name='Количество в партии'
+    )
+
+    arrival_date = models.DateField(
+        blank=True, 
+        null=True, 
+        verbose_name='Дата прихода'
+    )
+
+    production_date = models.DateField(
+        blank=True, 
+        null=True, 
+        verbose_name='Дата производства'
+    )
+
+    expiration_date = models.DateField(
+        blank=True, 
+        null=True, 
+        verbose_name='Срок годности'
+    )
+
+    def __str__(self):
+        return f"{self.product.name} — партия {self.batch_number or 'без номера'}"
+
+    class Meta:
+        verbose_name = 'Партия товара'
+        verbose_name_plural = 'Партии товаров'
+ 
+
+#  Пример «4K», «LED», «Скидка» «Новинка», «Эко», «Популярное».
+class Tag(models.Model):
+    name = models.CharField(verbose_name='Тег', max_length=100, unique=True)
+
+    def __str__(self):
+        return self.name
+
+    class Meta:
+        verbose_name = 'Тег'
+        verbose_name_plural = 'Теги'
 
 
 class ProductUnit(models.Model):

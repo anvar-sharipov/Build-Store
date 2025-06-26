@@ -32,6 +32,76 @@ class CustomUserAdmin(UserAdmin):
 
 
 
+class ModelInline(admin.TabularInline):
+    model = Model
+    extra = 1
+    show_change_link = True
+
+
+@admin.register(Brand)
+class BrandAdmin(admin.ModelAdmin):
+    list_display = ('id', 'name')
+    search_fields = ('name',)
+    inlines = [ModelInline]
+
+
+@admin.register(Model)
+class ModelAdmin(admin.ModelAdmin):
+    list_display = ('id', 'name', 'brand')
+    list_filter = ('brand',)
+    search_fields = ('name', 'brand__name')
+
+
+class ProductImageInline(admin.TabularInline):
+    model = ProductImage
+    extra = 1
+    readonly_fields = ['image_preview']
+
+    def image_preview(self, obj):
+        if obj.image:
+            return f'<img src="{obj.image.url}" width="100" />'
+        return "-"
+    image_preview.allow_tags = True
+    image_preview.short_description = "Превью"
+
+
+class ProductBatchInline(admin.TabularInline):
+    model = ProductBatch
+    extra = 1
+
+
+@admin.register(ProductImage)
+class ProductImageAdmin(admin.ModelAdmin):
+    list_display = ('id', 'product', 'alt_text', 'image_preview')
+    search_fields = ('product__name', 'alt_text')
+
+    def image_preview(self, obj):
+        if obj.image:
+            return f'<img src="{obj.image.url}" width="100" />'
+        return "-"
+    image_preview.allow_tags = True
+    image_preview.short_description = "Превью"
+
+
+@admin.register(ProductBatch)
+class ProductBatchAdmin(admin.ModelAdmin):
+    list_display = (
+        'id', 'product', 'batch_number', 'quantity',
+        'arrival_date', 'production_date', 'expiration_date'
+    )
+    list_filter = ('arrival_date', 'expiration_date', 'product')
+    search_fields = ('product__name', 'batch_number')
+
+
+@admin.register(Tag)
+class TagAdmin(admin.ModelAdmin):
+    list_display = ('id', 'name')
+    search_fields = ('name',)
+
+
+
+
+
 
 
 
@@ -54,7 +124,7 @@ class ProductUnitInline(admin.TabularInline):
 
 @admin.register(Product)
 class ProductAdmin(admin.ModelAdmin):
-    list_display = ('id', 'name', 'base_unit', 'wholesale_price', 'retail_price')
+    list_display = ('id', 'name', 'base_unit', 'wholesale_price', 'retail_price', 'quantity')
     search_fields = ('name',)
     autocomplete_fields = ('base_unit',)
     inlines = [ProductUnitInline]

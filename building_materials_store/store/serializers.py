@@ -25,7 +25,10 @@ class MyTokenObtainPairSerializer(TokenObtainPairSerializer):
 
 
 
-
+class TagSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Tag
+        fields = ['id', 'name']
 
 class ProductUnitSerializer(serializers.ModelSerializer):
     unit_name = serializers.CharField(source='unit.name', read_only=True)
@@ -36,21 +39,86 @@ class ProductUnitSerializer(serializers.ModelSerializer):
         fields = ['id', 'unit', 'unit_name', 'conversion_factor', 'is_default_for_sale', 'base_unit_name']
 
 
-class ProductSerializer(serializers.ModelSerializer):
-    category_name = serializers.SerializerMethodField()
-    base_unit_name = serializers.SerializerMethodField()
-    units = ProductUnitSerializer(many=True, read_only=True)
+class BrandSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Brand
+        fields = ['id', 'name']
 
+
+class ModelSerializer(serializers.ModelSerializer):
+    brand_obj = BrandSerializer(read_only=True, source='brand')
+
+    class Meta:
+        model = Model
+        fields = ['id', 'name', 'brand_obj']
+
+
+
+class UnitOfMeasurementSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = UnitOfMeasurement
+        fields = ['id', 'name']
+
+
+class CategorySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Category
+        fields = ['id', 'name']
+
+
+
+class ProductImageSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = ProductImage
+        fields = ['id', 'alt_text', 'image' ]
+
+
+class ProductBatchSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ProductBatch
+        fields = ['id', 'batch_number', 'quantity', 'arrival_date', 'production_date', 'expiration_date']
+
+
+class ProductSerializer(serializers.ModelSerializer):
+    category_name_obj = CategorySerializer(read_only=True, source='category')
+    base_unit_obj = UnitOfMeasurementSerializer(read_only=True, source='base_unit')
+    brand_obj = BrandSerializer(read_only=True, source='brand')
+    model_obj = ModelSerializer(read_only=True, source='model')
+    tags_obj = TagSerializer(many=True, read_only=True, source='tags')
+    tags = serializers.PrimaryKeyRelatedField(queryset=Tag.objects.all(), many=True, write_only=True)
+
+
+    units = ProductUnitSerializer(many=True, read_only=True)
+    images = ProductImageSerializer(many=True, read_only=True)
+    batches = ProductBatchSerializer(many=True, read_only=True)
+    
 
     class Meta:
         model = Product
-        fields = ['id', 'name', 'base_unit', 'category', 'quantity', 'purchase_price', 'retail_price', 'wholesale_price', 'category_name', 'base_unit_name', 'units']
+        fields = ['id', 'name', 'base_unit_obj', 'category', 'purchase_price', 'retail_price', 'wholesale_price', 'category_name_obj', 'units', 'description', 'sku', 'qr_code', 'quantity',
+                   'weight', 'volume', 'length', 'discount_price', 'brand_obj', 'model_obj', 'width', 'height', 'is_active', 'created_at', 'updated_at', 'tags_obj', 'tags', 'images', 'batches']
+        
+        
+    def create(self, validated_data):
+        tags_data = validated_data.pop('tags', [])
+        product = Product.objects.create(**validated_data)
+        product.tags.set(tags_data)
+        return product
+    
+    def update(self, instance, validated_data):
+        tags_data = validated_data.pop('tags', None)
+        if tags_data is not None:
+            instance.tags.set(tags_data)
+        return super().update(instance, validated_data)
 
-    def get_category_name(self, obj):
-        return obj.category.name
 
-    def get_base_unit_name(self, obj):
-        return obj.base_unit.name
+    
+
+
+    
+
+
 
 
 
@@ -156,14 +224,8 @@ class PartnerSerializer(serializers.ModelSerializer):
 
 
 
-class UnitOfMeasurementSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = UnitOfMeasurement
-        fields = ['id', 'name']
 
 
 
-class CategorySerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Category
-        fields = ['id', 'name']
+
+

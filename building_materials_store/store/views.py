@@ -25,7 +25,7 @@ from .filters import ProductFilter
 from rest_framework.pagination import PageNumberPagination
 # swoy pagination 
 class CustomPageNumberPagination(PageNumberPagination):
-    page_size = 1              # Кол-во элементов на странице по умолчанию
+    page_size = 2              # Кол-во элементов на странице по умолчанию
     page_size_query_param = 'page_size'  # Позволяет клиенту указать page_size в запросе (?page_size=50)
     max_page_size = 100          # Максимальное кол-во элементов на странице, чтобы не перегружать сервер
 
@@ -89,8 +89,8 @@ class ProductViewSet(viewsets.ModelViewSet):
 
     def get_queryset(self):
         qs = Product.objects.all()
-        qs = qs.select_related('category', 'base_unit')
-        qs = qs.prefetch_related('units__unit')
+        qs = qs.select_related('category', 'base_unit', 'brand', 'model')
+        qs = qs.prefetch_related('units__unit', 'images', 'batches')
         return qs.distinct()
 
     def list(self, request, *args, **kwargs):
@@ -348,6 +348,25 @@ class CategoryViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = Category.objects.all()
     serializer_class = CategorySerializer
     permission_classes = [IsAuthenticated]
+
+
+class BrandViewSet(viewsets.ReadOnlyModelViewSet):
+    queryset = Brand.objects.all()
+    serializer_class = BrandSerializer
+    permission_classes = [IsAuthenticated]
+
+
+class ModelViewSet(viewsets.ReadOnlyModelViewSet):
+    queryset = Model.objects.all()
+    serializer_class = ModelSerializer
+    permission_classes = [IsAuthenticated]
+
+
+class TagViewSet(viewsets.ReadOnlyModelViewSet):
+    queryset = Tag.objects.all()
+    serializer_class = TagSerializer
+    permission_classes = [IsAuthenticated]
+
 
     
     # def destroy(self, request, *args, **kwargs):

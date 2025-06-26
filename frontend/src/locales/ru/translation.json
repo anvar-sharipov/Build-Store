@@ -77,6 +77,17 @@
 
   "categories": "Категории", 
 
+  "tags": "Теги",
+
+  "status": "Статус",
+
+  "onlyActive": "Только активные",
+  "onlyInactive": "Только неактивные",
+
+  "quantityInStock": "Количество на складе",
+
+
+
 
 
   
@@ -142,6 +153,9 @@
   "selectPartners": "Выберите партнёра",
   "partnerSuccessUpdated": "Партнёры успешно обновлёны",
   "addFirstAgent": "Добавьте первого агента",
+
+  "brands": "Бренды",
+  "brand": "Бренд",
   
 
 

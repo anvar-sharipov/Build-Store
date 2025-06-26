@@ -98,7 +98,7 @@ const Header = () => {
   };
 
   return (
-    <header className="bg-gray-800 text-gray-800 dark:text-white  dark:border-gray-700 px-4 sm:px-6 lg:px-20 py-3 print:hidden z-20">
+    <header className="bg-gray-800 text-gray-800 dark:text-white  dark:border-gray-700 px-4 sm:px-6 lg:px-20 py-3 print:hidden z-50 ">
       {/* header links for large screens */}
       <LargeScreenLinks
         setIsMenuOpen={setIsMenuOpen}

@@ -27,7 +27,8 @@ const FILTER_CONFIG = {
 export default function SidebarRight() {
   // узнаём, на какой странице мы сейчас
   const location = useLocation();
-  const { searchQuery, setSearchQuery, searchParams, setSearchParams } = useContext(SearchContext);
+  const { searchQuery, setSearchQuery, searchParams, setSearchParams } =
+    useContext(SearchContext);
 
   // чтобы читать и менять параметры в адресной строке  (http://site.com/partners?type=supplier)
   // const [searchParams, setSearchParams] = useSearchParams();
@@ -54,26 +55,55 @@ export default function SidebarRight() {
   // ################################################################################################################################################################## START filter po /product
 
   const [categories, setCategories] = useState([]);
+  const [brands, setBrands] = useState([]);
+  const [models, setModels] = useState([]);
+  const [tags, setTags] = useState([]);
+  // const [is_active , setIs_active ] = useState([]);
 
   useEffect(() => {
     if (currentPath === "/products") {
-      const fetchCategories = async () => {
+      const fetchAll = async () => {
         try {
-          const res = await myAxios.get("/categories");
-          setCategories(res.data);
-          console.log("Категории:", res.data);
+          const [categoriesRes, brandsRes, modelsRes, tagsRes] =
+            await Promise.all([
+              myAxios.get("/categories"),
+              myAxios.get("/brands"),
+              myAxios.get("/models"),
+              myAxios.get("/tags"),
+            ]);
+          setCategories(categoriesRes.data);
+          setBrands(brandsRes.data);
+          setModels(modelsRes.data);
+          setTags(tagsRes.data);
         } catch (e) {
-          console.error("Ошибка при загрузке категорий", e);
+          console.error("Ошибка при загрузке данных:", e);
         }
       };
-      fetchCategories();
+
+      fetchAll();
     }
   }, [currentPath]);
+
 
   // selectedCategories и handleCategoryToggle всегда объявлены
   const selectedCategories =
     currentPath === "/products"
       ? searchParams.get("categories")?.split(",") || []
+      : [];
+
+  const selectedBrands =
+    currentPath === "/products"
+      ? searchParams.get("brands")?.split(",") || []
+      : [];
+
+  const selectedModals =
+    currentPath === "/models"
+      ? searchParams.get("models")?.split(",") || []
+      : [];
+
+  const selectedTags =
+    currentPath === "/products"
+      ? searchParams.get("tags")?.split(",") || []
       : [];
 
   // ########################################################################################################################################################################## END filter po /product
@@ -102,10 +132,15 @@ export default function SidebarRight() {
     setSearchParams(searchParams);
   };
   // w-48
+  // className="hidden lg:flex fixed top-16 right-0 h-[calc(100vh-4rem)] w-72 flex-col p-4 dark:bg-gray-900 shadow-lg overflow-y-auto z-20 mt-20"
+  //     style={{ top: `${80 - offset}px` }}
   return (
     <aside
-      className="hidden lg:flex fixed top-16 right-0 h-[calc(100vh-4rem)] w-72 flex-col p-4 dark:bg-gray-900 shadow-lg overflow-y-auto z-20 mt-20"
-      style={{ top: `${80 - offset}px` }}
+      className="hidden lg:flex fixed right-0 w-72 flex-col p-4 dark:bg-gray-900 shadow-lg overflow-y-auto z-20 pt-20"
+      style={{
+        top: `${80 - offset}px`,
+        height: `calc(100vh - ${80 - offset}px)`,
+      }}
     >
       {/* <h2 className="font-semibold mb-4 text-gray-700 dark:text-gray-300 border-b pb-2">
         {t("filter")}
@@ -166,6 +201,10 @@ export default function SidebarRight() {
           setSearchParams={setSearchParams}
           categories={categories}
           setSearchQuery={setSearchQuery}
+          brands={brands}
+          models={models}
+          tags={tags}
+          selectedTags={selectedTags}
           t={t}
         />
       )}

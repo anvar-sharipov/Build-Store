@@ -13,6 +13,9 @@ router.register(r'partners', PartnerViewSet)
 router.register(r'groups', GroupViewSet)
 router.register(r'units', UnitOfMeasurementViewSet, basename='unit')
 router.register(r'categories', CategoryViewSet)
+router.register(r'brands', BrandViewSet)
+router.register(r'models', ModelViewSet)
+router.register(r'tags', TagViewSet)
 # path('groups/', GroupViewSet.as_view()),
 
 urlpatterns = [
@@ -25,6 +28,5 @@ urlpatterns = [
     path('user/', current_user),
     path('userinfo/', MySecureView.as_view()),
     path('assign-partners/', AssignPartnersToAgentView.as_view(), name='assign_partners'),
-
 ]
 

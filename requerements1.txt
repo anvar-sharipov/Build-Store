@@ -32,3 +32,5 @@ npm install --save @fortawesome/react-fontawesome @fortawesome/free-solid-svg-ic
 npm install xlsx file-saver       for download excel from frontend
 npm install formik
 npm install yup
+npm install react-select
+npm install lucide-react
