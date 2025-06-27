@@ -24,6 +24,7 @@ import SidebarRight from "./Components/Sidebar/right/SideRight";
 import Unit from "./Components/Page/Unit/Unit";
 import { SearchProvider } from "./Components/context/SearchContext.jsx";
 
+
 function SidebarLeft() {
   const location = useLocation();
   const { t } = useTranslation();

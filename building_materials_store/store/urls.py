@@ -16,6 +16,7 @@ router.register(r'categories', CategoryViewSet)
 router.register(r'brands', BrandViewSet)
 router.register(r'models', ModelViewSet)
 router.register(r'tags', TagViewSet)
+router.register(r'product-images', ProductImageViewSet)
 # path('groups/', GroupViewSet.as_view()),
 
 urlpatterns = [
@@ -28,5 +29,7 @@ urlpatterns = [
     path('user/', current_user),
     path('userinfo/', MySecureView.as_view()),
     path('assign-partners/', AssignPartnersToAgentView.as_view(), name='assign_partners'),
+
+    path("check-name-unique/", check_name_unique, name="check_name_unique"),
 ]
 

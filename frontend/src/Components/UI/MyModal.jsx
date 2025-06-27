@@ -27,11 +27,13 @@ const MyModal = ({
         animate={{ opacity: 1 }}
         exit={{ opacity: 0 }}
         transition={{ duration: 0.2 }}
-        onClick={(e) => {
-          if (e.target === e.currentTarget && !loading && !isActiveSmallModal) {
-            onClose();
-          }
-        }}
+
+        // Zakrytie modalki esli klick wne ee
+        // onClick={(e) => {
+        //   if (e.target === e.currentTarget && !loading && !isActiveSmallModal) {
+        //     onClose();
+        //   }
+        // }}
       >
         <motion.div
           className={`bg-white dark:bg-gray-900 rounded-2xl shadow-2xl 
@@ -40,7 +42,7 @@ const MyModal = ({
           ? "w-full max-w-[98vw]"
           : "w-[95%] sm:w-[90%] md:w-[80%] lg:w-[70%] xl:w-[60%]"
       } 
-      max-h-[90vh] min-h-[60vh] relative 
+      max-h-[100vh] min-h-[60vh] relative 
       border border-gray-200/20 dark:border-gray-700/30 backdrop-blur-xl`}
           // className="bg-white dark:bg-gray-900 rounded-2xl shadow-2xl shadow-black/25 dark:shadow-black/50 w-[95%] sm:w-[90%] md:w-[80%] lg:w-[70%] xl:w-[60%] max-h-[90vh] min-h-[60vh] overflow-hidden relative border border-gray-200/20 dark:border-gray-700/30 backdrop-blur-xl"
           initial={{ scale: 0.8, y: 50, opacity: 0 }}

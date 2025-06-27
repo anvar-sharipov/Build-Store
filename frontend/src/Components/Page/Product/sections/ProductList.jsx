@@ -24,6 +24,15 @@ const ProductList = ({
 }) => {
   const loadMoreButtonRef = useRef(null);
 
+
+  const openEditWindow = (productId) => {
+  window.open(
+    `/products/${productId}/edit`,
+    "_blank", // открывает в новой вкладке/окне
+    "width=900,height=700,scrollbars=yes,resizable=yes"
+  );
+};
+
   return (
     <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md overflow-hidden">
       <div className="border border-gray-300 dark:border-gray-600 rounded-sm overflow-hidden">

@@ -47,10 +47,11 @@ class BrandSerializer(serializers.ModelSerializer):
 
 class ModelSerializer(serializers.ModelSerializer):
     brand_obj = BrandSerializer(read_only=True, source='brand')
+    brand = serializers.PrimaryKeyRelatedField(queryset=Brand.objects.all()) 
 
     class Meta:
         model = Model
-        fields = ['id', 'name', 'brand_obj']
+        fields = ['id', 'name', 'brand', 'brand_obj']
 
 
 
@@ -71,7 +72,7 @@ class ProductImageSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = ProductImage
-        fields = ['id', 'alt_text', 'image' ]
+        fields = ['id', 'product', 'alt_text', 'image' ]
 
 
 class ProductBatchSerializer(serializers.ModelSerializer):
@@ -86,7 +87,12 @@ class ProductSerializer(serializers.ModelSerializer):
     brand_obj = BrandSerializer(read_only=True, source='brand')
     model_obj = ModelSerializer(read_only=True, source='model')
     tags_obj = TagSerializer(many=True, read_only=True, source='tags')
-    tags = serializers.PrimaryKeyRelatedField(queryset=Tag.objects.all(), many=True, write_only=True)
+
+    tags = serializers.PrimaryKeyRelatedField(queryset=Tag.objects.all(), many=True, write_only=True, required=False)
+    base_unit = serializers.PrimaryKeyRelatedField(queryset=UnitOfMeasurement.objects.all(), write_only=True)
+    brand = serializers.PrimaryKeyRelatedField(queryset=Brand.objects.all(), write_only=True, required=False, allow_null=True)
+    model = serializers.PrimaryKeyRelatedField(queryset=Model.objects.all(), write_only=True, required=False, allow_null=True)
+    category = serializers.PrimaryKeyRelatedField(queryset=Category.objects.all(), write_only=True, required=False, allow_null=True)
 
 
     units = ProductUnitSerializer(many=True, read_only=True)
@@ -96,8 +102,20 @@ class ProductSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Product
-        fields = ['id', 'name', 'base_unit_obj', 'category', 'purchase_price', 'retail_price', 'wholesale_price', 'category_name_obj', 'units', 'description', 'sku', 'qr_code', 'quantity',
-                   'weight', 'volume', 'length', 'discount_price', 'brand_obj', 'model_obj', 'width', 'height', 'is_active', 'created_at', 'updated_at', 'tags_obj', 'tags', 'images', 'batches']
+        fields = [
+            'id', 'name', 'description', 'sku', 'qr_code',
+            'quantity', 'purchase_price', 'retail_price', 'wholesale_price', 'discount_price',
+            'weight', 'volume', 'length', 'width', 'height',
+            
+            'base_unit', 'base_unit_obj',
+            'category', 'category_name_obj',
+            'brand', 'brand_obj',
+            'model', 'model_obj',
+            
+            'tags', 'tags_obj',
+            'units', 'images', 'batches',
+            'is_active', 'created_at', 'updated_at'
+        ]
         
         
     def create(self, validated_data):

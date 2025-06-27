@@ -21,6 +21,8 @@ from django.shortcuts import render, get_object_or_404
 from rest_framework.generics import CreateAPIView
 from django_filters.rest_framework import DjangoFilterBackend
 from .filters import ProductFilter
+from django.views.decorators.http import require_GET
+from django.http import JsonResponse
 
 from rest_framework.pagination import PageNumberPagination
 # swoy pagination 
@@ -108,6 +110,10 @@ class ProductViewSet(viewsets.ModelViewSet):
     def retrieve(self, request, *args, **kwargs):
         # time.sleep(1)  # задержка для теста
         return super().retrieve(request, *args, **kwargs)
+    
+    def update(self, request, *args, **kwargs):
+        time.sleep(2)
+        return super().update(request, *args, **kwargs)
 
 
 
@@ -344,28 +350,34 @@ class AssignPartnersToAgentView(APIView):
     
 
 
-class CategoryViewSet(viewsets.ReadOnlyModelViewSet):
+class CategoryViewSet(viewsets.ModelViewSet):
     queryset = Category.objects.all()
     serializer_class = CategorySerializer
     permission_classes = [IsAuthenticated]
 
 
-class BrandViewSet(viewsets.ReadOnlyModelViewSet):
+class BrandViewSet(viewsets.ModelViewSet):
     queryset = Brand.objects.all()
     serializer_class = BrandSerializer
     permission_classes = [IsAuthenticated]
 
 
-class ModelViewSet(viewsets.ReadOnlyModelViewSet):
+class ModelViewSet(viewsets.ModelViewSet):
     queryset = Model.objects.all()
     serializer_class = ModelSerializer
     permission_classes = [IsAuthenticated]
 
 
-class TagViewSet(viewsets.ReadOnlyModelViewSet):
+class TagViewSet(viewsets.ModelViewSet):
     queryset = Tag.objects.all()
     serializer_class = TagSerializer
     permission_classes = [IsAuthenticated]
+
+
+class ProductImageViewSet(viewsets.ModelViewSet):
+    queryset = ProductImage.objects.all()
+    serializer_class = ProductImageSerializer
+    permission_classes = [IsAuthenticated]  
 
 
     
@@ -418,3 +430,11 @@ class UnitOfMeasurementViewSet(viewsets.ModelViewSet):
     def partial_update(self, request, *args, **kwargs):
         # time.sleep(2)
         return super().partial_update(request, *args, **kwargs)
+    
+
+
+@require_GET
+def check_name_unique(request):
+    name = request.GET.get('name', '').strip()
+    exists = Product.objects.filter(name__iexact=name).exists()
+    return JsonResponse({'exists': exists})

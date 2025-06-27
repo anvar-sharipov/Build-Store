@@ -11,7 +11,7 @@ import { SearchContext } from "../../context/SearchContext";
 import ProductList from "./sections/ProductList";
 import ProductEditModal from "./modals/ProductEditModal";
 import ProductEditModal2 from "./modals/ProductEditModal/ProductEditModal2";
-
+import { fetchUnits, fetchCategories, fetchBrands, fetchModels, fetchTags } from "../../fetchs/optionsFetchers";
 
 const Harytlar = () => {
   const { searchQuery, setSearchQuery, searchParams, setSearchParams } =
@@ -24,6 +24,7 @@ const Harytlar = () => {
   const [totalCount, setTotalCount] = useState(0);
   const searchInputRef = useRef(null);
   const [clickedNextPageBtn, setClickedNextPageBtn] = useState(false);
+  
 
   // modals
   const [productEditModal, setProductEditModal] = useState({
@@ -36,6 +37,69 @@ const Harytlar = () => {
     data: null,
     index: null,
   });
+
+  const [options, setOptions] = useState({
+    base_units: [],
+    categories: [],
+  });
+
+  useEffect(() => {
+    const loadData = async () => {
+      setLoading(true);
+      try {
+        const [units, categories, brands, models, tags] = await Promise.all([
+          fetchUnits(),
+          fetchCategories(),
+          fetchBrands(),
+          fetchModels(),
+          fetchTags(),
+        ]);
+
+        if (units) {
+          const formattedUnits = units.map((unit) => ({
+            value: String(unit.id),
+            label: unit.name,
+          }));
+          setOptions((prev) => ({ ...prev, base_units: formattedUnits }));
+        }
+
+        if (categories) {
+          const formattedCategories = categories.map((cat) => ({
+            value: String(cat.id),
+            label: cat.name,
+          }));
+          setOptions((prev) => ({ ...prev, categories: formattedCategories }));
+        }
+        if (brands) {
+          const formattedBrands = brands.map((brand) => ({
+            value: String(brand.id),
+            label: brand.name,
+          }));
+          setOptions((prev) => ({ ...prev, brands: formattedBrands }));
+        }
+        if (models) {
+          const formattedModels = models.map((model) => ({
+            value: String(model.id),
+            label: model.name,
+          }));
+          setOptions((prev) => ({ ...prev, models: formattedModels }));
+        }
+        if (tags) {
+          const formattedTags = tags.map((tag) => ({
+            value: String(tag.id),
+            label: tag.name,
+          }));
+          setOptions((prev) => ({ ...prev, tags: formattedTags }));
+        }
+      } catch (e) {
+        console.error("Ошибка загрузки данных:", e);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadData();
+  }, []);
 
   // useEffect(() => {
   //   if (!productEditModal.open) {
@@ -82,7 +146,7 @@ const Harytlar = () => {
         listItemRefs.current = []; // очищаем ссылки при смене фильтра
         setProducts(res.data.results);
         setTotalCount(res.data.count);
-        console.log(res.data.results);
+        // console.log(res.data.results);
       } else {
         // если это "Загрузить ещё" — добавляем к текущему + защита от дублей:
         setProducts((prev) => {
@@ -99,7 +163,6 @@ const Harytlar = () => {
       console.error("Ошибка при загрузке:", e);
     } finally {
       setLoading(false);
-      console.log("dadadadadadada", clickedNextPageBtn);
 
       // if (clickedNextPageBtn) {
       //   console.log('dadadadadadada2222222222', clickedNextPageBtn);
@@ -168,8 +231,12 @@ const Harytlar = () => {
 
       {productEditModal2.open && (
         <ProductEditModal2
+          setProducts={setProducts}
+          setOptions={setOptions}
+          options={options}
           productEditModal2={productEditModal2}
           setProductEditModal2={setProductEditModal2}
+          t={t}
         />
       )}
     </div>

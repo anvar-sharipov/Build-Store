@@ -66,7 +66,7 @@ class Product(models.Model):
     description = models.TextField(verbose_name='Описание', blank=True, null=True)
 
     base_unit = models.ForeignKey('UnitOfMeasurement', verbose_name='Базовая единица', on_delete=models.PROTECT)
-    category = models.ForeignKey('Category', verbose_name='Категория', on_delete=models.PROTECT)
+    category = models.ForeignKey('Category', verbose_name='Категория', on_delete=models.PROTECT, blank=True, null=True)
 
     sku = models.CharField(verbose_name='Артикул (SKU)', max_length=100, unique=True, null=True, blank=True)
     qr_code = models.CharField(verbose_name='QR-код', max_length=1000, blank=True, null=True, unique=True)
@@ -78,7 +78,7 @@ class Product(models.Model):
     wholesale_price = models.DecimalField(verbose_name='Оптовая цена', max_digits=10, decimal_places=2, default=0)
     discount_price = models.DecimalField(verbose_name='Цена со скидкой', max_digits=10, decimal_places=2, blank=True, null=True)
 
-    brand = models.ForeignKey('Brand', verbose_name='Бренд', on_delete=models.PROTECT)
+    brand = models.ForeignKey('Brand', verbose_name='Бренд', on_delete=models.PROTECT, blank=True, null=True)
     model = models.ForeignKey('Model', verbose_name='Модель', on_delete=models.PROTECT, blank=True, null=True)
 
     weight = models.DecimalField(verbose_name='Вес (кг)', max_digits=10, decimal_places=3, blank=True, null=True)
