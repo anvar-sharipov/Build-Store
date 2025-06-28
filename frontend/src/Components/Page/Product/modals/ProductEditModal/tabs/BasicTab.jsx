@@ -3,13 +3,12 @@ import { myClass } from "../../../../../tailwindClasses";
 import { useEffect, useRef, useState } from "react";
 import myAxios from "../../../../../axios";
 import UnitModal from "../../../../../UI/miniModals/UnitModal";
-import AdditionalUnitModal from "../../../../../UI/miniModals/AdditionalUnitModal";
 import ProductUnitsList from "./sections/ProductUnitsList";
 import ProductFreeItemsList from "./sections/ProductFreeItemsList";
 
 const BasicTab = ({ options, loadingModal, setOptions, productId }) => {
   const [showUnitModal, setShowUnitModal] = useState(false);
-  const [showAdditionalUnitModal, setShowAdditionalUnitModal] = useState(false);
+
   const {
     values,
     errors,
@@ -117,13 +116,7 @@ const BasicTab = ({ options, loadingModal, setOptions, productId }) => {
             >
               +
             </button>
-            <button
-              type="button"
-              className="bg-indigo-600 text-white px-3 rounded text-sm"
-              onClick={() => setShowAdditionalUnitModal(true)}
-            >
-              +
-            </button>
+ 
           </div>
           <ErrorMessage
             name="base_unit"
@@ -178,13 +171,7 @@ const BasicTab = ({ options, loadingModal, setOptions, productId }) => {
         />
       )}
 
-      {showAdditionalUnitModal && (
-        <AdditionalUnitModal
-          onClose={() => setShowAdditionalUnitModal(false)}
-          productId={productId}
-          // onSuccess={handleAdditionalUnitAdded}
-        />
-      )}
+  
     </div>
   );
 };
