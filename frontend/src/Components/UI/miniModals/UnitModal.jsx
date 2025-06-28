@@ -18,7 +18,7 @@ const UnitModal = ({ onClose, onSuccess }) => {
   return (
     <div className="fixed inset-0 bg-black bg-opacity-30 flex items-center justify-center z-50">
       <div className="bg-white p-6 rounded shadow-md w-96">
-        <h2 className="text-lg font-semibold mb-4">Добавить единицу</h2>
+        <h2 className="text-lg font-semibold mb-4">Добавить базовую единицу</h2>
         <input
           type="text"
           value={name}

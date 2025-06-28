@@ -127,14 +127,41 @@ class Product(models.Model):
             # self.full_clean()  # Проверка перед сохранением
             super().save(*args, **kwargs)
 
-
-
     def __str__(self):
         return self.name
 
     class Meta:
         verbose_name = 'Товар'
         verbose_name_plural = 'Товары'
+
+
+
+class FreeProduct(models.Model):
+    main_product = models.ForeignKey(
+        Product,
+        on_delete=models.CASCADE,
+        related_name='free_items',
+        verbose_name='Основной товар'
+    )
+    gift_product = models.ForeignKey(
+        Product,
+        on_delete=models.PROTECT,
+        related_name='used_as_free',
+        verbose_name='Бесплатный товар'
+    )
+    quantity_per_unit = models.DecimalField(
+        verbose_name='Количество на единицу основного товара',
+        max_digits=10,
+        decimal_places=2
+    )
+
+    class Meta:
+        verbose_name = 'Бесплатный товар'
+        verbose_name_plural = 'Бесплатные товары'
+
+    def __str__(self):
+        return f"{self.quantity_per_unit} x {self.gift_product.name} к {self.main_product.name}"
+
 
 
 

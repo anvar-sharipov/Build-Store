@@ -23,6 +23,8 @@ from django_filters.rest_framework import DjangoFilterBackend
 from .filters import ProductFilter
 from django.views.decorators.http import require_GET
 from django.http import JsonResponse
+from django.contrib.postgres.search import TrigramSimilarity
+from django.db.models import Q
 
 from rest_framework.pagination import PageNumberPagination
 # swoy pagination 
@@ -380,6 +382,14 @@ class ProductImageViewSet(viewsets.ModelViewSet):
     permission_classes = [IsAuthenticated]  
 
 
+
+
+class ProductUnitViewSet(viewsets.ModelViewSet):
+    queryset = ProductUnit.objects.all()
+    serializer_class = ProductUnitSerializer
+    permission_classes = [IsAuthenticated]  
+
+
     
     # def destroy(self, request, *args, **kwargs):
     #     # return Response(
@@ -438,3 +448,14 @@ def check_name_unique(request):
     name = request.GET.get('name', '').strip()
     exists = Product.objects.filter(name__iexact=name).exists()
     return JsonResponse({'exists': exists})
+
+
+# dlya poiska producta for free add
+@api_view(["GET"])
+def search_products(request):
+    query = request.GET.get("q", "")
+    results = Product.objects.annotate(
+        similarity=TrigramSimilarity("name", query)
+    ).filter(similarity__gt=0.1).order_by("-similarity")[:10]
+
+    return Response(ProductSerializer(results, many=True).data)

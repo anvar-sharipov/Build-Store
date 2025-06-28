@@ -81,6 +81,15 @@ class ProductBatchSerializer(serializers.ModelSerializer):
         fields = ['id', 'batch_number', 'quantity', 'arrival_date', 'production_date', 'expiration_date']
 
 
+class FreeProductSerializer(serializers.ModelSerializer):
+    gift_product_name = serializers.CharField(source="gift_product.name", read_only=True)
+    # main_product не нужно передавать, задаём вручную в ProductSerializer
+
+    class Meta:
+        model = FreeProduct
+        fields = ['id', 'gift_product', 'gift_product_name', 'quantity_per_unit']
+
+
 class ProductSerializer(serializers.ModelSerializer):
     category_name_obj = CategorySerializer(read_only=True, source='category')
     base_unit_obj = UnitOfMeasurementSerializer(read_only=True, source='base_unit')
@@ -95,7 +104,9 @@ class ProductSerializer(serializers.ModelSerializer):
     category = serializers.PrimaryKeyRelatedField(queryset=Category.objects.all(), write_only=True, required=False, allow_null=True)
 
 
-    units = ProductUnitSerializer(many=True, read_only=True)
+    # units = ProductUnitSerializer(many=True, read_only=True)
+    units = ProductUnitSerializer(many=True)
+    free_items = FreeProductSerializer(many=True)
     images = ProductImageSerializer(many=True, read_only=True)
     batches = ProductBatchSerializer(many=True, read_only=True)
     
@@ -113,22 +124,51 @@ class ProductSerializer(serializers.ModelSerializer):
             'model', 'model_obj',
             
             'tags', 'tags_obj',
-            'units', 'images', 'batches',
+            'units', 'images', 'batches', 'free_items',
             'is_active', 'created_at', 'updated_at'
         ]
         
         
     def create(self, validated_data):
         tags_data = validated_data.pop('tags', [])
+        units_data = validated_data.pop('units', [])
+        free_items_data = validated_data.pop('free_items', [])
+
         product = Product.objects.create(**validated_data)
         product.tags.set(tags_data)
+
+        for unit_data in units_data:
+            ProductUnit.objects.create(product=product, **unit_data)
+
+        for free_item_data in free_items_data:
+            FreeProduct.objects.create(main_product=product, **free_item_data)
+
         return product
     
     def update(self, instance, validated_data):
         tags_data = validated_data.pop('tags', None)
+        units_data = validated_data.pop('units', None)
+        free_items_data = validated_data.pop('free_items', None)
+        
         if tags_data is not None:
             instance.tags.set(tags_data)
-        return super().update(instance, validated_data)
+
+        # Обновляем основные поля продукта
+        instance = super().update(instance, validated_data)
+
+        if units_data is not None:
+            # Обновим units - можно удалить старые и создать новые (упрощенный вариант)
+            instance.units.all().delete()
+            for unit_data in units_data:
+                ProductUnit.objects.create(product=instance, **unit_data)
+
+        if free_items_data is not None:
+            instance.free_items.all().delete()
+            for free_item_data in free_items_data:
+                FreeProduct.objects.create(main_product=instance, **free_item_data)
+
+        return instance
+
 
 
     

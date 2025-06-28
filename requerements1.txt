@@ -36,3 +36,4 @@ npm install react-select
 npm install lucide-react
 npm install qrcode.react           for view image
 npm install react-qrcode-logo      for view image
+npm install react-select           for search input in base

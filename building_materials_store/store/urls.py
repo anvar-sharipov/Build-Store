@@ -17,6 +17,7 @@ router.register(r'brands', BrandViewSet)
 router.register(r'models', ModelViewSet)
 router.register(r'tags', TagViewSet)
 router.register(r'product-images', ProductImageViewSet)
+router.register(r'product-units', ProductUnitViewSet)
 # path('groups/', GroupViewSet.as_view()),
 
 urlpatterns = [
@@ -31,5 +32,6 @@ urlpatterns = [
     path('assign-partners/', AssignPartnersToAgentView.as_view(), name='assign_partners'),
 
     path("check-name-unique/", check_name_unique, name="check_name_unique"),
+    path("search-products/", search_products, name="search-products"), # dlya poiska producta for free add
 ]
 

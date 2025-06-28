@@ -21,7 +21,6 @@ import { AuthProvider } from "./AuthContext";
 import { useState, useEffect } from "react";
 import Agent from "./Components/Page/Agent/Agent";
 import SidebarRight from "./Components/Sidebar/right/SideRight";
-import Unit from "./Components/Page/Unit/Unit";
 import { SearchProvider } from "./Components/context/SearchContext.jsx";
 
 
@@ -61,7 +60,6 @@ function SidebarLeft() {
           { to: ROUTES.EMPLOYEERS, label: t("employeers"), key: "F3" },
           { to: ROUTES.PARTNERS, label: t("partners"), key: "F4" },
           { to: ROUTES.AGENTS, label: t("agents"), key: "F5" },
-          { to: ROUTES.UNITS, label: t("unit"), key: "F6" },
         ].map(({ to, label, key }) => (
           <li
             key={to}
@@ -104,7 +102,6 @@ function App() {
                   <Route path={ROUTES.EMPLOYEERS} element={<Employee />} />
                   <Route path={ROUTES.PARTNERS} element={<Partner />} />
                   <Route path={ROUTES.AGENTS} element={<Agent />} />
-                  <Route path={ROUTES.UNITS} element={<Unit />} />
                 </Routes>
               </section>
               <SidebarRight />

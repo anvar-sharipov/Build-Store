@@ -5,7 +5,7 @@ import * as Yup from "yup"; // Для валидации (по желанию)
 import BasicTab from "./tabs/BasicTab";
 import PricesTab from "./tabs/PricesTab";
 import DimensionsTab from "./tabs/DimensionsTab";
-import CategoriesTab from "./tabs/categoriesTab";
+import CategoriesTab from "./tabs/CategoriesTab";
 import HeaderForTabs from "./tabs/HeaderForTabs";
 import { fetchUnits } from "../../../../fetchs/optionsFetchers";
 import myAxios from "../../../../axios";
@@ -74,6 +74,8 @@ const ProductEditModal2 = ({
     brand: product.brand_obj ? String(product.brand_obj.id) : "",
     model: product.model_obj ? String(product.model_obj.id) : "",
     tags: product.tags_obj ? product.tags_obj.map((tag) => String(tag.id)) : [],
+    units: product.units || [],
+    free_items: product.free_items || [],
   };
 
   const validationSchema = Yup.object({
@@ -175,6 +177,7 @@ const ProductEditModal2 = ({
                     options={options}
                     loadingModal={loadingModal}
                     setOptions={setOptions}
+                    productId={product.id}
                   />
                 ) : activeTab === "prices" ? (
                   <PricesTab options={options} setOptions={setOptions} />
