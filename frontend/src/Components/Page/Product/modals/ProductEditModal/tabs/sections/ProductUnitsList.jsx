@@ -38,7 +38,7 @@ const ProductUnitsList = ({ unitOptions }) => {
       {values.units.map((unit, index) => (
         <div
           key={index}
-          className="flex gap-2 items-center border p-2 rounded bg-gray-50 dark:bg-gray-900"
+          className="flex gap-2 items-center border p-2 rounded bg-gray-50 dark:bg-gray-900 dark:text-gray-800"
         >
           {/* Выбор единицы */}
           <Field

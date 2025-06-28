@@ -36,7 +36,7 @@ const ProductEditModal2 = ({
 }) => {
   const [product, setProduct] = useState(productEditModal2.data);
   // const product = productEditModal2.data;
-  console.log("product", product);
+  // console.log("product", product);
 
   const [activeTab, setActiveTab] = useState("basic");
   const [loadingModal, setLoadingModal] = useState(false);
@@ -167,7 +167,9 @@ const ProductEditModal2 = ({
         onSubmit={onSubmit}
         validationSchema={validationSchema}
       >
-        {({ touched, errors, isValid, isSubmitting }) => (
+        {({ touched, errors, isValid, isSubmitting, values }) => (
+          // console.log("errors:", errors);
+          // console.log("isValid:", isValid);
           <Form>
             <div className="flex flex-col max-h-[80vh]">
               {/* Контент таба с прокруткой */}
@@ -201,6 +203,7 @@ const ProductEditModal2 = ({
                   type="submit"
                   className={myClass.button}
                   disabled={!isValid || isSubmitting || loadingModal}
+                  // !isValid 
                 >
                   {loadingModal ? (
                     <span className="flex items-center gap-2">
@@ -218,6 +221,7 @@ const ProductEditModal2 = ({
                     "Наименование"
                   </div>
                 )}
+                {/* <pre>{JSON.stringify({ errors, touched, values }, null, 2)}</pre> */}
               </div>
             </div>
           </Form>
