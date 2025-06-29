@@ -18,7 +18,6 @@ const ProductList = ({
   setClickedNextPageBtn,
   clickedNextPageBtn,
   productEditModal,
-  setProductEditModal,
   productEditModal2,
   setProductEditModal2,
 }) => {
@@ -45,7 +44,7 @@ const ProductList = ({
               tabIndex={0}
               onClick={() => listItemRefs.current[index]?.focus()}
               onDoubleClick={() => {
-                setProductEditModal({ open: true, data: p, index });
+                setProductEditModal2({ open: true, data: p, index });
               }}
               onKeyDown={(e) => {
                 if (e.key === "Delete") {
@@ -60,7 +59,7 @@ const ProductList = ({
                   //   });
                 } else if (e.key === "Enter" || e.key === " ") {
                   e.preventDefault();
-                  setProductEditModal({ open: true, data: p, index });
+                  setProductEditModal2({ open: true, data: p, index });
                 } else if (
                   e.key === "ArrowDown" &&
                   index + 1 < products.length
@@ -134,24 +133,7 @@ const ProductList = ({
                   </div>
                 </button> */}
 
-                <button
-                  //   ref={(el) => (editIconRefs.current[index] = el)}
-                  //   onMouseEnter={() => {
-                  //     hoverTimeoutRef.current = setTimeout(() => {
-                  //       setHoveredEditIndex(index);
-                  //     }, 500);
-                  //   }}
-                  //   onMouseLeave={() => {
-                  //     clearTimeout(hoverTimeoutRef.current);
-                  //     setHoveredEditIndex(null);
-                  //   }}
-                  className="p-1 text-gray-800 hover:text-green-700 hover:bg-green-200 dark:hover:bg-green-700 rounded transition-colors dark:text-green-500 print:hidden"
-                  onClick={() =>
-                    setProductEditModal({ open: true, data: p, index })
-                  }
-                >
-                  <GrEdit size={14} />
-                </button>
+             
                 <button
                   //   ref={(el) => (editIconRefs.current[index] = el)}
                   //   onMouseEnter={() => {
@@ -168,7 +150,7 @@ const ProductList = ({
                     setProductEditModal2({ open: true, data: p, index })
                   }
                 >
-                  <GrEdit size={14} />2
+                  <GrEdit size={14} />
                 </button>
                 {/* <button
                   //   ref={(el) => (deleteIconRefs.current[index] = el)}

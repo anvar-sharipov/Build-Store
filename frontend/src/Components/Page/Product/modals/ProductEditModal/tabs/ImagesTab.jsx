@@ -1,6 +1,7 @@
 import { useFormikContext, Field, ErrorMessage } from "formik";
 import { QRCode } from "react-qrcode-logo";
 import UploadImageForm from "../../../../../UI/UploadImageForm";
+import { myClass } from "../../../../../tailwindClasses";
 
 function QRDisplay({ code }) {
   return (
@@ -21,7 +22,7 @@ const ImagesTab = ({ options, product, setProduct }) => {
           <label className="block text-sm font-medium mb-1">QR код</label>
           <Field
             name="qr_code"
-            className="border border-gray-300 p-2 rounded w-full dark:bg-gray-800 text-sm"
+            className={myClass.input2}
             placeholder="QR code продукта"
             autoComplete="off"
             disabled

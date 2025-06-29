@@ -20,10 +20,6 @@ const BasicTab = ({ options, loadingModal, setOptions, productId }) => {
   } = useFormikContext();
   // console.log("options", options);
 
- 
-  
-  
-
   const handleUnitAdded = (newUnit) => {
     // добавляем в список options и сразу выбираем
     setOptions((prev) => ({
@@ -60,14 +56,17 @@ const BasicTab = ({ options, loadingModal, setOptions, productId }) => {
   return (
     <div className="space-y-4">
       {/* Наименование — на всю ширину */}
-      <div>
-        <label className="block text-sm font-medium">Наименование</label>
-        <Field
-          name="name"
-          className="border border-gray-300 p-2 rounded w-full dark:bg-gray-800"
-          placeholder="Введите наименование"
-          autoComplete="off"
-        />
+      <div className="mt-5">
+        <div className="flex gap-2 items-center">
+          <label className="block text-sm font-medium">Наименование</label>
+          <Field
+            name="name"
+            className={myClass.input2}
+            placeholder="Введите наименование"
+            autoComplete="off"
+          />
+        </div>
+
         <ErrorMessage
           name="name"
           component="div"
@@ -83,7 +82,7 @@ const BasicTab = ({ options, loadingModal, setOptions, productId }) => {
           <Field
             type="number"
             name="quantity"
-            className="border border-gray-300 p-2 rounded w-full dark:bg-gray-800"
+            className={myClass.input2}
             placeholder="Введите количество"
           />
           <ErrorMessage
@@ -100,7 +99,7 @@ const BasicTab = ({ options, loadingModal, setOptions, productId }) => {
             <Field
               as="select"
               name="base_unit"
-              className="border border-gray-300 p-2 rounded w-full dark:bg-gray-800"
+              className={myClass.input2}
             >
               <option value="">Выберите единицу</option>
               {options.base_units.map((unit) => (
@@ -111,12 +110,11 @@ const BasicTab = ({ options, loadingModal, setOptions, productId }) => {
             </Field>
             <button
               type="button"
-              className="bg-green-600 text-white px-3 rounded text-sm"
+              className={myClass.buttonRounded}
               onClick={() => setShowUnitModal(true)}
             >
               +
             </button>
- 
           </div>
           <ErrorMessage
             name="base_unit"
@@ -130,37 +128,39 @@ const BasicTab = ({ options, loadingModal, setOptions, productId }) => {
           <label className="block text-sm font-medium">Артикул (SKU)</label>
           <Field
             name="sku"
-            className="border border-gray-300 p-2 rounded w-full dark:bg-gray-800"
             placeholder="Автоматически"
             disabled={true}
           />
+        </div>
+
+        {/* Активен */}
+        <div className="flex items-center gap-2">
+          <Field
+            type="checkbox"
+            name="is_active"
+            className="form-checkbox h-5 w-5 text-blue-600"
+          />
+          <label className="text-sm font-medium">Активен</label>
         </div>
       </div>
 
       {/* Описание — на всю ширину */}
       <div>
-        <label className="block text-sm font-medium">Описание</label>
+        <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">
+          Описание
+        </label>
         <Field
           as="textarea"
           name="description"
-          className="border border-gray-300 p-2 rounded w-full dark:bg-gray-800"
+          rows={4}
+          placeholder="Введите описание..."
+          className={myClass.input2}
         />
       </div>
 
-      {/* Активен */}
-      <div className="flex items-center gap-2">
-        <Field
-          type="checkbox"
-          name="is_active"
-          className="form-checkbox h-5 w-5 text-blue-600"
-        />
-        <label className="text-sm font-medium">Активен</label>
-      </div>
-
-      <div className="flex flex-col sm:flex-row gap-4">
-        <ProductUnitsList unitOptions={options.base_units} />
+      <div className="flex flex-col gap-4 sm:gap-6 sm:flex-col lg:flex-row justify-between">
         <ProductFreeItemsList productOptions={options.products} />
-        
+        <ProductUnitsList unitOptions={options.base_units} errors={errors} />
       </div>
 
       {/* Модалка */}
@@ -170,8 +170,6 @@ const BasicTab = ({ options, loadingModal, setOptions, productId }) => {
           onSuccess={handleUnitAdded}
         />
       )}
-
-  
     </div>
   );
 };

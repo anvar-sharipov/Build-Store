@@ -1,4 +1,5 @@
 import { useFormikContext, Field, ErrorMessage } from "formik";
+import { myClass } from "../../../../../tailwindClasses";
 
 const PricesTab = () => {
   const {
@@ -19,7 +20,7 @@ const PricesTab = () => {
           <Field
             type="number"
             name="purchase_price"
-            className="border border-gray-300 p-2 rounded w-full dark:bg-gray-800"
+            className={myClass.input2}
             placeholder="Введите цену"
           />
           <ErrorMessage
@@ -35,7 +36,7 @@ const PricesTab = () => {
           <Field
             type="number"
             name="retail_price"
-            className="border border-gray-300 p-2 rounded w-full dark:bg-gray-800"
+            className={myClass.input2}
             placeholder="Введите цену"
           />
           <ErrorMessage
@@ -51,7 +52,7 @@ const PricesTab = () => {
           <Field
             type="number"
             name="wholesale_price"
-            className="border border-gray-300 p-2 rounded w-full dark:bg-gray-800"
+            className={myClass.input2}
             placeholder="Введите цену"
           />
           <ErrorMessage

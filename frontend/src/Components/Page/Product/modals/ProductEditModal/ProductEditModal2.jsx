@@ -128,6 +128,30 @@ const ProductEditModal2 = ({
     length: Yup.number().min(0, "Не может быть отрицательным").notRequired(),
     width: Yup.number().min(0, "Не может быть отрицательным").notRequired(),
     height: Yup.number().min(0, "Не может быть отрицательным").notRequired(),
+    units: Yup.array().of(
+      Yup.object().shape({
+        unit: Yup.number()
+          .required("Выберите единицу")
+          .typeError("Неверное значение"),
+        conversion_factor: Yup.number()
+          .required("Введите коэффициент")
+          .positive("Коэффициент должен быть положительным")
+          .typeError("Неверное значение"),
+        is_default_for_sale: Yup.boolean(),
+      })
+    ),
+    free_items: Yup.array().of(
+      Yup.object().shape({
+        // unit: Yup.number()
+        //   .required("Выберите единицу")
+        //   .typeError("Неверное значение"),
+        quantity_per_unit: Yup.number()
+          .required("Введите количество")
+          .min(0, "Количество не может быть отрицательным")
+          .typeError("Неверное значение"),
+        gift_product: Yup.string().required("Выберите продукт"),
+      })
+    ),
   });
 
   // 2️⃣ Обработка отправки формы
@@ -156,12 +180,6 @@ const ProductEditModal2 = ({
         setProductEditModal2({ open: false, data: null, index: null });
       }}
     >
-      <HeaderForTabs
-        tabs={tabs}
-        activeTab={activeTab}
-        setActiveTab={setActiveTab}
-      />
-
       <Formik
         initialValues={initialValues}
         onSubmit={onSubmit}
@@ -169,7 +187,13 @@ const ProductEditModal2 = ({
       >
         {({ touched, errors, isValid, isSubmitting }) => (
           <Form>
-            <div className="flex flex-col max-h-[80vh]">
+            <HeaderForTabs
+              tabs={tabs}
+              activeTab={activeTab}
+              setActiveTab={setActiveTab}
+            />
+
+            <div className="flex flex-col max-h-[80vh] border p-2 bg-gray-200 dark:bg-gray-800">
               {/* Контент таба с прокруткой */}
               <div className="flex-1 overflow-auto pr-1">
                 {activeTab === "basic" ? (
@@ -184,7 +208,11 @@ const ProductEditModal2 = ({
                 ) : activeTab === "dimensions" ? (
                   <DimensionsTab options={options} setOptions={setOptions} />
                 ) : activeTab === "categories" ? (
-                  <CategoriesTab options={options} setOptions={setOptions} />
+                  <CategoriesTab
+                    options={options}
+                    setOptions={setOptions}
+                    className={errors.category ? "bg-red-300" : ""}
+                  />
                 ) : activeTab === "images" ? (
                   <ImagesTab
                     options={options}
@@ -196,7 +224,7 @@ const ProductEditModal2 = ({
               </div>
 
               {/* Кнопка внизу */}
-              <div className="mt-4 pt-2 border-t border-gray-300 text-right bg-white dark:bg-gray-900 sticky bottom-0">
+              <div className="mt-4 pt-2 border-t border-gray-300 text-right dark:bg-gray-900 sticky bottom-0">
                 <button
                   type="submit"
                   className={myClass.button}
@@ -211,13 +239,6 @@ const ProductEditModal2 = ({
                     t("edit")
                   )}
                 </button>
-
-                {errors.name && touched.name && (
-                  <div className="text-red-600 text-sm mt-2">
-                    ⚠️ Невозможно сохранить, пока есть ошибка в поле
-                    "Наименование"
-                  </div>
-                )}
               </div>
             </div>
           </Form>

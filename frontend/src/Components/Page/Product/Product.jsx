@@ -9,7 +9,6 @@ import { useSearchParams } from "react-router-dom";
 import Fuse from "fuse.js";
 import { SearchContext } from "../../context/SearchContext";
 import ProductList from "./sections/ProductList";
-import ProductEditModal from "./modals/ProductEditModal";
 import ProductEditModal2 from "./modals/ProductEditModal/ProductEditModal2";
 import { fetchUnits, fetchCategories, fetchBrands, fetchModels, fetchTags } from "../../fetchs/optionsFetchers";
 
@@ -27,11 +26,6 @@ const Harytlar = () => {
   
 
   // modals
-  const [productEditModal, setProductEditModal] = useState({
-    open: false,
-    data: null,
-    index: null,
-  });
   const [productEditModal2, setProductEditModal2] = useState({
     open: false,
     data: null,
@@ -203,8 +197,6 @@ const Harytlar = () => {
         <MyLoading />
       ) : products.length > 0 ? (
         <ProductList
-          productEditModal={productEditModal}
-          setProductEditModal={setProductEditModal}
           myClass={myClass}
           products={products}
           listItemRefs={listItemRefs}
@@ -222,12 +214,6 @@ const Harytlar = () => {
         <div>net product</div>
       )}
 
-      {productEditModal.open && (
-        <ProductEditModal
-          productEditModal={productEditModal}
-          setProductEditModal={setProductEditModal}
-        />
-      )}
 
       {productEditModal2.open && (
         <ProductEditModal2

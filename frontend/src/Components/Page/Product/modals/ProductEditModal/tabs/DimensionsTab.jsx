@@ -1,10 +1,9 @@
 import { useFormikContext, Field, ErrorMessage } from "formik";
+import { myClass } from "../../../../../tailwindClasses";
 
 const DimensionsTab = () => {
   const { values, errors, touched } = useFormikContext();
 
-  const inputClass =
-    "border border-gray-300 p-2 rounded w-full dark:bg-gray-800";
 
   const labelClass = "block text-sm font-medium";
 
@@ -14,7 +13,7 @@ const DimensionsTab = () => {
         {/* Вес */}
         <div>
           <label className={labelClass}>Вес (кг)</label>
-          <Field type="number" name="weight" className={inputClass} />
+          <Field type="number" name="weight" className={myClass.input2} />
           <ErrorMessage
             name="weight"
             component="div"
@@ -25,7 +24,7 @@ const DimensionsTab = () => {
         {/* Объём */}
         <div>
           <label className={labelClass}>Объём (м³)</label>
-          <Field type="number" name="volume" className={inputClass} />
+          <Field type="number" name="volume" className={myClass.input2} />
           <ErrorMessage
             name="volume"
             component="div"
@@ -36,7 +35,7 @@ const DimensionsTab = () => {
         {/* Длина */}
         <div>
           <label className={labelClass}>Длина (см)</label>
-          <Field type="number" name="length" className={inputClass} />
+          <Field type="number" name="length" className={myClass.input2} />
           <ErrorMessage
             name="length"
             component="div"
@@ -47,7 +46,7 @@ const DimensionsTab = () => {
         {/* Ширина */}
         <div>
           <label className={labelClass}>Ширина (см)</label>
-          <Field type="number" name="width" className={inputClass} />
+          <Field type="number" name="width" className={myClass.input2} />
           <ErrorMessage
             name="width"
             component="div"
@@ -58,7 +57,7 @@ const DimensionsTab = () => {
         {/* Высота */}
         <div>
           <label className={labelClass}>Высота (см)</label>
-          <Field type="number" name="height" className={inputClass} />
+          <Field type="number" name="height" className={myClass.input2} />
           <ErrorMessage
             name="height"
             component="div"
