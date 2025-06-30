@@ -115,7 +115,7 @@ class ProductSerializer(serializers.ModelSerializer):
         model = Product
         fields = [
             'id', 'name', 'description', 'sku', 'qr_code',
-            'quantity', 'purchase_price', 'retail_price', 'wholesale_price', 'discount_price',
+            'quantity', 'purchase_price', 'retail_price', 'wholesale_price', 'discount_price', 'firma_price',
             'weight', 'volume', 'length', 'width', 'height',
             
             'base_unit', 'base_unit_obj',
@@ -124,17 +124,24 @@ class ProductSerializer(serializers.ModelSerializer):
             'model', 'model_obj',
             
             'tags', 'tags_obj',
-            'units', 'images', 'batches', 'free_items',
+            'units', 
+            'images', 
+            'batches', 'free_items',
             'is_active', 'created_at', 'updated_at'
         ]
         
-        
+
+
     def create(self, validated_data):
         tags_data = validated_data.pop('tags', [])
         units_data = validated_data.pop('units', [])
         free_items_data = validated_data.pop('free_items', [])
 
-        product = Product.objects.create(**validated_data)
+        user = self.context['request'].user
+
+        product = Product(**validated_data)
+        product.save(user=user)  # передаём пользователя в модель
+
         product.tags.set(tags_data)
 
         for unit_data in units_data:
@@ -144,20 +151,24 @@ class ProductSerializer(serializers.ModelSerializer):
             FreeProduct.objects.create(main_product=product, **free_item_data)
 
         return product
-    
+
     def update(self, instance, validated_data):
         tags_data = validated_data.pop('tags', None)
         units_data = validated_data.pop('units', None)
         free_items_data = validated_data.pop('free_items', None)
-        
+
+        user = self.context['request'].user
+
         if tags_data is not None:
             instance.tags.set(tags_data)
 
-        # Обновляем основные поля продукта
-        instance = super().update(instance, validated_data)
+        # Обновляем поля экземпляра
+        for attr, value in validated_data.items():
+            setattr(instance, attr, value)
+
+        instance.save(user=user)  # передаём пользователя
 
         if units_data is not None:
-            # Обновим units - можно удалить старые и создать новые (упрощенный вариант)
             instance.units.all().delete()
             for unit_data in units_data:
                 ProductUnit.objects.create(product=instance, **unit_data)
@@ -170,11 +181,27 @@ class ProductSerializer(serializers.ModelSerializer):
         return instance
 
 
-
     
 
 
     
+
+class PriceChangeReportSerializer(serializers.ModelSerializer):
+    product_name = serializers.CharField(source="product.name", read_only=True)
+    product_unit = serializers.CharField(source="product.base_unit.name", read_only=True)
+    old_price = serializers.DecimalField(max_digits=10, decimal_places=2)
+    new_price = serializers.DecimalField(max_digits=10, decimal_places=2)
+    quantity_at_change = serializers.DecimalField(max_digits=10, decimal_places=2)
+    difference = serializers.DecimalField(max_digits=10, decimal_places=2)
+    changed_at = serializers.DateTimeField(format="%Y-%m-%d %H:%M:%S")
+
+    class Meta:
+        model = PriceChangeHistory
+        fields = [
+            "id", "product_name", "product_unit",
+            "old_price", "new_price", "quantity_at_change",
+            "difference", "changed_at"
+        ]
 
 
 

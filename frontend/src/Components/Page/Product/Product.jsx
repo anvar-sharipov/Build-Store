@@ -10,7 +10,14 @@ import Fuse from "fuse.js";
 import { SearchContext } from "../../context/SearchContext";
 import ProductList from "./sections/ProductList";
 import ProductEditModal2 from "./modals/ProductEditModal/ProductEditModal2";
-import { fetchUnits, fetchCategories, fetchBrands, fetchModels, fetchTags } from "../../fetchs/optionsFetchers";
+import ProductAddModal from "./modals/ProductAddModal/ProductAddModal";
+import {
+  fetchUnits,
+  fetchCategories,
+  fetchBrands,
+  fetchModels,
+  fetchTags,
+} from "../../fetchs/optionsFetchers";
 
 const Harytlar = () => {
   const { searchQuery, setSearchQuery, searchParams, setSearchParams } =
@@ -23,7 +30,8 @@ const Harytlar = () => {
   const [totalCount, setTotalCount] = useState(0);
   const searchInputRef = useRef(null);
   const [clickedNextPageBtn, setClickedNextPageBtn] = useState(false);
-  
+
+  const [productAddModalOpen, setProductAddModalOpen] = useState(false);
 
   // modals
   const [productEditModal2, setProductEditModal2] = useState({
@@ -192,6 +200,8 @@ const Harytlar = () => {
         listItemRefs={listItemRefs}
         totalCount={totalCount}
         searchInputRef={searchInputRef}
+        productAddModalOpen={productAddModalOpen}
+        setProductAddModalOpen={setProductAddModalOpen}
       />
       {loading ? (
         <MyLoading />
@@ -214,7 +224,6 @@ const Harytlar = () => {
         <div>net product</div>
       )}
 
-
       {productEditModal2.open && (
         <ProductEditModal2
           setProducts={setProducts}
@@ -222,6 +231,18 @@ const Harytlar = () => {
           options={options}
           productEditModal2={productEditModal2}
           setProductEditModal2={setProductEditModal2}
+          t={t}
+          isCreate={false}
+        />
+      )}
+
+      {productAddModalOpen && (
+        <ProductAddModal
+          setProducts={setProducts}
+          productAddModalOpen={productAddModalOpen}
+          setProductAddModalOpen={setProductAddModalOpen}
+          options={options}
+          setOptions={setOptions}
           t={t}
         />
       )}

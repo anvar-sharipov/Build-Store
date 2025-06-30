@@ -6,7 +6,7 @@ import ModelModal from "../../../../../UI/miniModals/ModelModal";
 import TagModal from "../../../../../UI/miniModals/TagModal";
 import { myClass } from "../../../../../tailwindClasses";
 
-const CategoriesTab = ({ options, setOptions }) => {
+const CategoriesTab = ({ options, setOptions, t }) => {
   const [showCategoryModal, setShowCategoryModal] = useState(false);
   const [showBrandModal, setShowBrandModal] = useState(false);
   const [showModelModal, setShowModelModal] = useState(false);
@@ -18,7 +18,6 @@ const CategoriesTab = ({ options, setOptions }) => {
     setFieldValue,
     setFieldError,
     initialValues,
-    // validateForm ,
   } = useFormikContext();
 
   const handleAdd = (type, item) => {
@@ -38,10 +37,10 @@ const CategoriesTab = ({ options, setOptions }) => {
     <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
       {/* Категория */}
       <div>
-        <label className="text-sm font-medium">Категория</label>
+        <label className="text-sm font-medium">{t("categoryLabel")}</label>
         <div className="flex gap-2">
           <Field as="select" name="category" className={myClass.input2}>
-            <option value="">Выберите категорию</option>
+            <option value="">{t("categoryPlaceholder")}</option>
             {options.categories.map((cat) => (
               <option key={cat.value} value={cat.value}>
                 {cat.label}
@@ -56,7 +55,6 @@ const CategoriesTab = ({ options, setOptions }) => {
             +
           </button>
         </div>
-
         {errors.category && (
           <div className="text-red-500 text-sm mt-1">{errors.category}</div>
         )}
@@ -64,10 +62,10 @@ const CategoriesTab = ({ options, setOptions }) => {
 
       {/* Бренд */}
       <div>
-        <label className="text-sm font-medium">Бренд</label>
+        <label className="text-sm font-medium">{t("brandLabel")}</label>
         <div className="flex gap-2">
           <Field as="select" name="brand" className={myClass.input2}>
-            <option value="">Выберите бренд</option>
+            <option value="">{t("brandPlaceholder")}</option>
             {options.brands.map((brand) => (
               <option key={brand.value} value={brand.value}>
                 {brand.label}
@@ -91,10 +89,10 @@ const CategoriesTab = ({ options, setOptions }) => {
 
       {/* Модель */}
       <div>
-        <label className="text-sm font-medium">Модель</label>
+        <label className="text-sm font-medium">{t("modelLabel")}</label>
         <div className="flex gap-2">
           <Field as="select" name="model" className={myClass.input2}>
-            <option value="">Выберите модель</option>
+            <option value="">{t("modelPlaceholder")}</option>
             {options.models.map((model) => (
               <option key={model.value} value={model.value}>
                 {model.label}
@@ -119,7 +117,7 @@ const CategoriesTab = ({ options, setOptions }) => {
       {/* Теги */}
       <div>
         <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">
-          Теги
+          {t("tagsLabel")}
         </label>
         <div className="flex flex-wrap gap-2 mb-2">
           {values.tags?.map((tagValue) => {
@@ -152,16 +150,16 @@ const CategoriesTab = ({ options, setOptions }) => {
             name="tags"
             multiple
             className="
-          flex-1
-          h-32
-          pl-3 pr-3 py-2
-          bg-white dark:bg-gray-800
-          border border-gray-300 dark:border-gray-600
-          rounded-md
-          text-gray-900 dark:text-gray-100
-          focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500
-          transition
-        "
+              flex-1
+              h-32
+              pl-3 pr-3 py-2
+              bg-white dark:bg-gray-800
+              border border-gray-300 dark:border-gray-600
+              rounded-md
+              text-gray-900 dark:text-gray-100
+              focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500
+              transition
+            "
           >
             {options.tags.map((t) => (
               <option key={t.value} value={t.value}>
@@ -173,15 +171,15 @@ const CategoriesTab = ({ options, setOptions }) => {
             type="button"
             onClick={() => setShowTagModal(true)}
             className="
-          flex items-center justify-center
-          h-9 w-9
-          bg-green-600 hover:bg-green-700
-          text-white
-          rounded-full
-          shadow-md
-          transition-colors duration-150
-          focus:outline-none focus:ring-2 focus:ring-green-400
-        "
+              flex items-center justify-center
+              h-9 w-9
+              bg-green-600 hover:bg-green-700
+              text-white
+              rounded-full
+              shadow-md
+              transition-colors duration-150
+              focus:outline-none focus:ring-2 focus:ring-green-400
+            "
           >
             <span className="text-lg leading-none">+</span>
           </button>

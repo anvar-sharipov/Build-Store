@@ -169,7 +169,98 @@
   "noneSort": "Tertipsiz",
   "wholesale_price": "Arzan bahasy",
   "retail_price": "Satyş bahasy",
-  "name": "Ady"
+  "name": "Ady",
+
+  "report_title": "Bahalaryň üýtgemegi boýunça jikme-jik hasabat",
+  "download_excel": "Excel ýükläň",
+  "show": "Görkez",
+  "loading": "Ýüklenýär...",
+  "product": "Haryt",
+  "old_price": "Köne baha",
+  "new_price": "Täze baha",
+  "quantity": "Möçberi",
+  "old_sum": "Jemi (köne)",
+  "new_sum": "Jemi (täze)",
+  "loss": "Zerýançylyk",
+  "profit": "Girdejisi",
+
+
+
+
+
+
+  "basic": "Esasy maglumatlar",
+  "prices": "Bahalar",
+  "dimensions": "Ölçegler",
+
+  "images": "Suratlar, QR",
+  "requiredName": "Ady hökmany girizilmeli",
+  "uniqueNameError": "Şu ad eýýäm bar",
+  "enterNumber": "San giriziň",
+  "quantityNonNegative": "Mukdar ýaramaz bolmaly däl",
+  "selectUnit": "Ölçeg birimini saýlaň",
+  "invalidValue": "Nädogry baha",
+  "selectCategory": "Kategoriýa saýlaň",
+  "enterPrice": "Bahany giriziň",
+  "priceNonNegative": "Baha ýaramaz bolmaly däl",
+  "nonNegative": "Ýaramaz bolmaly däl",
+  "enterConversionFactor": "Koeffisiýenti giriziň",
+  "positiveFactor": "Koeffisiýent müsbët bolmaly",
+  "enterQuantity": "Mukdary giriziň",
+  "selectProduct": "Önümi saýlaň",
+  "errorSavingProduct": "Önümi ýatda saklamakda säwlik",
+  "serverErrorData": "Serwerden gelen säwlik maglumatlary",
+
+  "nameLabel": "Ady",
+  "namePlaceholder": "Adyny ýazyň",
+  "quantityLabel": "Mukdar",
+  "quantityPlaceholder": "Mukdary giriziň",
+  "baseUnitLabel": "Esasy birlik",
+  "baseUnitPlaceholder": "Birligi saýlaň",
+  "skuLabel": "Artikul (SKU)",
+  "skuPlaceholder": "Avtomatiki",
+  "activeLabel": "Işjeň",
+  "descriptionLabel": "Beýan",
+  "descriptionPlaceholder": "Beýany ýazyň...",
+
+  "categoryLabel": "Kategoriýa",
+  "categoryPlaceholder": "Kategoriýany saýlaň",
+  "brandLabel": "Marka",
+  "brandPlaceholder": "Markany saýlaň",
+  "modelLabel": "Model",
+  "modelPlaceholder": "Modeli saýlaň",
+  "tagsLabel": "Bellikler",
+
+  "weightLabel": "Agram (kg)",
+  "volumeLabel": "Göwrümi (m³)",
+  "lengthLabel": "Uzynlygy (sm)",
+  "widthLabel": "Keni (sm)",
+  "heightLabel": "Baly (sm)",
+
+  "qrCodeLabel": "QR kody",
+  "qrCodePlaceholder": "Önümiň QR kody",
+
+  "purchasePrice": "Satyn alyş bahasy",
+  "retailPrice": "Näsir baha",
+  "wholesalePrice": "Topar baha",
+  "firmaPrice": "Firma bahasy",
+
+  "additionalUnits": "Goşmaça birlikler",
+  "noAdditionalUnits": "Goşmaça birlik ýok.",
+  "choose": "Saýlaň",
+  "coef": "Koeff.",
+  "default": "Başlangyç",
+
+  "freeItemsInPackage": "Haryt paketde mugt berilýär",
+  "noFreeItems": "Mugt haryt ýok.",
+  "enterProductName": "Harydyň adyny giriziň (iň azy 2 harp)...",
+  "minTwoChars": "Iň azy 2 harp giriziň",
+  "productsNotFound": "Harytlar tapylmady",
+  "searching": "Gözlenýär...",
+  "deleteItem": "Harydy öçür",
+  "productSearchError": "Haryt gözleginde säwlik boldy:",
+  "PRICE_CHANGE_REPORT": "Bahalaryň üýtgemegi barada hasabat",
+  "reports": "Hasabatlar"
   
 
 }

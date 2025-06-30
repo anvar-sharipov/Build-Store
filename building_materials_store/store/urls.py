@@ -33,5 +33,8 @@ urlpatterns = [
 
     path("check-name-unique/", check_name_unique, name="check_name_unique"),
     path("search-products/", search_products, name="search-products"), # dlya poiska producta for free add
+
+    path('price-change-report/', PriceChangeReportView.as_view(), name='price-change-report'),
+    path('price-change-report/excel/', PriceChangeExcelDownloadView.as_view(), name='price-change-excel'),
 ]
 

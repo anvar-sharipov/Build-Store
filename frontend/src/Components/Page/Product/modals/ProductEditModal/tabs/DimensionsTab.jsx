@@ -1,9 +1,8 @@
 import { useFormikContext, Field, ErrorMessage } from "formik";
 import { myClass } from "../../../../../tailwindClasses";
 
-const DimensionsTab = () => {
+const DimensionsTab = ({ t }) => {
   const { values, errors, touched } = useFormikContext();
-
 
   const labelClass = "block text-sm font-medium";
 
@@ -12,7 +11,7 @@ const DimensionsTab = () => {
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
         {/* Вес */}
         <div>
-          <label className={labelClass}>Вес (кг)</label>
+          <label className={labelClass}>{t("weightLabel")}</label>
           <Field type="number" name="weight" className={myClass.input2} />
           <ErrorMessage
             name="weight"
@@ -23,7 +22,7 @@ const DimensionsTab = () => {
 
         {/* Объём */}
         <div>
-          <label className={labelClass}>Объём (м³)</label>
+          <label className={labelClass}>{t("volumeLabel")}</label>
           <Field type="number" name="volume" className={myClass.input2} />
           <ErrorMessage
             name="volume"
@@ -34,7 +33,7 @@ const DimensionsTab = () => {
 
         {/* Длина */}
         <div>
-          <label className={labelClass}>Длина (см)</label>
+          <label className={labelClass}>{t("lengthLabel")}</label>
           <Field type="number" name="length" className={myClass.input2} />
           <ErrorMessage
             name="length"
@@ -45,7 +44,7 @@ const DimensionsTab = () => {
 
         {/* Ширина */}
         <div>
-          <label className={labelClass}>Ширина (см)</label>
+          <label className={labelClass}>{t("widthLabel")}</label>
           <Field type="number" name="width" className={myClass.input2} />
           <ErrorMessage
             name="width"
@@ -56,7 +55,7 @@ const DimensionsTab = () => {
 
         {/* Высота */}
         <div>
-          <label className={labelClass}>Высота (см)</label>
+          <label className={labelClass}>{t("heightLabel")}</label>
           <Field type="number" name="height" className={myClass.input2} />
           <ErrorMessage
             name="height"

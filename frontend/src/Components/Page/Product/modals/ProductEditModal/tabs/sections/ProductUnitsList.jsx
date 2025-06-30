@@ -1,6 +1,6 @@
 import { useFormikContext, Field, ErrorMessage } from "formik";
 
-const ProductUnitsList = ({ unitOptions, errors }) => {
+const ProductUnitsList = ({ unitOptions, errors, t }) => {
   const { values, setFieldValue } = useFormikContext();
 
   const handleAddUnit = () => {
@@ -21,18 +21,18 @@ const ProductUnitsList = ({ unitOptions, errors }) => {
   return (
     <div className="space-y-4">
       <div className="flex justify-between gap-4">
-        <label className="text-sm font-medium">Дополнительные единицы</label>
+        <label className="text-sm font-medium">{t("additionalUnits")}</label>
         <button
           type="button"
           onClick={handleAddUnit}
           className="bg-blue-600 text-white px-2 py-1 rounded text-sm"
         >
-          + Добавить
+          + {t("add")}
         </button>
       </div>
 
       {values.units.length === 0 && (
-        <div className="text-sm text-gray-500">Нет дополнительных единиц.</div>
+        <div className="text-sm text-gray-500">{t("noAdditionalUnits")}</div>
       )}
 
       {values.units.map((unit, index) => (
@@ -51,7 +51,7 @@ const ProductUnitsList = ({ unitOptions, errors }) => {
              focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 
              transition-all duration-150"
             >
-              <option value="">Выберите</option>
+              <option value="">{t("choose")}</option>
               {unitOptions.map((opt) => (
                 <option key={opt.value} value={opt.value}>
                   {opt.label}
@@ -69,7 +69,7 @@ const ProductUnitsList = ({ unitOptions, errors }) => {
              placeholder-gray-400 dark:placeholder-gray-500 
              focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 
              transition-all duration-150"
-              placeholder="Коэфф."
+              placeholder={t("coef")}
             />
 
             {/* Default checkbox */}
@@ -79,7 +79,7 @@ const ProductUnitsList = ({ unitOptions, errors }) => {
                 name={`units[${index}].is_default_for_sale`}
                 className="form-checkbox h-4 w-4"
               />
-              <label className="text-xs">По умолч.</label>
+              <label className="text-xs">{t("default")}</label>
             </div>
 
             {/* Удаление */}
@@ -108,17 +108,6 @@ const ProductUnitsList = ({ unitOptions, errors }) => {
                   {errors.units[index].conversion_factor}
                 </span>
               )}
-
-            {/* <ErrorMessage
-              name={`units[${index}].unit`}
-              component="div"
-              className="text-red-500 text-xs mt-1"
-            />
-            <ErrorMessage
-              name={`units[${index}].conversion_factor`}
-              component="div"
-              className="text-red-500 text-xs mt-1"
-            /> */}
           </div>
         </div>
       ))}

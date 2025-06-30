@@ -25,6 +25,9 @@ from django.views.decorators.http import require_GET
 from django.http import JsonResponse
 from django.contrib.postgres.search import TrigramSimilarity
 from django.db.models import Q
+from django.utils.dateparse import parse_datetime, parse_date
+from django.db.models import Sum, F, Count
+from openpyxl.styles import Font
 
 from rest_framework.pagination import PageNumberPagination
 # swoy pagination 
@@ -69,6 +72,9 @@ class IsInAdminOrWarehouseGroup(BasePermission):
 
 class MyTokenObtainPairView(TokenObtainPairView):
     serializer_class = MyTokenObtainPairSerializer
+
+
+
 
 
 
@@ -459,3 +465,97 @@ def search_products(request):
     ).filter(similarity__gt=0.1).order_by("-similarity")[:10]
 
     return Response(ProductSerializer(results, many=True).data)
+
+
+
+
+
+class PriceChangeReportView(APIView):
+    def get(self, request):
+        start_date = request.query_params.get('start_date')
+        end_date = request.query_params.get('end_date')
+
+        if not start_date or not end_date:
+            return Response({"detail": "start_date и end_date обязательны"}, status=status.HTTP_400_BAD_REQUEST)
+
+        start = parse_date(start_date)
+        end = parse_date(end_date)
+
+        if not start or not end:
+            return Response({"detail": "Неверный формат даты. Используйте YYYY-MM-DD"}, status=status.HTTP_400_BAD_REQUEST)
+
+        queryset = PriceChangeHistory.objects.filter(changed_at__date__range=(start, end)).select_related('product__base_unit')
+        serializer = PriceChangeReportSerializer(queryset, many=True)
+        return Response(serializer.data)
+    
+
+
+
+
+class PriceChangeExcelDownloadView(APIView):
+    permission_classes = [AllowAny]
+
+    def get(self, request):
+        start_date = request.query_params.get("start_date")
+        end_date = request.query_params.get("end_date")
+
+        if not start_date or not end_date:
+            return HttpResponse("start_date и end_date обязательны", status=400)
+
+        start = parse_date(start_date)
+        end = parse_date(end_date)
+
+        queryset = PriceChangeHistory.objects.filter(changed_at__date__range=(start, end)).select_related("product__base_unit")
+
+        # Создаём Excel-файл
+        wb = openpyxl.Workbook()
+        ws = wb.active
+        ws.title = "Изменения цен"
+
+        # Вставляем заголовок (например, на первую строку)
+        header_text = f"Отчёт по изменениям цен с {start_date} по {end_date}"
+        ws.merge_cells('A1:L1')  # Объединяем ячейки с A1 по L1 для заголовка
+        cell = ws['A1']
+        cell.value = header_text
+        cell.font = Font(size=14, bold=True)
+        cell.alignment = openpyxl.styles.Alignment(horizontal='center')
+
+        # Заголовки таблицы начинаются со второй строки
+        headers = [
+            "#", "Продукт", "Ед. изм.", "Старая цена", "Кол-во", "Сумма старая",
+            "Новая цена", "Кол-во", "Сумма новая", "Прибыль", "Убыток", "Дата"
+        ]
+        ws.append([])  # Пустая строка (вторая)
+        ws.append(headers)  # Третья строка — заголовки
+
+        for idx, record in enumerate(queryset, start=1):
+            old_total = float(record.old_price) * float(record.quantity_at_change)
+            new_total = float(record.new_price) * float(record.quantity_at_change)
+            profit = max(record.difference, 0)
+            loss = min(record.difference, 0)
+
+            ws.append([
+                idx,
+                record.product.name,
+                record.product.base_unit.name,
+                float(record.old_price),
+                float(record.quantity_at_change),
+                round(old_total, 2),
+                float(record.new_price),
+                float(record.quantity_at_change),
+                round(new_total, 2),
+                round(profit, 2),
+                round(loss, 2),
+                record.changed_at.strftime("%Y-%m-%d %H:%M"),
+            ])
+
+        # Автоширина столбцов
+        for col in ws.columns:
+            max_length = max(len(str(cell.value)) if cell.value else 0 for cell in col)
+            ws.column_dimensions[get_column_letter(col[0].column)].width = max_length + 2
+
+        # Ответ как файл
+        response = HttpResponse(content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
+        response['Content-Disposition'] = 'attachment; filename=price_changes_report.xlsx'
+        wb.save(response)
+        return response

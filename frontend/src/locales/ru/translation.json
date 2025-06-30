@@ -188,7 +188,101 @@
   "wholesale_price": "Оптовая цена",
   "retail_price": "Розничная цена",
   "name_asc": "Название",
-  "name_desc": "Название"
+  "name_desc": "Название",
+
+  "report_title": "Подробный отчёт по изменениям цен",
+  "download_excel": "Скачать Excel",
+  "show": "Показать",
+  "loading": "Загрузка...",
+  "product": "Продукт",
+  "old_price": "Старая цена",
+  "new_price": "Новая цена",
+  "quantity": "Кол-во",
+  "old_sum": "Сумма (старая)",
+  "new_sum": "Сумма (новая)",
+  "loss": "Убыток",
+  "profit": "Прибыль",
+
+
+
+
+  "basic": "Основные",
+  "prices": "Цены",
+  "dimensions": "Размеры",
+  "images": "Фото, QR",
+  "requiredName": "Наименование обязательно",
+  "uniqueNameError": "Такое имя уже существует",
+  "enterNumber": "Введите число",
+  "quantityNonNegative": "Количество не может быть отрицательным",
+  "selectUnit": "Выберите единицу",
+  "invalidValue": "Неверное значение",
+  "selectCategory": "Выберите категорию",
+  "enterPrice": "Введите цену",
+  "priceNonNegative": "Цена не может быть отрицательным",
+  "nonNegative": "Не может быть отрицательным",
+  "enterConversionFactor": "Введите коэффициент",
+  "positiveFactor": "Коэффициент должен быть положительным",
+  "enterQuantity": "Введите количество",
+  "selectProduct": "Выберите продукт",
+  "errorSavingProduct": "Ошибка при сохранении продукта",
+  "serverErrorData": "Данные ошибки от сервера",
+
+
+  "nameLabel": "Наименование",
+  "namePlaceholder": "Введите наименование",
+  "quantityLabel": "Количество",
+  "quantityPlaceholder": "Введите количество",
+  "baseUnitLabel": "Базовая единица",
+  "baseUnitPlaceholder": "Выберите единицу",
+  "skuLabel": "Артикул (SKU)",
+  "skuPlaceholder": "Автоматически",
+  "activeLabel": "Активен",
+  "descriptionLabel": "Описание",
+  "descriptionPlaceholder": "Введите описание...",
+
+
+  "categoryLabel": "Категория",
+  "categoryPlaceholder": "Выберите категорию",
+  "brandLabel": "Бренд",
+  "brandPlaceholder": "Выберите бренд",
+  "modelLabel": "Модель",
+  "modelPlaceholder": "Выберите модель",
+  "tagsLabel": "Теги",
+
+  "weightLabel": "Вес (кг)",
+  "volumeLabel": "Объём (м³)",
+  "lengthLabel": "Длина (см)",
+  "widthLabel": "Ширина (см)",
+  "heightLabel": "Высота (см)",
+
+  "qrCodeLabel": "QR код",
+  "qrCodePlaceholder": "QR code продукта",
+
+  "purchasePrice": "Закупочная цена",
+  "retailPrice": "Розничная цена",
+  "wholesalePrice": "Оптовая цена",
+  "firmaPrice": "Firma цена",
+
+  "additionalUnits": "Дополнительные единицы",
+  "noAdditionalUnits": "Нет дополнительных единиц.",
+  "choose": "Выберите",
+  "coef": "Коэфф.",
+  "default": "По умолч.",
+
+  "freeItemsInPackage": "Бесплатные товары в комплекте",
+  "noFreeItems": "Нет бесплатных товаров.",
+  "enterProductName": "Введите название продукта (мин. 2 символа)...",
+  "minTwoChars": "Введите минимум 2 символа",
+  "productsNotFound": "Продукты не найдены",
+  "searching": "Поиск...",
+  "deleteItem": "Удалить товар",
+  "productSearchError": "Ошибка поиска продуктов:",
+  "PRICE_CHANGE_REPORT": "Отчёт об изменении цен",
+  "reports": "Отчёты"
+ 
+ 
+
+  
 
   
 }

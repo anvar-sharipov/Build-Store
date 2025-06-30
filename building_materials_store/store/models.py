@@ -1,6 +1,12 @@
 from django.db import models, IntegrityError, transaction
 from django.contrib.auth.models import AbstractUser
 from django.core.exceptions import ValidationError
+from django.contrib.auth import get_user_model
+
+
+
+
+
 
 
 
@@ -8,39 +14,8 @@ class CustomUser(AbstractUser):
     photo = models.ImageField(upload_to='user_photos/', null=True, blank=True, default='images/avatar.png')
 
 
+User = get_user_model()
 
-# Обязательные поля:
-# name — название товара (например, "Цемент М500", "Краска белая")
-# quantity (количество) — сколько единиц товара есть на складе
-# price — цена за единицу товара
-# unit_of_measurement (единица измерения) — литры, килограммы, штуки, мешки и т.п.литры, килограммы, штуки, мешки и т.п.
-
-
-# Рекомендуемые дополнительные поля:
-# description — описание товара (технические характеристики, назначение)
-# category — категория товара (цементы, краски, пиломатериалы и т.п.), для удобной фильтрации
-# supplier — поставщик товара (название компании или ссылка на таблицу поставщиков)
-# sku (артикул) — уникальный код товара для учета и поиска
-# weight — вес единицы товара (если важен для логистики)
-# dimensions — габариты (если нужно учитывать объем или размеры для склада/доставки)
-# date_added — дата добавления товара в систему
-# expiration_date — срок годности (если применимо, например, для химии)
-# photo_url или image — фото товара для интерфейса
-
-# Русский	        Туркменский
-# товар	            haryt
-# товары (мн.ч.)	harytlar
-# единица измерения	ölçeg birligi
-# единицы измерения	ölçeg birlikleri
-# категория	        kategoriýa
-# категории (мн.ч.)	kategoriýalar
-# название	        ady
-# артикул	        artikul
-# количество	    mukdar
-# цена	            baha
-# описание	        beýany
-# единица измерения	ölçeg birligi
-# категория	        kategoriýa
 
 
 
@@ -77,6 +52,9 @@ class Product(models.Model):
     retail_price = models.DecimalField(verbose_name='Розничная цена', max_digits=10, decimal_places=2, default=0)
     wholesale_price = models.DecimalField(verbose_name='Оптовая цена', max_digits=10, decimal_places=2, default=0)
     discount_price = models.DecimalField(verbose_name='Цена со скидкой', max_digits=10, decimal_places=2, blank=True, null=True)
+    
+    # Poprosil Makem aga sdelat porogowuyu senu (purchase_price) esho odnu, ne ponyal pochemu no sdelayu raz poprosili
+    firma_price = models.DecimalField(verbose_name='Цена Firma', max_digits=10, decimal_places=2, blank=True, null=True)
 
     brand = models.ForeignKey('Brand', verbose_name='Бренд', on_delete=models.PROTECT, blank=True, null=True)
     model = models.ForeignKey('Model', verbose_name='Модель', on_delete=models.PROTECT, blank=True, null=True)
@@ -102,7 +80,20 @@ class Product(models.Model):
     #     if not self.qr_code:
     #         raise ValidationError({'qr_code': 'QR-код должен быть заполнен.'})
 
-    def save(self, *args, **kwargs):
+
+    # В модели Product добавь __init__, чтобы запомнить старые цены при загрузке:
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self._original_purchase_price = self.purchase_price
+        self._original_retail_price = self.retail_price
+        self._original_wholesale_price = self.wholesale_price
+        self._original_discount_price = self.discount_price
+
+        
+
+
+    def save(self, *args, user=None, **kwargs):
+        self._current_user = user
         if not self.sku:
             for _ in range(10):  # Попытки сгенерировать уникальный sku
                 last_id = Product.objects.order_by('-id').first()
@@ -133,6 +124,46 @@ class Product(models.Model):
     class Meta:
         verbose_name = 'Товар'
         verbose_name_plural = 'Товары'
+
+
+
+
+
+class PriceChangeHistory(models.Model):
+    PRICE_TYPE_CHOICES = [
+        ('purchase', 'Цена закупки'),
+        ('retail', 'Розничная цена'),
+        ('wholesale', 'Оптовая цена'),
+        ('discount', 'Цена со скидкой'),
+    ]
+
+    product = models.ForeignKey('Product', on_delete=models.CASCADE, related_name='price_changes')
+    price_type = models.CharField(max_length=20, choices=PRICE_TYPE_CHOICES, verbose_name='Тип цены')
+    old_price = models.DecimalField(max_digits=10, decimal_places=2, verbose_name='Старая цена')
+    new_price = models.DecimalField(max_digits=10, decimal_places=2, verbose_name='Новая цена')
+    quantity_at_change = models.DecimalField(max_digits=10, decimal_places=2, verbose_name='Количество на складе')
+    difference = models.DecimalField(max_digits=10, decimal_places=2, verbose_name='Прибыль/Убыток', editable=False)
+    changed_by = models.ForeignKey(User, null=True, blank=True, on_delete=models.SET_NULL, verbose_name='Кто изменил')
+    changed_at = models.DateTimeField(auto_now_add=True, verbose_name='Дата изменения')
+    notes = models.TextField(blank=True, null=True, verbose_name='Комментарий')
+
+
+
+    class Meta:
+        verbose_name = 'История изменения цены'
+        verbose_name_plural = 'История изменения цен'
+        ordering = ['-changed_at']
+        indexes = [
+            models.Index(fields=['product', 'price_type']),
+        ]
+
+    def save(self, *args, **kwargs):
+        self.difference = (self.new_price - self.old_price) * self.quantity_at_change
+        super().save(*args, **kwargs)
+
+    def __str__(self):
+        return f"{self.product.name} | {self.get_price_type_display()}: {self.old_price} → {self.new_price} (Δ {self.difference})"
+
 
 
 

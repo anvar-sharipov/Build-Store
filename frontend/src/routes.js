@@ -7,3 +7,7 @@ export const ROUTES = {
   EMPLOYEERS: "/employers",
   AGENTS: "/agents",
 };
+
+export const ROUTES_RAPORT = {
+  PRICE_CHANGE_REPORT: "/report/price-changes",
+};

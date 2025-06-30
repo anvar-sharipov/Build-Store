@@ -1,4 +1,4 @@
-import { useFormikContext, Field, ErrorMessage } from "formik";
+import { useFormikContext, Field } from "formik";
 import { QRCode } from "react-qrcode-logo";
 import UploadImageForm from "../../../../../UI/UploadImageForm";
 import { myClass } from "../../../../../tailwindClasses";
@@ -11,7 +11,7 @@ function QRDisplay({ code }) {
   );
 }
 
-const ImagesTab = ({ options, product, setProduct }) => {
+const ImagesTab = ({ options, product, setProduct, t }) => {
   const { values } = useFormikContext();
 
   return (
@@ -19,11 +19,11 @@ const ImagesTab = ({ options, product, setProduct }) => {
       {/* QR код: инпут + изображение в 1 строку */}
       <div className="flex items-start gap-4">
         <div className="flex-1">
-          <label className="block text-sm font-medium mb-1">QR код</label>
+          <label className="block text-sm font-medium mb-1">{t("qrCodeLabel")}</label>
           <Field
             name="qr_code"
             className={myClass.input2}
-            placeholder="QR code продукта"
+            placeholder={t("qrCodePlaceholder")}
             autoComplete="off"
             disabled
           />
@@ -42,8 +42,6 @@ const ImagesTab = ({ options, product, setProduct }) => {
                 src={img.image}
                 alt={img.alt_text || ""}
                 className="w-full h-24 object-cover rounded border border-gray-300"
-                // w-full h-24 object-cover
-                // width={100}
               />
               {img.alt_text && (
                 <p className="text-[10px] text-center text-gray-500 mt-1 truncate">

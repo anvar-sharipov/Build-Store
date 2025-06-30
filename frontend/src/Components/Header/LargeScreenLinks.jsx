@@ -22,7 +22,7 @@ const LargeScreenLinks = ({
     <nav className="flex items-center justify-between">
       {/* Logo */}
 
-      <img src="/POLISEM.png" alt="polisem-icon" width={200} />
+      <img src="/polisem.png" alt="polisem-icon" width={200} />
 
       {/* Burger button */}
       <div className="lg:hidden text-gray-300">

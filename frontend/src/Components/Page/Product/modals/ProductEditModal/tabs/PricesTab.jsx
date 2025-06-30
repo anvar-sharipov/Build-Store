@@ -1,7 +1,7 @@
 import { useFormikContext, Field, ErrorMessage } from "formik";
 import { myClass } from "../../../../../tailwindClasses";
 
-const PricesTab = () => {
+const PricesTab = ({ t }) => {
   const {
     values,
     errors,
@@ -16,12 +16,12 @@ const PricesTab = () => {
       <div className="flex flex-col sm:flex-row gap-4">
         {/* Закупочная цена */}
         <div className="flex-1">
-          <label className="block text-sm font-medium">Закупочная цена</label>
+          <label className="block text-sm font-medium">{t("purchasePrice")}</label>
           <Field
             type="number"
             name="purchase_price"
             className={myClass.input2}
-            placeholder="Введите цену"
+            placeholder={t("enterPrice")}
           />
           <ErrorMessage
             name="purchase_price"
@@ -32,12 +32,12 @@ const PricesTab = () => {
 
         {/* Розничная цена */}
         <div className="flex-1">
-          <label className="block text-sm font-medium">Розничная цена</label>
+          <label className="block text-sm font-medium">{t("retailPrice")}</label>
           <Field
             type="number"
             name="retail_price"
             className={myClass.input2}
-            placeholder="Введите цену"
+            placeholder={t("enterPrice")}
           />
           <ErrorMessage
             name="retail_price"
@@ -48,17 +48,28 @@ const PricesTab = () => {
 
         {/* Оптовая цена */}
         <div className="flex-1">
-          <label className="block text-sm font-medium">Оптовая цена</label>
+          <label className="block text-sm font-medium">{t("wholesalePrice")}</label>
           <Field
             type="number"
             name="wholesale_price"
             className={myClass.input2}
-            placeholder="Введите цену"
+            placeholder={t("enterPrice")}
           />
           <ErrorMessage
             name="wholesale_price"
             component="div"
             className="text-red-500 text-sm mt-1"
+          />
+        </div>
+
+        {/* Firma цена */}
+        <div className="flex-1">
+          <label className="block text-sm font-medium">{t("firmaPrice")}</label>
+          <Field
+            type="number"
+            name="firma_price"
+            className={myClass.input2}
+            placeholder={t("enterPrice")}
           />
         </div>
       </div>

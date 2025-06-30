@@ -1,28 +1,23 @@
+// ProductEditModal2.jsx
 import MyModal from "../../../../UI/MyModal";
-import { useState, useEffect } from "react";
-import { Formik, Form, Field, ErrorMessage } from "formik";
-import * as Yup from "yup"; // Для валидации (по желанию)
+import { useState } from "react";
+import { Formik, Form } from "formik";
+import * as Yup from "yup";
 import BasicTab from "./tabs/BasicTab";
 import PricesTab from "./tabs/PricesTab";
 import DimensionsTab from "./tabs/DimensionsTab";
 import CategoriesTab from "./tabs/CategoriesTab";
 import HeaderForTabs from "./tabs/HeaderForTabs";
-import { fetchUnits } from "../../../../fetchs/optionsFetchers";
 import myAxios from "../../../../axios";
 import { CiNoWaitingSign } from "react-icons/ci";
 
 import {
-  X,
   Package,
   Tag,
   DollarSign,
   Ruler,
-  Weight,
-  Layers,
   Image,
 } from "lucide-react";
-import MyLoading from "../../../../UI/MyLoading";
-import MyButton from "../../../../UI/MyButton";
 import { myClass } from "../../../../tailwindClasses";
 import ImagesTab from "./tabs/ImagesTab";
 
@@ -33,23 +28,20 @@ const ProductEditModal2 = ({
   options,
   t,
   setOptions,
+  isCreate,
 }) => {
   const [product, setProduct] = useState(productEditModal2.data);
-  // const product = productEditModal2.data;
-  console.log("product", product);
-
   const [activeTab, setActiveTab] = useState("basic");
   const [loadingModal, setLoadingModal] = useState(false);
 
   const tabs = [
-    { id: "basic", label: "Основные", icon: Package },
-    { id: "prices", label: "Цены", icon: DollarSign },
-    { id: "dimensions", label: "Размеры", icon: Ruler },
-    { id: "categories", label: "Категории", icon: Tag },
-    { id: "images", label: "Фото, QR", icon: Image },
+    { id: "basic", label: t("basic"), icon: Package },
+    { id: "prices", label: t("prices"), icon: DollarSign },
+    { id: "dimensions", label: t("dimensions"), icon: Ruler },
+    { id: "categories", label: t("categories"), icon: Tag },
+    { id: "images", label: t("images"), icon: Image },
   ];
 
-  // 1️⃣ Начальные значения формы
   const initialValues = {
     id: product.id,
     name: product.name || "",
@@ -60,7 +52,7 @@ const ProductEditModal2 = ({
     purchase_price: product.purchase_price || 0,
     retail_price: product.retail_price || 0,
     wholesale_price: product.wholesale_price || 0,
-    // discount_price: product.discount_price || "",
+    firma_price: product.firma_price || 0,
     weight: product.weight || "",
     volume: product.volume || "",
     length: product.length || "",
@@ -80,10 +72,10 @@ const ProductEditModal2 = ({
 
   const validationSchema = Yup.object({
     name: Yup.string()
-      .required("Наименование обязательно")
+      .required(t("requiredName"))
       .test(
         "check-unique-name",
-        "Такое имя уже существует",
+        t("uniqueNameError"),
         async function (value) {
           if (!value || value === initialValues.name) return true;
 
@@ -94,80 +86,82 @@ const ProductEditModal2 = ({
             return !res.data.exists;
           } catch (e) {
             console.log("errorr in check-name-unique", e);
-            return true; // пропускаем ошибку сети
+            return true;
           }
         }
       ),
-    // .min(3, "Минимум 3 символа"),
     quantity: Yup.number()
-      .typeError("Введите число")
-      .min(0, "Количество не может быть отрицательным")
+      .typeError(t("enterNumber"))
+      .min(0, t("quantityNonNegative"))
       .notRequired(),
-    // .required("Количество обязательно"),
-    // .moreThan(0, "Должно быть больше нуля"),
     base_unit: Yup.number()
-      .required("Выберите единицу")
-      .typeError("Неверное значение"),
+      .required(t("selectUnit"))
+      .typeError(t("invalidValue")),
     category: Yup.number()
-      .required("Выберите категорию")
-      .typeError("Неверное значение"),
+      .required(t("selectCategory"))
+      .typeError(t("invalidValue")),
     purchase_price: Yup.number()
-      .typeError("Введите цену")
-      .min(0, "Цена не может быть отрицательным")
+      .typeError(t("enterPrice"))
+      .min(0, t("priceNonNegative"))
       .notRequired(),
     retail_price: Yup.number()
-      .typeError("Введите цену")
-      .min(0, "Цена не может быть отрицательным")
+      .typeError(t("enterPrice"))
+      .min(0, t("priceNonNegative"))
       .notRequired(),
     wholesale_price: Yup.number()
-      .typeError("Введите цену")
-      .min(0, "Цена не может быть отрицательным")
+      .typeError(t("enterPrice"))
+      .min(0, t("priceNonNegative"))
       .notRequired(),
-    weight: Yup.number().min(0, "Не может быть отрицательным").notRequired(),
-    volume: Yup.number().min(0, "Не может быть отрицательным").notRequired(),
-    length: Yup.number().min(0, "Не может быть отрицательным").notRequired(),
-    width: Yup.number().min(0, "Не может быть отрицательным").notRequired(),
-    height: Yup.number().min(0, "Не может быть отрицательным").notRequired(),
+    weight: Yup.number().min(0, t("nonNegative")).notRequired(),
+    volume: Yup.number().min(0, t("nonNegative")).notRequired(),
+    length: Yup.number().min(0, t("nonNegative")).notRequired(),
+    width: Yup.number().min(0, t("nonNegative")).notRequired(),
+    height: Yup.number().min(0, t("nonNegative")).notRequired(),
     units: Yup.array().of(
       Yup.object().shape({
         unit: Yup.number()
-          .required("Выберите единицу")
-          .typeError("Неверное значение"),
+          .required(t("selectUnit"))
+          .typeError(t("invalidValue")),
         conversion_factor: Yup.number()
-          .required("Введите коэффициент")
-          .positive("Коэффициент должен быть положительным")
-          .typeError("Неверное значение"),
+          .required(t("enterConversionFactor"))
+          .positive(t("positiveFactor"))
+          .typeError(t("invalidValue")),
         is_default_for_sale: Yup.boolean(),
       })
     ),
     free_items: Yup.array().of(
       Yup.object().shape({
-        // unit: Yup.number()
-        //   .required("Выберите единицу")
-        //   .typeError("Неверное значение"),
         quantity_per_unit: Yup.number()
-          .required("Введите количество")
-          .min(0, "Количество не может быть отрицательным")
-          .typeError("Неверное значение"),
-        gift_product: Yup.string().required("Выберите продукт"),
+          .required(t("enterQuantity"))
+          .min(0, t("quantityNonNegative"))
+          .typeError(t("invalidValue")),
+        gift_product: Yup.string().required(t("selectProduct")),
       })
     ),
   });
 
-  // 2️⃣ Обработка отправки формы
   const onSubmit = async (values, { setSubmitting }) => {
-    // console.log("Сохранённые данные:", values);
+    const payload = {
+      ...values,
+      images: product.images ? product.images.map((img) => img.id) : [],
+    };
     setLoadingModal(true);
     try {
-      const res = await myAxios.put(`/products/${values.id}/`, values);
-      const updatedProduct = res.data;
-      setProducts((prevProducts) =>
-        prevProducts.map((p) =>
-          p.id === updatedProduct.id ? updatedProduct : p
-        )
-      );
+      let res;
+      if (isCreate) {
+        res = await myAxios.post(`/products/`, payload);
+        setProducts((prev) => [res.data, ...prev]);
+      } else {
+        res = await myAxios.put(`/products/${values.id}/`, payload);
+        setProducts((prev) =>
+          prev.map((p) => (p.id === res.data.id ? res.data : p))
+        );
+      }
     } catch (error) {
-      console.error("Ошибка при обновлении продукта:", error);
+      console.error(t("errorSavingProduct"), error);
+      if (error.response) {
+        console.error(t("serverErrorData"), error.response.data);
+      }
     } finally {
       setLoadingModal(false);
       setProductEditModal2({ open: false, data: null, index: null });
@@ -184,6 +178,7 @@ const ProductEditModal2 = ({
         initialValues={initialValues}
         onSubmit={onSubmit}
         validationSchema={validationSchema}
+        validateOnMount={true}
       >
         {({ touched, errors, isValid, isSubmitting }) => (
           <Form>
@@ -194,7 +189,6 @@ const ProductEditModal2 = ({
             />
 
             <div className="flex flex-col max-h-[80vh] border p-2 bg-gray-200 dark:bg-gray-800">
-              {/* Контент таба с прокруткой */}
               <div className="flex-1 overflow-auto pr-1">
                 {activeTab === "basic" ? (
                   <BasicTab
@@ -202,16 +196,18 @@ const ProductEditModal2 = ({
                     loadingModal={loadingModal}
                     setOptions={setOptions}
                     productId={product.id}
+                    t={t}
                   />
                 ) : activeTab === "prices" ? (
-                  <PricesTab options={options} setOptions={setOptions} />
+                  <PricesTab options={options} setOptions={setOptions} t={t} />
                 ) : activeTab === "dimensions" ? (
-                  <DimensionsTab options={options} setOptions={setOptions} />
+                  <DimensionsTab options={options} setOptions={setOptions} t={t} />
                 ) : activeTab === "categories" ? (
                   <CategoriesTab
                     options={options}
                     setOptions={setOptions}
                     className={errors.category ? "bg-red-300" : ""}
+                    t={t}
                   />
                 ) : activeTab === "images" ? (
                   <ImagesTab
@@ -219,11 +215,11 @@ const ProductEditModal2 = ({
                     setOptions={setOptions}
                     product={product}
                     setProduct={setProduct}
+                    t={t}
                   />
                 ) : null}
               </div>
 
-              {/* Кнопка внизу */}
               <div className="mt-4 pt-2 border-t border-gray-300 text-right dark:bg-gray-900 sticky bottom-0">
                 <button
                   type="submit"
@@ -244,57 +240,6 @@ const ProductEditModal2 = ({
           </Form>
         )}
       </Formik>
-
-      {/* <Formik
-        initialValues={initialValues}
-        onSubmit={onSubmit}
-        validationSchema={validationSchema}
-      >
-        {({ values, errors, touched }) => (
-          <Form className="space-y-4">
-            <div>
-              <label className="block text-sm font-medium">Наименование</label>
-              <Field
-                name="name"
-                className="border border-gray-300 p-2 rounded w-full"
-                placeholder="Введите наименование"
-                autocomplate="off"
-              />
-              <ErrorMessage
-                name="name"
-                component="div"
-                className="text-red-500 text-sm mt-1"
-              />
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium">Количество</label>
-              <Field
-                type="number"
-                name="quantity"
-                className={`border p-2 rounded w-full ${
-                  touched.quantity && errors.quantity
-                    ? "border-red-500"
-                    : "border-gray-300"
-                }`}
-                placeholder="Введите количество"
-              />
-              <ErrorMessage
-                name="quantity"
-                component="div"
-                className="text-red-500 text-sm mt-1"
-              />
-            </div>
-
-            <button
-              type="submit"
-              className="bg-blue-500 text-white px-4 py-2 rounded"
-            >
-              Сохранить
-            </button>
-          </Form>
-        )}
-      </Formik> */}
     </MyModal>
   );
 };

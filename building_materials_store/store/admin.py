@@ -131,6 +131,34 @@ class ProductAdmin(admin.ModelAdmin):
 
 
 
+@admin.register(PriceChangeHistory)
+class PriceChangeHistoryAdmin(admin.ModelAdmin):
+    list_display = (
+        'product', 
+        'price_type', 
+        'old_price', 
+        'new_price', 
+        'difference', 
+        'quantity_at_change', 
+        'changed_by', 
+        'changed_at'
+    )
+    list_filter = ('price_type', 'changed_by', 'changed_at')
+    search_fields = ('product__name', 'changed_by__username')
+    readonly_fields = ('difference', 'changed_at')
+    ordering = ('-changed_at',)
+    fieldsets = (
+        (None, {
+            'fields': (
+                'product', 'price_type', 'old_price', 'new_price', 
+                'quantity_at_change', 'difference', 'changed_by', 
+                'changed_at', 'notes'
+            )
+        }),
+    )
+
+
+
 
 
 

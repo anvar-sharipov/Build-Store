@@ -3,7 +3,7 @@ import AsyncSelect from "react-select/async";
 import myAxios from "../../../../../../axios";
 import { useState, useCallback } from "react";
 
-const ProductFreeItemsList = ({ productOptions = [] }) => {
+const ProductFreeItemsList = ({ productOptions = [], t }) => {
   const { values, setFieldValue, errors, touched } = useFormikContext();
   const [selectedProducts, setSelectedProducts] = useState({}); // Кэш выбранных продуктов
 
@@ -41,33 +41,24 @@ const ProductFreeItemsList = ({ productOptions = [] }) => {
     try {
       const res = await myAxios.get(`search-products/?q=${inputValue}`);
       return res.data.map((p) => ({
-        value: String(p.id), // Приводим к строке для консистентности
+        value: String(p.id),
         label: p.name,
       }));
     } catch (error) {
-      console.error("Ошибка поиска продуктов:", error);
+      console.error(t("productSearchError"), error);
       return [];
     }
-  }, []);
+  }, [t]);
 
-  // Функция для получения значения селекта
   const getSelectValue = (item, index) => {
     if (!item.gift_product) return null;
-
-    // Сначала проверяем кэш
     if (selectedProducts[index]) {
       return selectedProducts[index];
     }
-
-    // Потом ищем в productOptions
     const option = productOptions.find(
       (opt) => String(opt.value) === String(item.gift_product)
     );
-    if (option) {
-      return option;
-    }
-
-    // Если не найдено, возвращаем базовое значение
+    if (option) return option;
     return {
       value: String(item.gift_product),
       label: `${item.gift_product_name}`,
@@ -77,13 +68,8 @@ const ProductFreeItemsList = ({ productOptions = [] }) => {
   const handleProductChange = (selectedOption, index) => {
     const value = selectedOption?.value || "";
     setFieldValue(`free_items[${index}].gift_product`, value);
-
-    // Сохраняем выбранный продукт в кэше
     if (selectedOption) {
-      setSelectedProducts((prev) => ({
-        ...prev,
-        [index]: selectedOption,
-      }));
+      setSelectedProducts((prev) => ({ ...prev, [index]: selectedOption }));
     } else {
       const newCache = { ...selectedProducts };
       delete newCache[index];
@@ -92,28 +78,23 @@ const ProductFreeItemsList = ({ productOptions = [] }) => {
   };
 
   const freeItems = values.free_items || [];
-
   const isDarkMode = document.documentElement.classList.contains("dark");
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-4 ">
       <div className="flex justify-between gap-4">
-        <label className="text-sm font-medium">
-          Бесплатные товары в комлекте
-        </label>
+        <label className="text-sm font-medium">{t("freeItemsInPackage")}</label>
         <button
           type="button"
           onClick={handleAddFreeItem}
           className="bg-blue-600 hover:bg-blue-700 text-white px-3 py-1 rounded text-sm transition-colors"
         >
-          + Добавить
+          + {t("add")}
         </button>
       </div>
 
       {freeItems.length === 0 && (
-        <div className="text-sm text-gray-500 italic">
-          Нет бесплатных товаров.
-        </div>
+        <div className="text-sm text-gray-500 italic">{t("noFreeItems")}</div>
       )}
 
       {freeItems.map((item, index) => (
@@ -127,51 +108,60 @@ const ProductFreeItemsList = ({ productOptions = [] }) => {
               cacheOptions
               defaultOptions={false}
               loadOptions={loadProductOptions}
-              placeholder="Введите название продукта (мин. 2 символа)..."
+              placeholder={t("enterProductName")}
               noOptionsMessage={({ inputValue }) =>
                 inputValue.length < 2
-                  ? "Введите минимум 2 символа"
-                  : "Продукты не найдены"
+                  ? t("minTwoChars")
+                  : t("productsNotFound")
               }
-              loadingMessage={() => "Поиск..."}
+              loadingMessage={() => t("searching")}
               value={getSelectValue(item, index)}
-              onChange={(selectedOption) =>
-                handleProductChange(selectedOption, index)
-              }
+              onChange={(selectedOption) => handleProductChange(selectedOption, index)}
               isClearable
               styles={{
                 control: (base) => ({
                   ...base,
                   minHeight: "38px",
-                  backgroundColor: isDarkMode ? "#1F2937" : "white", // dark:bg-gray-800
-                  color: isDarkMode ? "#F9FAFB" : "#111827", // dark:text-gray-100
-                  borderColor: isDarkMode ? "#4B5563" : "#D1D5DB", // dark:border-gray-600
+                  backgroundColor: isDarkMode ? "#1F2937" : "white",
+                  color: isDarkMode ? "#F9FAFB" : "#111827",
+                  borderColor: isDarkMode ? "#4B5563" : "#D1D5DB",
                 }),
                 placeholder: (base) => ({
                   ...base,
                   fontSize: "14px",
-                  color: isDarkMode ? "#9CA3AF" : "#6B7280", // text-gray-400
+                  color: isDarkMode ? "#9CA3AF" : "#6B7280",
                 }),
                 menu: (base) => ({
                   ...base,
                   width: "200%",
                   minWidth: "200%",
                   zIndex: 9999,
-                  backgroundColor: isDarkMode ? "#1F2937" : "#F8F8FF", // меню
+                  backgroundColor: isDarkMode ? "#1F2937" : "#F8F8FF",
                   color: isDarkMode ? "#F9FAFB" : "#111827",
                 }),
                 option: (base, state) => ({
                   ...base,
                   backgroundColor: state.isFocused
                     ? isDarkMode
-                      ? "#374151" // gray-700
-                      : "#E5E7EB" // gray-200
+                      ? "#374151"
+                      : "#E5E7EB"
                     : "transparent",
+                  color: isDarkMode ? "#F9FAFB" : "#111827",
+                }),
+                input: (base) => ({
+                  ...base,
+                  color: isDarkMode ? "white" : "#111827",
+                }),
+                singleValue: (base) => ({
+                  ...base,
+                  color: isDarkMode ? "#F9FAFB" : "#111827",
+                }),
+                valueContainer: (base) => ({
+                  ...base,
                   color: isDarkMode ? "#F9FAFB" : "#111827",
                 }),
               }}
             />
-            {/* Ошибка валидации для продукта */}
             {errors.free_items &&
               errors.free_items[index] &&
               errors.free_items[index].gift_product && (
@@ -192,10 +182,8 @@ const ProductFreeItemsList = ({ productOptions = [] }) => {
              placeholder-gray-400 dark:placeholder-gray-500 
              focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 
              transition-all duration-150"
-              placeholder="Кол-во"
+              placeholder={t("quantity")}
             />
-            {/* Ошибка валидации для количества */}
-
             {errors.free_items &&
               errors.free_items[index] &&
               errors.free_items[index].quantity_per_unit && (
@@ -209,7 +197,7 @@ const ProductFreeItemsList = ({ productOptions = [] }) => {
             type="button"
             onClick={() => handleRemoveFreeItem(index)}
             className="text-red-600 hover:text-red-800 hover:bg-red-50 p-1 rounded transition-colors text-lg leading-none"
-            title="Удалить товар"
+            title={t("deleteItem")}
           >
             ✕
           </button>

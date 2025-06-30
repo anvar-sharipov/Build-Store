@@ -12,6 +12,7 @@ const ProductAddAndSearchSection = ({
   listItemRefs,
   totalCount,
   searchInputRef,
+  setProductAddModalOpen,
 }) => {
   const { searchQuery, setSearchQuery, searchParams, setSearchParams } =
     useContext(SearchContext);
@@ -75,7 +76,7 @@ const ProductAddAndSearchSection = ({
             setAddIconHovered(false);
           }}
           className={myClass.addButton}
-          onClick={() => setOpenAddModal(true)}
+          onClick={() => setProductAddModalOpen(true)}
           onKeyDown={(e) => {
             if (e.key === "ArrowDown") {
               e.preventDefault();
