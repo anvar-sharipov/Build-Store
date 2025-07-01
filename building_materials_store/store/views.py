@@ -28,6 +28,7 @@ from django.db.models import Q
 from django.utils.dateparse import parse_datetime, parse_date
 from django.db.models import Sum, F, Count
 from openpyxl.styles import Font
+from rest_framework.exceptions import PermissionDenied
 
 from rest_framework.pagination import PageNumberPagination
 # swoy pagination 
@@ -64,6 +65,8 @@ class IsInAdminOrWarehouseGroup(BasePermission):
             return True # GET, HEAD, OPTIONS
         # Для мутации — проверяем группы пользователя
         allowed = user.groups.filter(name__in=['admin', 'warehouse_manager']).exists()
+        if not allowed:
+            raise PermissionDenied(detail="accessOnlyForAdmin")
         return allowed
 
 
@@ -135,6 +138,9 @@ class PartnerViewSet(viewsets.ModelViewSet):
     queryset = Partner.objects.all().order_by('-pk')
     serializer_class = PartnerSerializer
 
+    def get_permissions(self):
+        return [IsInAdminOrWarehouseGroup()]
+
     def get_queryset(self):
         queryset = super().get_queryset()
         agent_id = self.request.query_params.get('agent_id')
@@ -200,6 +206,9 @@ class AgentViewSet(viewsets.ModelViewSet):
     serializer_class = AgentSerializer
     permission_classes = [IsAuthenticated]
 
+    def get_permissions(self):
+        return [IsInAdminOrWarehouseGroup()]
+
     def list(self, request, *args, **kwargs):
         # time.sleep(1)  # задержка 2 секунды
         return super().list(request, *args, **kwargs)
@@ -227,6 +236,9 @@ class EmployeeViewSet(viewsets.ModelViewSet):
     permission_classes = [IsAuthenticated]
     queryset = Employee.objects.all().order_by('-pk')
     serializer_class = EmployeeSerializer
+
+    def get_permissions(self):
+        return [IsInAdminOrWarehouseGroup()]
 
     # Фильтрация и поиск
     filter_backends = [filters.SearchFilter]
@@ -471,6 +483,7 @@ def search_products(request):
 
 
 class PriceChangeReportView(APIView):
+    permission_classes = [IsAuthenticated]
     def get(self, request):
         start_date = request.query_params.get('start_date')
         end_date = request.query_params.get('end_date')
@@ -493,7 +506,8 @@ class PriceChangeReportView(APIView):
 
 
 class PriceChangeExcelDownloadView(APIView):
-    permission_classes = [AllowAny]
+    # permission_classes = [AllowAny]
+    permission_classes = [IsAuthenticated]
 
     def get(self, request):
         start_date = request.query_params.get("start_date")

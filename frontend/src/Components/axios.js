@@ -63,7 +63,9 @@ myAxios.interceptors.response.use(
         
         // Предотвращаем множественные редиректы
         if (window.location.pathname !== "/login") {
-          window.location.href = "/login";
+          // window.location.href = "/login";
+          const errorParam = encodeURIComponent("youDidntAuthenticated");
+          window.location.href = `/login?error=${errorParam}`;
         }
         
         return Promise.reject(err);

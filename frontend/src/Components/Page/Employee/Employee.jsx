@@ -141,9 +141,13 @@ const Employee = () => {
       showNotification("newEmployeeAdded", "success");
       setNewEmployee("");
       setCurrentPage(1); // Reset to first page to show new employee
-    } catch (e) {
-      console.error("Ошибка при добавлении:", e);
-      showNotification("newEmployeeAddedError", "error");
+    } catch (error) {
+      if (error.response && error.response.status === 403) {
+        // Показываем уведомление пользователю
+        showNotification(t(error.response.data.detail), "error");
+      } else {
+        console.error("Произошла ошибка", error);
+      }
     } finally {
       setLoadingAdd(false);
       searchInputRef.current?.focus();
@@ -212,8 +216,12 @@ const Employee = () => {
       setOpenModal(false);
       listItemRefs.current[selectedListItemRef]?.focus();
     } catch (error) {
-      console.error("Ошибка при обновлении:", error);
-      showNotification("employeeUpdateError", "error");
+      if (error.response && error.response.status === 403) {
+        // Показываем уведомление пользователю
+        showNotification(t(error.response.data.detail), "error");
+      } else {
+        console.error("Произошла ошибка", error);
+      }
     } finally {
       setLoadingEdit(false);
     }

@@ -77,7 +77,7 @@ const Partner = () => {
 
   const [isAnimating, setIsAnimating] = useState(false);
 
-    // focus na search input posle smeny dark, light
+  // focus na search input posle smeny dark, light
   useEffect(() => {
     const onThemeToggled = () => {
       searchInputRef.current?.focus();
@@ -154,12 +154,10 @@ const Partner = () => {
   };
 
   const addPartner = async () => {
-    console.log("da1");
-
     if (!newPartner.trim()) {
       console.log("da2");
 
-      showNotification("partnerNameRequired", "error");
+      showNotification(t("accessOnlyForAdmin"), "error");
       return;
     }
 
@@ -175,9 +173,13 @@ const Partner = () => {
       setNewPartner("");
       setPartnerType("supplier");
       setCurrentPage(1); // Reset to first page to show new partner
-    } catch (e) {
-      console.error("Ошибка при добавлении:", e);
-      showNotification("newPartnerAddedError", "error");
+    } catch (error) {
+      if (error.response && error.response.status === 403) {
+        // Показываем уведомление пользователю
+        showNotification(t(error.response.data.detail), "error");
+      } else {
+        console.error("Произошла ошибка", error);
+      }
     } finally {
       setLoadingAdd(false);
       searchInputRef.current?.focus();
@@ -205,7 +207,7 @@ const Partner = () => {
 
   const updatePartner = async () => {
     if (!editName.trim()) {
-      showNotification("partnerNameRequired", "error");
+      showNotification(t("accessOnlyForAdmin"), "error");
       return;
     }
 
@@ -224,8 +226,12 @@ const Partner = () => {
       setOpenModal(false);
       listItemRefs.current[selectedListItemRef]?.focus();
     } catch (error) {
-      console.error("Ошибка при обновлении:", error);
-      showNotification("partnerUpdateError", "error");
+      if (error.response && error.response.status === 403) {
+        // Показываем уведомление пользователю
+        showNotification(t(error.response.data.detail), "error");
+      } else {
+        console.error("Произошла ошибка", error);
+      }
     } finally {
       setLoadingEdit(false);
     }

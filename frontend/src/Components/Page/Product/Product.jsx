@@ -1,5 +1,6 @@
 import { useTranslation } from "react-i18next";
 import { useEffect, useRef, useState, useContext } from "react";
+import Notification from "../../Notification";
 import myAxios from "../../axios";
 import MyLoading from "../../UI/MyLoading";
 import { myClass } from "../../tailwindClasses";
@@ -32,6 +33,14 @@ const Harytlar = () => {
   const [clickedNextPageBtn, setClickedNextPageBtn] = useState(false);
 
   const [productAddModalOpen, setProductAddModalOpen] = useState(false);
+
+  const [notification, setNotification] = useState({ message: "", type: "" });
+
+
+  const showNotification = (message, type) => {
+    setNotification({ message, type });
+    setTimeout(() => setNotification({ message: "", type: "" }), 3000);
+  };
 
   // modals
   const [productEditModal2, setProductEditModal2] = useState({
@@ -233,6 +242,9 @@ const Harytlar = () => {
           setProductEditModal2={setProductEditModal2}
           t={t}
           isCreate={false}
+          showNotification={showNotification}
+          setNotification={setNotification}
+          notification={notification}
         />
       )}
 
@@ -244,8 +256,17 @@ const Harytlar = () => {
           options={options}
           setOptions={setOptions}
           t={t}
+          showNotification={showNotification}
+          setNotification={setNotification}
+          notification={notification}
         />
       )}
+
+      <Notification
+        message={t(notification.message)}
+        type={notification.type}
+        onClose={() => setNotification({ message: "", type: "" })}
+      />
     </div>
   );
 };

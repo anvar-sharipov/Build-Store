@@ -1,7 +1,18 @@
+import ProductEditModal2 from "../ProductEditModal/ProductEditModal2";
 
-import ProductEditModal2 from '../ProductEditModal/ProductEditModal2'
-
-const ProductAddModal = ({ setProducts, setProductAddModal, productAddModal, options, setOptions, t, setProductAddModalOpen, productAddModalOpen }) => {
+const ProductAddModal = ({
+  setProducts,
+  setProductAddModal,
+  productAddModal,
+  options,
+  setOptions,
+  t,
+  setProductAddModalOpen,
+  productAddModalOpen,
+  showNotification,
+  setNotification,
+  notification,
+}) => {
   const emptyProduct = {
     id: null,
     name: "",
@@ -25,18 +36,24 @@ const ProductAddModal = ({ setProducts, setProductAddModal, productAddModal, opt
     tags_obj: [],
     units: [],
     free_items: [],
-
   };
 
   return (
     <ProductEditModal2
       setProducts={setProducts}
-      productEditModal2={{ open: productAddModalOpen, data: emptyProduct, index: null }}
+      productEditModal2={{
+        open: productAddModalOpen,
+        data: emptyProduct,
+        index: null,
+      }}
       setProductEditModal2={() => setProductAddModalOpen(false)}
       options={options}
       setOptions={setOptions}
       t={t}
       isCreate={true}
+      showNotification={showNotification}
+      setNotification={setNotification}
+      notification={notification}
     />
   );
 };

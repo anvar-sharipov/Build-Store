@@ -35,7 +35,7 @@
   "both": "Üpjünçi we alyjy",
   "all": "Hemmesi",
   "total": "Jemi",
-  "save": "OK",
+  "save": "Ýatda sakla",
 
   "onlyAdmin": "Diňe administrator üçin mümkinçilik berilýär",
 
@@ -84,6 +84,12 @@
   "onlyInactive": "Diňe işjeň däl",
 
   "quantityInStock": "Skladdaky mukdary",
+
+  "errorAccessReport": "Hasabatlara giriş diňe administrasiýa üçin rugsat berilýär.",
+
+  "youDidntAuthenticated": "Siz awtorizasiýa geçmediňiz.",
+
+  "accessOnlyForAdmin": "Diňe administrasiýa üçin rugsat berilýär.",
 
 
   

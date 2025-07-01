@@ -11,13 +11,7 @@ import HeaderForTabs from "./tabs/HeaderForTabs";
 import myAxios from "../../../../axios";
 import { CiNoWaitingSign } from "react-icons/ci";
 
-import {
-  Package,
-  Tag,
-  DollarSign,
-  Ruler,
-  Image,
-} from "lucide-react";
+import { Package, Tag, DollarSign, Ruler, Image } from "lucide-react";
 import { myClass } from "../../../../tailwindClasses";
 import ImagesTab from "./tabs/ImagesTab";
 
@@ -29,6 +23,9 @@ const ProductEditModal2 = ({
   t,
   setOptions,
   isCreate,
+  showNotification,
+  setNotification,
+  notification,
 }) => {
   const [product, setProduct] = useState(productEditModal2.data);
   const [activeTab, setActiveTab] = useState("basic");
@@ -73,23 +70,19 @@ const ProductEditModal2 = ({
   const validationSchema = Yup.object({
     name: Yup.string()
       .required(t("requiredName"))
-      .test(
-        "check-unique-name",
-        t("uniqueNameError"),
-        async function (value) {
-          if (!value || value === initialValues.name) return true;
+      .test("check-unique-name", t("uniqueNameError"), async function (value) {
+        if (!value || value === initialValues.name) return true;
 
-          try {
-            const res = await myAxios(
-              `/check-name-unique/?name=${encodeURIComponent(value)}`
-            );
-            return !res.data.exists;
-          } catch (e) {
-            console.log("errorr in check-name-unique", e);
-            return true;
-          }
+        try {
+          const res = await myAxios(
+            `/check-name-unique/?name=${encodeURIComponent(value)}`
+          );
+          return !res.data.exists;
+        } catch (e) {
+          console.log("errorr in check-name-unique", e);
+          return true;
         }
-      ),
+      }),
     quantity: Yup.number()
       .typeError(t("enterNumber"))
       .min(0, t("quantityNonNegative"))
@@ -158,9 +151,13 @@ const ProductEditModal2 = ({
         );
       }
     } catch (error) {
-      console.error(t("errorSavingProduct"), error);
-      if (error.response) {
-        console.error(t("serverErrorData"), error.response.data);
+      console.log("eerrorrr", error);
+
+      if (error.response && error.response.status === 403) {
+        // Показываем уведомление пользователю
+        showNotification(t(error.response.data.detail), "error");
+      } else {
+        console.error("Произошла ошибка", error);
       }
     } finally {
       setLoadingModal(false);
@@ -201,7 +198,11 @@ const ProductEditModal2 = ({
                 ) : activeTab === "prices" ? (
                   <PricesTab options={options} setOptions={setOptions} t={t} />
                 ) : activeTab === "dimensions" ? (
-                  <DimensionsTab options={options} setOptions={setOptions} t={t} />
+                  <DimensionsTab
+                    options={options}
+                    setOptions={setOptions}
+                    t={t}
+                  />
                 ) : activeTab === "categories" ? (
                   <CategoriesTab
                     options={options}
@@ -231,6 +232,8 @@ const ProductEditModal2 = ({
                       <CiNoWaitingSign className="animate-spin" />
                       {t("saving")}
                     </span>
+                  ) : isCreate ? (
+                    t("save")
                   ) : (
                     t("edit")
                   )}

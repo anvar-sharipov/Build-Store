@@ -1,13 +1,23 @@
-import React, { useState } from "react";
+import React, { useState, useContext, useEffect } from "react";
 import myAxios from "../../../axios";
 import { useTranslation } from "react-i18next";
+import { AuthContext } from "../../../../AuthContext";
+import { useNavigate } from "react-router-dom";
+import { ROUTES } from "../../../../routes";
 
 const PriceChangeReport = () => {
+  const { authUser, authGroup } = useContext(AuthContext);
+
+  console.log("authUser", authUser);
+  console.log("authGroup", authGroup);
+
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
   const [report, setReport] = useState([]);
   const [loading, setLoading] = useState(false);
   const { t } = useTranslation();
+
+  const navigate = useNavigate();
 
   const fetchReport = async () => {
     setLoading(true);
@@ -26,10 +36,62 @@ const PriceChangeReport = () => {
     }
   };
 
-  const downloadExcel = () => {
-    const url = `/api/price-change-report/excel/?start_date=${startDate}&end_date=${endDate}`;
-    window.open(url, "_blank");
+  const downloadExcel = async () => {
+    const token = localStorage.getItem("access");
+    if (!token) {
+      // пользователь не авторизован
+      window.location.href = "/login";
+      return;
+    }
+
+    try {
+      const response = await myAxios.get(
+        `/price-change-report/excel/?start_date=${startDate}&end_date=${endDate}`,
+        {
+          responseType: "blob", // очень важно для Excel-файлов
+        }
+      );
+
+      const blob = new Blob([response.data], {
+        type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+      });
+
+      const downloadUrl = window.URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = downloadUrl;
+      a.download = "price_change_report.xlsx";
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      window.URL.revokeObjectURL(downloadUrl);
+    } catch (error) {
+      console.error("Ошибка при скачивании отчета", error);
+    }
   };
+
+  useEffect(() => {
+    const access = localStorage.getItem("access");
+
+    if (!access) {
+      navigate(ROUTES.LOGIN, {
+        state: {
+          message: t("youDidntAuthenticated"), // переведённая строка
+          type: "error",
+        },
+      });
+      return;
+    }
+
+    // Если токен есть, но пользователь не админ — редирект
+    if (authGroup !== "admin") {
+      navigate(ROUTES.LOGIN, {
+        state: {
+          message: t("errorAccessReport"),
+          type: "error",
+        },
+      });
+    }
+  }, [authGroup, navigate, t]);
 
   return (
     <div className="p-4 bg-white dark:bg-gray-900 dark:text-white min-h-screen print:min-h-0">

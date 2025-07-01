@@ -23,7 +23,8 @@ const HeaderForTabs = ({ tabs, activeTab, setActiveTab }) => {
               (errors.name ||
                 errors.quantity ||
                 errors.units ||
-                errors.free_items)) ||
+                errors.free_items ||
+                errors.base_unit)) ||
             (tab.id === "prices" &&
               (errors.purchase_price ||
                 errors.retail_price ||

@@ -22,6 +22,8 @@ const Header = () => {
     const userData = localStorage.getItem("user");
     if (userData) {
       setUser(JSON.parse(userData));
+      
+      
     }
   }, []);
 
@@ -36,6 +38,7 @@ const Header = () => {
           },
         });
         setUser(res.data);
+        console.log('user', user); 
       } catch (error) {
         console.error("Ошибка загрузки пользователя", error);
       }

@@ -202,7 +202,6 @@ const Agent = () => {
     document.title = t("agents");
   }, []);
 
-
   useEffect(() => {
     searchInputRef.current?.focus();
   }, [t]);
@@ -283,8 +282,15 @@ const Agent = () => {
       const res = await myAxios.post("agents/", { name: newAgent });
       setAgentList((prev) => [res.data.data, ...prev]);
       showNotification(t("newAgentAdded"), "success");
-    } catch {
-      console.log("ne udalos dobawit");
+    } catch(error) {
+      console.log('eeerrrrooorrr', error);
+      
+      if (error.response && error.response.status === 403) {
+        // Показываем уведомление пользователю
+        showNotification(t(error.response.data.detail), "error");
+      } else {
+        console.error("Произошла ошибка", error);
+      }
     } finally {
       setLoading(false);
       setOpenAddModal(false);
@@ -323,7 +329,12 @@ const Agent = () => {
         return prev.map((p) => (p.id === id ? res.data : p));
       });
     } catch (error) {
-      showNotification(res.data.message, "error");
+      if (error.response && error.response.status === 403) {
+        // Показываем уведомление пользователю
+        showNotification(t(error.response.data.detail), "error");
+      } else {
+        console.error("Произошла ошибка", error);
+      }
     } finally {
       setLoadingEdit(false);
       setOpenEditModal({ open: false, data: null, index: null });

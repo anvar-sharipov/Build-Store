@@ -86,6 +86,12 @@
 
   "quantityInStock": "Количество на складе",
 
+  "errorAccessReport": "Доступ к отчетам разрешен только администраторам.",
+
+  "youDidntAuthenticated": "Вы не авторизованы.",
+
+  "accessOnlyForAdmin": "Доступ разрешен только администраторам.",
+
 
 
 
@@ -279,6 +285,8 @@
   "productSearchError": "Ошибка поиска продуктов:",
   "PRICE_CHANGE_REPORT": "Отчёт об изменении цен",
   "reports": "Отчёты"
+
+
  
  
 

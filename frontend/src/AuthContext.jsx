@@ -22,8 +22,8 @@ export const AuthProvider = ({ children }) => {
       });
   }, []);
 
-  useEffect(() => {
-}, [authUser, authGroup]);
+//   useEffect(() => {
+// }, [authUser, authGroup]);
 
   return (
     <AuthContext.Provider value={{ authUser, authGroup }}>

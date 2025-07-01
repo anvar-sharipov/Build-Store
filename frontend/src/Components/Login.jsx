@@ -17,11 +17,39 @@ export default function Login() {
   const [message, setMessage] = useState("");
   const [messageType, setMessageType] = useState("success");
 
+  // useEffect(() => {
+  //   if (location.state?.message && location.state?.type) {
+  //     setNotification({
+  //       message: location.state?.message,
+  //       type: location.state?.type,
+  //     });
+  //     setTimeout(() => {
+  //       setNotification({
+  //         message: "",
+  //         type: "",
+  //       });
+  //     }, 3000);
+  //   }
+  // }, [location]);
+
   useEffect(() => {
+    const params = new URLSearchParams(location.search);
+    const errorKey = params.get("error");
+
+    if (errorKey) {
+      setNotification({
+        message: t(errorKey),
+        type: "error",
+      });
+
+      // убираем параметр из URL, чтобы при обновлении не показывалось снова
+      window.history.replaceState({}, "", "/login");
+    }
+
     if (location.state?.message && location.state?.type) {
       setNotification({
-        message: location.state?.message,
-        type: location.state?.type,
+        message: t(location.state.message),
+        type: location.state.type,
       });
       setTimeout(() => {
         setNotification({
