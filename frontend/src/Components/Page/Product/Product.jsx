@@ -19,6 +19,7 @@ import {
   fetchModels,
   fetchTags,
 } from "../../fetchs/optionsFetchers";
+import ProductDeleteModal from "./modals/ProductDeleteModal";
 
 const Harytlar = () => {
   const { searchQuery, setSearchQuery, searchParams, setSearchParams } =
@@ -32,10 +33,179 @@ const Harytlar = () => {
   const searchInputRef = useRef(null);
   const [clickedNextPageBtn, setClickedNextPageBtn] = useState(false);
 
+  const [openDeleteModal, setOpenDeleteModal] = useState({
+    open: false,
+    data: null,
+    index: null,
+  });
+  const [loadingDeleteId, setLoadingDeleteId] = useState(null);
+
   const [productAddModalOpen, setProductAddModalOpen] = useState(false);
 
   const [notification, setNotification] = useState({ message: "", type: "" });
 
+  const deleteProduct = async (id, name) => {
+    setLoadingDeleteId(id);
+    try {
+      await myAxios.delete(`products/${id}/`);
+      setProducts((prev) => prev.filter((p) => p.id !== id));
+      showNotification(t("productDeleted"), "success");
+    } catch (err) {
+      showNotification(t("productNotDeleted"), "error");
+    } finally {
+      setLoadingDeleteId(null);
+      setOpenDeleteModal({ open: false, data: null, index: null });
+    }
+  };
+
+  // const downloadFilteredExcel = async () => {
+  //   console.log("Starting download...");
+
+  //   if (products.length === 0) {
+  //     showNotification(t("noProductsToExport"), "error");
+  //     return;
+  //   }
+
+  //   const productIds = products.map((p) => p.id);
+  //   console.log("Product IDs to export:", productIds);
+
+  //   try {
+  //     const token = localStorage.getItem("access");
+  //     console.log("Token exists:", !!token);
+
+  //     if (!token) {
+  //       showNotification(t("authenticationRequired"), "error");
+  //       return;
+  //     }
+
+  //     console.log("Making request to /products/export-excel/");
+
+  //     const response = await myAxios.post(
+  //       "/products-download/export-excel/",
+  //       { product_ids: productIds },
+  //       {
+  //         responseType: "blob",
+  //         headers: {
+  //           Authorization: `Bearer ${token}`,
+  //           "Content-Type": "application/json",
+  //         },
+  //       }
+  //     );
+
+  //     console.log("Response received:", response);
+  //     console.log("Response status:", response.status);
+  //     console.log("Response headers:", response.headers);
+  //     console.log("Response data type:", typeof response.data);
+  //     console.log(
+  //       "Response data instanceof Blob:",
+  //       response.data instanceof Blob
+  //     );
+  //     console.log("Response data size:", response.data.size);
+
+  //     if (response.data instanceof Blob && response.data.size > 0) {
+  //       const blob = new Blob([response.data], {
+  //         type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+  //       });
+
+  //       const url = window.URL.createObjectURL(blob);
+  //       const a = document.createElement("a");
+  //       a.href = url;
+  //       a.download = `products_export_${new Date()
+  //         .toISOString()
+  //         .slice(0, 10)}.xlsx`;
+
+  //       document.body.appendChild(a);
+  //       a.click();
+  //       document.body.removeChild(a);
+  //       window.URL.revokeObjectURL(url);
+
+  //       console.log("File download initiated successfully");
+  //       showNotification(t("fileDownloadedSuccessfully"), "success");
+  //     } else {
+  //       console.error("Invalid response data:", response.data);
+  //       throw new Error("Invalid response data");
+  //     }
+  //   } catch (err) {
+  //     console.error("Download error:", err);
+  //     console.error("Error response:", err.response);
+
+  //     if (err.response?.status === 401) {
+  //       showNotification(t("authenticationError"), "error");
+  //     } else if (err.response?.status === 400) {
+  //       showNotification(t("badRequest"), "error");
+  //     } else {
+  //       showNotification(t("errorDownloadingFile"), "error");
+  //     }
+  //   }
+  // };
+
+  const downloadFilteredExcel = async () => {
+    try {
+      const token = localStorage.getItem("access");
+      if (!token) {
+        showNotification(t("authenticationRequired"), "error");
+        return;
+      }
+
+      setLoading(true);
+
+      // Отправляем только параметры фильтрации, а не ID товаров
+      const filterParams = Object.fromEntries(searchParams.entries());
+
+      console.log("Sending filter params:", filterParams);
+
+      const response = await myAxios.post(
+        "/products-download/export-excel/",
+        {
+          filters: filterParams, // Отправляем фильтры вместо product_ids
+        },
+        {
+          responseType: "blob",
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+          timeout: 60000, // Увеличиваем таймаут до 60 секунд
+        }
+      );
+
+      if (response.data instanceof Blob && response.data.size > 0) {
+        const blob = new Blob([response.data], {
+          type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+        });
+
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = `products_export_${new Date()
+          .toISOString()
+          .slice(0, 10)}.xlsx`;
+
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        window.URL.revokeObjectURL(url);
+
+        showNotification(t("fileDownloadedSuccessfully"), "success");
+      } else {
+        throw new Error("Invalid response data");
+      }
+    } catch (err) {
+      console.error("Download error:", err);
+
+      if (err.response?.status === 401) {
+        showNotification(t("authenticationError"), "error");
+      } else if (err.response?.status === 400) {
+        showNotification(t("badRequest"), "error");
+      } else if (err.code === "ECONNABORTED") {
+        showNotification(t("requestTimeout"), "error");
+      } else {
+        showNotification(t("errorDownloadingFile"), "error");
+      }
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const showNotification = (message, type) => {
     setNotification({ message, type });
@@ -188,6 +358,17 @@ const Harytlar = () => {
   };
 
   useEffect(() => {
+    const handleKey = (e) => {
+      if (e.key === "Insert") {
+        e.preventDefault();
+        setProductAddModalOpen(true);
+      }
+    };
+    window.addEventListener("keydown", handleKey);
+    return () => window.removeEventListener("keydown", handleKey);
+  }, [productAddModalOpen]);
+
+  useEffect(() => {
     const load = async () => {
       await fetchProducts();
       searchInputRef.current?.focus();
@@ -211,6 +392,7 @@ const Harytlar = () => {
         searchInputRef={searchInputRef}
         productAddModalOpen={productAddModalOpen}
         setProductAddModalOpen={setProductAddModalOpen}
+        downloadFilteredExcel={downloadFilteredExcel}
       />
       {loading ? (
         <MyLoading />
@@ -228,6 +410,7 @@ const Harytlar = () => {
           clickedNextPageBtn={clickedNextPageBtn}
           productEditModal2={productEditModal2}
           setProductEditModal2={setProductEditModal2}
+          setOpenDeleteModal={setOpenDeleteModal}
         />
       ) : (
         <div>net product</div>
@@ -267,6 +450,16 @@ const Harytlar = () => {
         type={notification.type}
         onClose={() => setNotification({ message: "", type: "" })}
       />
+
+      {openDeleteModal.open && (
+        <ProductDeleteModal
+          setOpenDeleteModal={setOpenDeleteModal}
+          openDeleteModal={openDeleteModal}
+          deleteProduct={deleteProduct}
+          loadingDeleteId={loadingDeleteId}
+          t={t}
+        />
+      )}
     </div>
   );
 };

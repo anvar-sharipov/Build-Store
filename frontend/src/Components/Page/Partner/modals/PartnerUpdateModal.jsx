@@ -16,8 +16,11 @@ const PartnerUpdateModal = ({
   selectedListItemRef,
   t,
   editInputRef,
+  editBalanceInputRef,
   editName,
   setEditName,
+  editBalance,
+  setEditBalance,
   editAgent,
   setEditAgent,
   handleEditKeyDown,
@@ -32,6 +35,9 @@ const PartnerUpdateModal = ({
   const [filteredAgents, setFilteredAgents] = useState([]);
   const agentItemRefs = useRef([]);
   const agentInputRef = useRef();
+
+  
+  
 
   // ckryt li podskazki esli kliknut w drugoe mesto
   const wrapperRef = useRef();
@@ -120,7 +126,7 @@ const PartnerUpdateModal = ({
       <div className="relative bg-gradient-to-br from-white via-gray-50 to-blue-50/30 dark:from-gray-900 dark:via-gray-800 dark:to-blue-900/20 rounded-2xl overflow-hidden">
         {/* Декоративный фон */}
         <div className="absolute inset-0 bg-grid-pattern opacity-5 dark:opacity-10"></div>
-        
+
         <div className="relative p-8">
           {/* Заголовок */}
           <div className="flex items-center justify-between mb-8">
@@ -137,10 +143,13 @@ const PartnerUpdateModal = ({
                 </p>
               </div>
             </div>
-            
+
             {loadingEdit && (
               <div className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm rounded-full p-3 shadow-lg">
-                <MyLoading containerClass="h-8" spinnerClass="w-6 h-6 text-blue-500" />
+                <MyLoading
+                  containerClass="h-8"
+                  spinnerClass="w-6 h-6 text-blue-500"
+                />
               </div>
             )}
           </div>
@@ -159,6 +168,31 @@ const PartnerUpdateModal = ({
                   value={editName}
                   onChange={(e) => setEditName(e.target.value)}
                   placeholder={t("enterPartnerName")}
+                  className="w-full pl-4 pr-4 py-3 text-lg bg-white/70 dark:bg-gray-800/70 backdrop-blur-sm border-2 border-gray-200/50 dark:border-gray-600/50 rounded-xl focus:border-blue-500 dark:focus:border-blue-400 focus:ring-4 focus:ring-blue-500/20 dark:focus:ring-blue-400/20 transition-all duration-300 shadow-sm hover:shadow-md focus:shadow-lg"
+                  onKeyDown={handleEditKeyDown}
+                />
+                {editName && (
+                  <div className="absolute right-3 top-1/2 -translate-y-1/2">
+                    <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
+                  </div>
+                )}
+              </div>
+            </div>
+
+            {/* Partner balance */}
+            <div className="group">
+              <label className="flex items-center gap-2 text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3">
+                <div className="w-2 h-2 bg-blue-500 rounded-full group-focus-within:scale-150 transition-transform duration-200"></div>
+                {t("changePartnerBalance")}
+              </label>
+              <div className="relative">
+                <MyInput
+                  ref={editBalanceInputRef}
+                  disabled={loadingEdit}
+                  value={editBalance}
+                  type="number"
+                  onChange={(e) => setEditBalance(e.target.value)}
+                  placeholder={t("enterPartnerBalance")}
                   className="w-full pl-4 pr-4 py-3 text-lg bg-white/70 dark:bg-gray-800/70 backdrop-blur-sm border-2 border-gray-200/50 dark:border-gray-600/50 rounded-xl focus:border-blue-500 dark:focus:border-blue-400 focus:ring-4 focus:ring-blue-500/20 dark:focus:ring-blue-400/20 transition-all duration-300 shadow-sm hover:shadow-md focus:shadow-lg"
                   onKeyDown={handleEditKeyDown}
                 />
@@ -206,35 +240,44 @@ const PartnerUpdateModal = ({
                         }
                       }}
                     />
-                    <div className={`
+                    <div
+                      className={`
                       relative p-4 rounded-xl border-2 transition-all duration-300 cursor-pointer
-                      ${editType === type 
-                        ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/20 shadow-lg shadow-blue-500/20' 
-                        : 'border-gray-200 dark:border-gray-600 bg-white/50 dark:bg-gray-800/50 hover:border-gray-300 dark:hover:border-gray-500'
+                      ${
+                        editType === type
+                          ? "border-blue-500 bg-blue-50 dark:bg-blue-900/20 shadow-lg shadow-blue-500/20"
+                          : "border-gray-200 dark:border-gray-600 bg-white/50 dark:bg-gray-800/50 hover:border-gray-300 dark:hover:border-gray-500"
                       }
                       group-hover/radio:shadow-md backdrop-blur-sm
-                    `}>
+                    `}
+                    >
                       <div className="flex items-center gap-3">
-                        <div className={`
+                        <div
+                          className={`
                           flex items-center justify-center w-8 h-8 rounded-lg transition-colors duration-200
-                          ${editType === type 
-                            ? 'bg-blue-500 text-white' 
-                            : 'bg-gray-200 dark:bg-gray-700 text-gray-500 dark:text-gray-400'
+                          ${
+                            editType === type
+                              ? "bg-blue-500 text-white"
+                              : "bg-gray-200 dark:bg-gray-700 text-gray-500 dark:text-gray-400"
                           }
-                        `}>
+                        `}
+                        >
                           {getTypeIcon(type)}
                         </div>
-                        <span className={`
+                        <span
+                          className={`
                           font-medium transition-colors duration-200
-                          ${editType === type 
-                            ? 'text-blue-700 dark:text-blue-300' 
-                            : 'text-gray-700 dark:text-gray-300'
+                          ${
+                            editType === type
+                              ? "text-blue-700 dark:text-blue-300"
+                              : "text-gray-700 dark:text-gray-300"
                           }
-                        `}>
+                        `}
+                        >
                           {t(type)}
                         </span>
                       </div>
-                      
+
                       {editType === type && (
                         <div className="absolute top-2 right-2">
                           <div className="w-3 h-3 bg-blue-500 rounded-full animate-pulse"></div>

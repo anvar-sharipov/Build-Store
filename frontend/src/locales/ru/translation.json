@@ -92,6 +92,15 @@
 
   "accessOnlyForAdmin": "Доступ разрешен только администраторам.",
 
+  "deleting": "Удаление...",
+
+  "balance": "Баланс",
+
+  "addNewBalance": "Добавить новый баланс",
+
+  "purchase_price":"Цена закупки",
+
+
 
 
 
@@ -140,6 +149,8 @@
   "addFirstPartner": "Добавьте первого партнёра",
   "agentNotFound": "Указанный агент не найден",
   "changeInfoAboutPartner": "Обновите информацию о партнере",
+  "changePartnerBalance": "Изменить баланс партнёра",
+  "enterPartnerBalance": "Введите баланс партнёра",
 
 
 
@@ -195,6 +206,8 @@
   "retail_price": "Розничная цена",
   "name_asc": "Название",
   "name_desc": "Название",
+  "confirmDeleteProduct": "Вы уверены, что хотите удалить продукт?",
+  "thisActionIsIrreversible": "Это действие необратимо.",
 
   "report_title": "Подробный отчёт по изменениям цен",
   "download_excel": "Скачать Excel",

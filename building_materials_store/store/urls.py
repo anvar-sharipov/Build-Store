@@ -36,5 +36,6 @@ urlpatterns = [
 
     path('price-change-report/', PriceChangeReportView.as_view(), name='price-change-report'),
     path('price-change-report/excel/', PriceChangeExcelDownloadView.as_view(), name='price-change-excel'),
+    path('products-download/export-excel/', ProductExportExcelView.as_view(), name='products_export_excel'),
 ]
 

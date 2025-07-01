@@ -11,6 +11,8 @@ const PartnerList = ({
   loadingDeleteId,
   setSelectedPartner,
   setEditName,
+  setEditBalance,
+  setEditAgent,
   setEditType,
   setEditId,
   setSelectedListItemRef,
@@ -37,6 +39,9 @@ const PartnerList = ({
                     e.stopPropagation();
                     setSelectedPartner(p);
                     setEditName(p.name);
+                    setEditBalance(p.balance);
+                    
+                    setEditAgent(p.agent_name);
                     setEditType(p.type);
                     setEditId(p.id);
                     setSelectedListItemRef(index);
@@ -55,6 +60,7 @@ const PartnerList = ({
                     {p.name}
                   </div>
                   <div className="flex items-center gap-1 justify-end">
+                    <div>{p.balance}</div>
                     <TypeBadge
                       typeText={t(p.type)}
                       text={p.type_display}

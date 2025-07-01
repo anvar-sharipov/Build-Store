@@ -2,6 +2,7 @@ from django.db import models, IntegrityError, transaction
 from django.contrib.auth.models import AbstractUser
 from django.core.exceptions import ValidationError
 from django.contrib.auth import get_user_model
+from decimal import Decimal
 
 
 
@@ -393,6 +394,13 @@ class Partner(models.Model):
         choices=PARTNER_TYPE_CHOICES,
         default=SUPPLIER,
         verbose_name='Partneriň görnüşi',
+    )
+
+    balance = models.DecimalField(
+        max_digits=12,
+        decimal_places=2,
+        default=Decimal('0.00'),
+        verbose_name='Balans (deb/kred)'
     )
 
     def __str__(self):

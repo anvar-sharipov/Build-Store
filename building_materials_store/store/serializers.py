@@ -188,6 +188,7 @@ class ProductSerializer(serializers.ModelSerializer):
 class PriceChangeReportSerializer(serializers.ModelSerializer):
     product_name = serializers.CharField(source="product.name", read_only=True)
     product_unit = serializers.CharField(source="product.base_unit.name", read_only=True)
+
     old_price = serializers.DecimalField(max_digits=10, decimal_places=2)
     new_price = serializers.DecimalField(max_digits=10, decimal_places=2)
     quantity_at_change = serializers.DecimalField(max_digits=10, decimal_places=2)
@@ -201,7 +202,6 @@ class PriceChangeReportSerializer(serializers.ModelSerializer):
             "old_price", "new_price", "quantity_at_change",
             "difference", "changed_at"
         ]
-
 
 
 
@@ -302,7 +302,7 @@ class PartnerSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Partner
-        fields = ['id', 'name', 'type', 'type_display', 'agent', 'agent_id', 'agent_name']
+        fields = ['id', 'name', 'type', 'type_display', 'agent', 'agent_id', 'agent_name', 'balance']
 
 
 

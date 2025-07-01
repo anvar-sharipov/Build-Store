@@ -15,6 +15,10 @@ const FILTER_CONFIG = {
       { key: "both", labelKey: "both" },
       { key: "all", labelKey: "all" },
     ],
+    sort: [
+      { key: "asc", labelKey: "asc" },   // по возрастанию
+      { key: "desc", labelKey: "desc" }, // по убыванию
+    ],
   },
   "/agents": {
     sort: [

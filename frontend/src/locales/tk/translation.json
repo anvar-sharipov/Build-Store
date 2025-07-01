@@ -91,6 +91,15 @@
 
   "accessOnlyForAdmin": "Diňe administrasiýa üçin rugsat berilýär.",
 
+  "deleting": "Pozulýar...",
+
+  "balance": "Balans",
+
+  "addNewBalance": "Täze balans goş",
+
+  "purchase_price": "Satyn alyş bahasy",
+
+
 
   
 
@@ -131,6 +140,9 @@
   "addFirstPartner": "Ilki hyzmatdaşyňyzy goşuň",
   "agentNotFound": "Görkezilen agent tapylmady",
   "changeInfoAboutPartner": "Maglumatlary täzeleň",
+  "changePartnerBalance": "Hyzmatdaşyň balansyny üýtgetmek",
+  "enterPartnerBalance": "Hyzmatdaşyň balansyny giriziň",
+
 
 
   "agents": "Agentler",
@@ -176,6 +188,8 @@
   "wholesale_price": "Arzan bahasy",
   "retail_price": "Satyş bahasy",
   "name": "Ady",
+  "confirmDeleteProduct": "Ön bu önümi pozmak isleýäňizmi?",
+  "thisActionIsIrreversible": "Bu hereket yzyna gaýtarylyp bilinmez.",
 
   "report_title": "Bahalaryň üýtgemegi boýunça jikme-jik hasabat",
   "download_excel": "Excel ýükläň",

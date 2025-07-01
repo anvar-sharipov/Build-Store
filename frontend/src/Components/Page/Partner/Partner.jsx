@@ -25,6 +25,7 @@ const Partner = () => {
   const [partnersRaw, setPartnersRaw] = useState([]);
   const [agentList, setAgentList] = useState([]);
   const [newPartner, setNewPartner] = useState("");
+  const [newBalance, setNewBalance] = useState(0);
   const [search, setSearch] = useState("");
   const [loading, setLoading] = useState(true);
   const [loadingAdd, setLoadingAdd] = useState(false);
@@ -49,11 +50,13 @@ const Partner = () => {
 
   // Refs
   const addInputRef = useRef(null);
+  const balanceInputRef = useRef(null);
   const addAgentInputRef = useRef(null);
   const searchInputRef = useRef(null);
   const listItemRefs = useRef([]);
   const loadMoreButtonRef = useRef(null);
   const editInputRef = useRef(null);
+  const editBalanceInputRef = useRef(null);
   const addIconButtonRef = useRef(null);
   const radioRefs = useRef({});
   const deleteCancelRef = useRef(null);
@@ -67,6 +70,7 @@ const Partner = () => {
   const [openModal, setOpenModal] = useState(false);
   const [editId, setEditId] = useState("");
   const [editName, setEditName] = useState("");
+  const [editBalance, setEditBalance] = useState("");
   const [editAgent, setEditAgent] = useState("");
   const [editType, setEditType] = useState("supplier");
   const [deleteModal, setDeleteModal] = useState({
@@ -76,6 +80,8 @@ const Partner = () => {
   });
 
   const [isAnimating, setIsAnimating] = useState(false);
+
+  const sortOrder = searchParams.get("sort") || "desc";
 
   // focus na search input posle smeny dark, light
   useEffect(() => {
@@ -157,7 +163,7 @@ const Partner = () => {
     if (!newPartner.trim()) {
       console.log("da2");
 
-      showNotification(t("accessOnlyForAdmin"), "error");
+      showNotification(t("inputCantBeEmpty"), "error");
       return;
     }
 
@@ -165,12 +171,14 @@ const Partner = () => {
     try {
       const res = await myAxios.post("partners/", {
         name: newPartner,
+        balance: newBalance,
         type: partnerType,
         agent_id: selectedAgent?.id ?? null,
       });
       setPartnersRaw((prev) => [res.data, ...prev]);
       showNotification("newPartnerAdded", "success");
       setNewPartner("");
+      setNewBalance(0);
       setPartnerType("supplier");
       setCurrentPage(1); // Reset to first page to show new partner
     } catch (error) {
@@ -207,7 +215,7 @@ const Partner = () => {
 
   const updatePartner = async () => {
     if (!editName.trim()) {
-      showNotification(t("accessOnlyForAdmin"), "error");
+      showNotification(t("inputCantBeEmpty"), "error");
       return;
     }
 
@@ -215,6 +223,7 @@ const Partner = () => {
     try {
       const res = await myAxios.put(`partners/${editId}/`, {
         name: editName,
+        balance: editBalance,
         type: editType,
         agent_id: selectedAgent?.id ?? null,
       });
@@ -260,8 +269,15 @@ const Partner = () => {
       filtered = filtered.filter((p) => p.type === filterType);
     }
 
+    // Сортировка по balance
+    if (sortOrder === "asc") {
+      filtered = [...filtered].sort((a, b) => a.balance - b.balance);
+    } else if (sortOrder === "desc") {
+      filtered = [...filtered].sort((a, b) => b.balance - a.balance);
+    }
+
     return filtered;
-  }, [partnersRaw, filterType, search, fuse]);
+  }, [partnersRaw, filterType, search, fuse, sortOrder]);
 
   const partners = filteredPartners.slice(0, currentPage * itemsPerPage);
   const hasMore = filteredPartners.length > partners.length;
@@ -289,7 +305,10 @@ const Partner = () => {
       setOpenModal(true);
       setSelectedListItemRef(i);
       setEditName(p.name);
+      setEditBalance(p.balance);
       setEditAgent(p.agent_name);
+      console.log("addadadd agent_name", p.agent_name);
+
       setEditType(p.type);
       setEditId(p.id);
     } else if (e.key === "ArrowDown") {
@@ -334,6 +353,7 @@ const Partner = () => {
     }
     if (e.key === "Escape") {
       setNewPartner("");
+      setNewBalance(0);
     }
   };
 
@@ -417,11 +437,14 @@ const Partner = () => {
           partnerType={partnerType}
           setPartnerType={setPartnerType}
           addInputRef={addInputRef}
+          balanceInputRef={balanceInputRef}
           addAgentInputRef={addAgentInputRef}
           addPartner={addPartner}
           loadingAdd={loadingAdd}
           newPartner={newPartner}
           setNewPartner={setNewPartner}
+          setNewBalance={setNewBalance}
+          newBalance={newBalance}
           handleAddKeyDown={handleAddKeyDown}
         />
       )}
@@ -438,9 +461,12 @@ const Partner = () => {
           setselectedListItemRefOpenModal={selectedListItemRef}
           t={t}
           editInputRef={editInputRef}
+          editBalanceInputRef={editBalanceInputRef}
           editName={editName}
           editAgent={editAgent}
           setEditName={setEditName}
+          editBalance={editBalance}
+          setEditBalance={setEditBalance}
           setEditAgent={setEditAgent}
           handleEditKeyDown={handleEditKeyDown}
           refUpdateRadioInput={refUpdateRadioInput}
@@ -513,6 +539,8 @@ const Partner = () => {
         loadingDeleteId={loadingDeleteId}
         setSelectedPartner={setSelectedPartner}
         setEditName={setEditName}
+        setEditBalance={setEditBalance}
+        setEditAgent={setEditAgent}
         setEditType={setEditType}
         setEditId={setEditId}
         setSelectedListItemRef={setSelectedListItemRef}

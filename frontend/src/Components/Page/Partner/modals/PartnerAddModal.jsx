@@ -16,12 +16,15 @@ const PartnerAddModal = ({
   partnerType,
   setPartnerType,
   addInputRef,
+  balanceInputRef,
   addAgentInputRef,
   addPartner,
   loadingAdd,
   newPartner,
   setNewPartner,
   handleAddKeyDown,
+  setNewBalance,
+  newBalance,
 }) => {
   const [agentQuery, setAgentQuery] = useState("");
   const [filteredAgents, setFilteredAgents] = useState([]);
@@ -104,7 +107,9 @@ const PartnerAddModal = ({
                   }
                 }}
               />
-              <span className="text-gray-800 dark:text-gray-200">{t(type)}</span>
+              <span className="text-gray-800 dark:text-gray-200">
+                {t(type)}
+              </span>
             </label>
           ))}
         </div>
@@ -121,6 +126,24 @@ const PartnerAddModal = ({
             value={newPartner}
             onChange={(e) => setNewPartner(e.target.value)}
             placeholder={`${t("addNewPartner")}...`}
+            className="flex-grow focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400"
+            onKeyDown={(e) => handleAddKeyDown(e)}
+            disabled={loadingAdd}
+          />
+        </div>
+
+        {/* Partner balance input */}
+        <div className="flex items-center gap-3">
+          <label className="w-24 text-gray-700 dark:text-gray-300 font-medium">
+            {t("balance")}
+          </label>
+          <MyInput
+            ref={balanceInputRef}
+            name="new_balance"
+            type="number"
+            value={newBalance}
+            onChange={(e) => setNewBalance(e.target.value)}
+            placeholder={`${t("addNewBalance")}...`}
             className="flex-grow focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400"
             onKeyDown={(e) => handleAddKeyDown(e)}
             disabled={loadingAdd}

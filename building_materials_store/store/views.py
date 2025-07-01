@@ -482,11 +482,17 @@ def search_products(request):
 
 
 
+
+
+VALID_PRICE_TYPES = ['purchase', 'retail', 'wholesale', 'discount']
+
 class PriceChangeReportView(APIView):
     permission_classes = [IsAuthenticated]
+
     def get(self, request):
         start_date = request.query_params.get('start_date')
         end_date = request.query_params.get('end_date')
+        price_type = request.query_params.get('price_type')  # 'purchase', 'retail', и т.п.
 
         if not start_date or not end_date:
             return Response({"detail": "start_date и end_date обязательны"}, status=status.HTTP_400_BAD_REQUEST)
@@ -497,54 +503,80 @@ class PriceChangeReportView(APIView):
         if not start or not end:
             return Response({"detail": "Неверный формат даты. Используйте YYYY-MM-DD"}, status=status.HTTP_400_BAD_REQUEST)
 
-        queryset = PriceChangeHistory.objects.filter(changed_at__date__range=(start, end)).select_related('product__base_unit')
+        queryset = PriceChangeHistory.objects.filter(
+            changed_at__date__range=(start, end)
+        )
+
+        if price_type:
+            if price_type not in VALID_PRICE_TYPES:
+                return Response({"detail": f"price_type должен быть одним из {VALID_PRICE_TYPES}"}, status=status.HTTP_400_BAD_REQUEST)
+            queryset = queryset.filter(price_type=price_type)
+
+        queryset = queryset.select_related('product__base_unit')
         serializer = PriceChangeReportSerializer(queryset, many=True)
         return Response(serializer.data)
-    
-
-
 
 
 class PriceChangeExcelDownloadView(APIView):
-    # permission_classes = [AllowAny]
     permission_classes = [IsAuthenticated]
 
     def get(self, request):
         start_date = request.query_params.get("start_date")
         end_date = request.query_params.get("end_date")
+        price_type = request.query_params.get('price_type')
 
         if not start_date or not end_date:
             return HttpResponse("start_date и end_date обязательны", status=400)
 
+        if price_type and price_type not in VALID_PRICE_TYPES:
+            return HttpResponse(f"price_type должен быть одним из {VALID_PRICE_TYPES}", status=400)
+
         start = parse_date(start_date)
         end = parse_date(end_date)
 
-        queryset = PriceChangeHistory.objects.filter(changed_at__date__range=(start, end)).select_related("product__base_unit")
+        if not start or not end:
+            return HttpResponse("Неверный формат даты. Используйте YYYY-MM-DD", status=400)
 
-        # Создаём Excel-файл
+        queryset = PriceChangeHistory.objects.filter(changed_at__date__range=(start, end))
+
+        if price_type:
+            queryset = queryset.filter(price_type=price_type)
+
+        queryset = queryset.select_related("product__base_unit")
+
         wb = openpyxl.Workbook()
         ws = wb.active
         ws.title = "Изменения цен"
 
-        # Вставляем заголовок (например, на первую строку)
         header_text = f"Отчёт по изменениям цен с {start_date} по {end_date}"
-        ws.merge_cells('A1:L1')  # Объединяем ячейки с A1 по L1 для заголовка
+        if price_type:
+            if price_type == 'purchase':
+                price_word = 'Цена закупки'
+            elif price_type == 'retail':
+                price_word = 'Розничная цена'
+            elif price_type == 'wholesale':
+                price_word = 'Оптовая цена'
+            header_text += f" ({price_word})"
+
+        ws.merge_cells('A1:L1')
         cell = ws['A1']
         cell.value = header_text
         cell.font = Font(size=14, bold=True)
         cell.alignment = openpyxl.styles.Alignment(horizontal='center')
 
-        # Заголовки таблицы начинаются со второй строки
         headers = [
             "#", "Продукт", "Ед. изм.", "Старая цена", "Кол-во", "Сумма старая",
             "Новая цена", "Кол-во", "Сумма новая", "Прибыль", "Убыток", "Дата"
         ]
-        ws.append([])  # Пустая строка (вторая)
-        ws.append(headers)  # Третья строка — заголовки
+        ws.append([])
+        ws.append(headers)
 
         for idx, record in enumerate(queryset, start=1):
-            old_total = float(record.old_price) * float(record.quantity_at_change)
-            new_total = float(record.new_price) * float(record.quantity_at_change)
+            old_price = float(record.old_price)
+            new_price = float(record.new_price)
+            quantity = float(record.quantity_at_change)
+            old_total = old_price * quantity
+            new_total = new_price * quantity
             profit = max(record.difference, 0)
             loss = min(record.difference, 0)
 
@@ -552,24 +584,254 @@ class PriceChangeExcelDownloadView(APIView):
                 idx,
                 record.product.name,
                 record.product.base_unit.name,
-                float(record.old_price),
-                float(record.quantity_at_change),
+                old_price,
+                quantity,
                 round(old_total, 2),
-                float(record.new_price),
-                float(record.quantity_at_change),
+                new_price,
+                quantity,
                 round(new_total, 2),
                 round(profit, 2),
                 round(loss, 2),
                 record.changed_at.strftime("%Y-%m-%d %H:%M"),
             ])
 
-        # Автоширина столбцов
         for col in ws.columns:
             max_length = max(len(str(cell.value)) if cell.value else 0 for cell in col)
             ws.column_dimensions[get_column_letter(col[0].column)].width = max_length + 2
 
-        # Ответ как файл
-        response = HttpResponse(content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
-        response['Content-Disposition'] = 'attachment; filename=price_changes_report.xlsx'
+        response = HttpResponse(
+            content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+        )
+        response['Content-Disposition'] = f'attachment; filename="price_changes_report_{start_date}_to_{end_date}.xlsx"'
         wb.save(response)
         return response
+    
+
+
+
+# download prodcts excel
+# class ProductExportExcelView(APIView):
+#     permission_classes = [IsAuthenticated]  # Uncomment this line
+
+#     def post(self, request):
+#         try:
+#             product_ids = request.data.get("product_ids", [])
+#             if not product_ids:
+#                 return Response({"error": "product_ids не переданы"}, status=400)
+
+#             # Check if product_ids is a list and contains valid integers
+#             if not isinstance(product_ids, list) or not all(isinstance(pid, int) for pid in product_ids):
+#                 return Response({"error": "product_ids должен быть списком целых чисел"}, status=400)
+
+#             queryset = Product.objects.filter(id__in=product_ids).select_related('base_unit', 'category', 'brand', 'model')
+            
+#             if not queryset.exists():
+#                 return Response({"error": "Продукты не найдены"}, status=404)
+
+#             wb = openpyxl.Workbook()
+#             ws = wb.active
+#             ws.title = "Товары"
+
+#             headers = [
+#                 "ID", "Наименование", "Категория", "Ед. изм.", "Артикул", "Количество",
+#                 "Цена закупки", "Розничная цена", "Оптовая цена", "Цена со скидкой",
+#                 "Бренд", "Модель", "Вес (кг)", "Объём (м³)"
+#             ]
+#             ws.append(headers)
+
+#             for product in queryset:
+#                 ws.append([
+#                     product.id,
+#                     product.name,
+#                     product.category.name if product.category else "",
+#                     product.base_unit.name if product.base_unit else "",
+#                     product.sku or "",
+#                     float(product.quantity) if product.quantity else 0,
+#                     float(product.purchase_price) if product.purchase_price else 0,
+#                     float(product.retail_price) if product.retail_price else 0,
+#                     float(product.wholesale_price) if product.wholesale_price else 0,
+#                     float(product.discount_price) if product.discount_price else 0,
+#                     product.brand.name if product.brand else "",
+#                     product.model.name if product.model else "",
+#                     float(product.weight) if product.weight else 0,
+#                     float(product.volume) if product.volume else 0,
+#                 ])
+
+#             # Автоматическая ширина колонок
+#             for col in ws.columns:
+#                 max_length = max(len(str(cell.value)) if cell.value else 0 for cell in col)
+#                 ws.column_dimensions[get_column_letter(col[0].column)].width = min(max_length + 2, 50)
+
+#             response = HttpResponse(
+#                 content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+#             )
+#             response['Content-Disposition'] = 'attachment; filename="products_export.xlsx"'
+#             response['Access-Control-Expose-Headers'] = 'Content-Disposition'
+            
+#             wb.save(response)
+#             return response
+            
+#         except Exception as e:
+#             return Response({"error": f"Внутренняя ошибка сервера: {str(e)}"}, status=500)
+
+
+
+class ProductExportExcelView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request):
+        try:
+            # Получаем фильтры или product_ids
+            filters = request.data.get("filters", {})
+            product_ids = request.data.get("product_ids", [])
+            
+            if product_ids:
+                # Старый способ - по ID товаров (ограниченный пагинацией)
+                queryset = Product.objects.filter(id__in=product_ids)
+            elif filters:
+                # Новый способ - применяем все фильтры для получения всех товаров
+                queryset = Product.objects.all()
+                print('filters', filters)
+                # print('filters', filters)
+                
+                # Применяем поиск
+                if 'search' in filters and filters['search']:
+                    search_query = filters['search']
+                    queryset = queryset.filter(
+                        Q(name__icontains=search_query) |
+                        Q(sku__icontains=search_query) |
+                        Q(category__name__icontains=search_query) |
+                        Q(brand__name__icontains=search_query)
+                    )
+                
+                # Применяем фильтр по категории
+                if 'categories' in filters and filters['categories']:
+                    queryset = queryset.filter(category_id=filters['categories'])
+                
+                # Применяем фильтр по бренду
+                if 'brands' in filters and filters['brands']:
+                    queryset = queryset.filter(brand_id=filters['brands'])
+                
+                # Применяем фильтр по модели
+                if 'models' in filters and filters['models']:
+                    queryset = queryset.filter(model_id=filters['models'])
+
+                if 'tags' in filters and filters['tags']:
+                    queryset = queryset.filter(model_id=filters['tags'])
+
+
+                if 'wholesale_price_max' in filters or "wholesale_price_min" in filters:
+                    wholesale_max = filters.get('wholesale_price_max', None)
+                    wholesale_min = filters.get('wholesale_price_min', None)
+
+                    if wholesale_min is not None:
+                        queryset = queryset.filter(wholesale_price__gte=wholesale_min)
+                    if wholesale_max is not None:
+                        queryset = queryset.filter(wholesale_price__lte=wholesale_max)
+
+
+                if 'retail_price_max' in filters or "retail_price_min" in filters:
+                    retail_max = filters.get('retail_price_max', None)
+                    retail_min = filters.get('retail_price_min', None)
+
+                    if retail_min is not None:
+                        queryset = queryset.filter(retail_price__gte=retail_min)
+                    if retail_max is not None:
+                        queryset = queryset.filter(retail_price__lte=retail_max)
+
+
+                if 'quantity_max' in filters or "quantity_min" in filters:
+                    quantity_max = filters.get('quantity_max', None)
+                    quantity_min = filters.get('quantity_min', None)
+
+                    if quantity_min is not None:
+                        queryset = queryset.filter(quantity__gte=quantity_min)
+                    if quantity_max is not None:
+                        queryset = queryset.filter(quantity__lte=quantity_max)
+
+
+                if 'is_active' in filters:
+                    if filters['is_active'] == 'true':
+                        queryset = queryset.filter(is_active=True)
+                    else:
+                        queryset = queryset.filter(is_active=False)
+
+
+
+                
+                
+                # Применяем другие фильтры по необходимости
+                # Добавьте свои фильтры здесь
+                
+            else:
+                # Если ничего не передано, экспортируем все товары
+                queryset = Product.objects.all()
+
+            # Оптимизируем запрос
+            queryset = queryset.select_related('base_unit', 'category', 'brand', 'model').order_by('id')
+            
+            total_count = queryset.count()
+            if total_count == 0:
+                return Response({"error": "Товары не найдены"}, status=404)
+            
+            # Ограничиваем количество товаров для экспорта (защита от перегрузки)
+            MAX_EXPORT_LIMIT = 10000  # Максимум 10,000 товаров
+            if total_count > MAX_EXPORT_LIMIT:
+                return Response({
+                    "error": f"Слишком много товаров для экспорта. Максимум: {MAX_EXPORT_LIMIT}, найдено: {total_count}"
+                }, status=400)
+
+            wb = openpyxl.Workbook()
+            ws = wb.active
+            ws.title = "Товары"
+
+            headers = [
+                "№","ID", "Наименование", "Категория", "Ед. изм.", "Артикул", "Количество",
+                "Цена закупки", "Розничная цена", "Оптовая цена", "Цена со скидкой",
+                "Бренд", "Модель", "Вес (кг)", "Объём (м³)"
+            ]
+            ws.append(headers)
+
+            # Обрабатываем товары партиями для больших объемов
+            batch_size = 1000
+            row_number = 1
+            for i in range(0, total_count, batch_size):
+                batch_queryset = queryset[i:i + batch_size]
+                
+                for product in batch_queryset:
+                    ws.append([
+                        row_number,
+                        product.id,
+                        product.name,
+                        product.category.name if product.category else "",
+                        product.base_unit.name if product.base_unit else "",
+                        product.sku or "",
+                        float(product.quantity) if product.quantity else 0,
+                        float(product.purchase_price) if product.purchase_price else 0,
+                        float(product.retail_price) if product.retail_price else 0,
+                        float(product.wholesale_price) if product.wholesale_price else 0,
+                        float(product.discount_price) if product.discount_price else 0,
+                        product.brand.name if product.brand else "",
+                        product.model.name if product.model else "",
+                        float(product.weight) if product.weight else 0,
+                        float(product.volume) if product.volume else 0,
+                    ])
+                    row_number += 1
+
+            # Автоматическая ширина колонок
+            for col in ws.columns:
+                max_length = max(len(str(cell.value)) if cell.value else 0 for cell in col)
+                ws.column_dimensions[get_column_letter(col[0].column)].width = min(max_length + 2, 50)
+
+            response = HttpResponse(
+                content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+            )
+            response['Content-Disposition'] = f'attachment; filename="products_export_{total_count}_items.xlsx"'
+            response['Access-Control-Expose-Headers'] = 'Content-Disposition'
+            
+            wb.save(response)
+            return response
+            
+        except Exception as e:
+            return Response({"error": f"Внутренняя ошибка сервера: {str(e)}"}, status=500)
+

@@ -13,6 +13,7 @@ const ProductAddAndSearchSection = ({
   totalCount,
   searchInputRef,
   setProductAddModalOpen,
+  downloadFilteredExcel,
 }) => {
   const { searchQuery, setSearchQuery, searchParams, setSearchParams } =
     useContext(SearchContext);
@@ -103,17 +104,17 @@ const ProductAddAndSearchSection = ({
                 className={`cursor-pointer rounded transition-transform duration-300 text-green-700 hover:text-green-600 ${
                   excelIconIsAnimating ? "scale-125" : "scale-100"
                 }`}
-                ref={excelIconRef}
-                // onClick={handleDownloadExcel}
-                onMouseEnter={() => {
-                  hoverTimeoutRef.current = setTimeout(() => {
-                    setExcelIconHovered(true);
-                  }, 500);
-                }}
-                onMouseLeave={() => {
-                  clearTimeout(hoverTimeoutRef.current);
-                  setExcelIconHovered(false);
-                }}
+                // ref={excelIconRef}
+                onClick={downloadFilteredExcel}
+                // onMouseEnter={() => {
+                //   hoverTimeoutRef.current = setTimeout(() => {
+                //     setExcelIconHovered(true);
+                //   }, 500);
+                // }}
+                // onMouseLeave={() => {
+                //   clearTimeout(hoverTimeoutRef.current);
+                //   setExcelIconHovered(false);
+                // }}
               />
             </div>
           )}

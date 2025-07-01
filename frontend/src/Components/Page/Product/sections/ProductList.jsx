@@ -20,8 +20,11 @@ const ProductList = ({
   productEditModal,
   productEditModal2,
   setProductEditModal2,
+  setOpenDeleteModal
 }) => {
   const loadMoreButtonRef = useRef(null);
+
+  
 
 
   const openEditWindow = (productId) => {
@@ -49,14 +52,7 @@ const ProductList = ({
               onKeyDown={(e) => {
                 if (e.key === "Delete") {
                   e.preventDefault();
-                  //   setOpenDeleteModal({ open: true, data: item, index });
-                  // } else if (e.ctrlKey && e.key === "Enter") {
-                  //   e.preventDefault();
-                  //   setOpenPartnerListModal({
-                  //     open: true,
-                  //     data: item,
-                  //     index,
-                  //   });
+                    setOpenDeleteModal({ open: true, data: p, index });
                 } else if (e.key === "Enter" || e.key === " ") {
                   e.preventDefault();
                   setProductEditModal2({ open: true, data: p, index });
@@ -103,37 +99,6 @@ const ProductList = ({
                 </div>
 
                 <div className="border-r-4"></div>
-                {/* <button
-                //   ref={(el) => (partnerListIconRefs.current[index] = el)}
-                //   onMouseEnter={() => {
-                //     hoverTimeoutRef.current = setTimeout(() => {
-                //       setHoveredPartnerIndex(index);
-                //     }, 500);
-                //   }}
-                //   onMouseLeave={() => {
-                //     clearTimeout(hoverTimeoutRef.current);
-                //     setHoveredPartnerIndex(null);
-                //   }}
-                //   className={`p-1 text-gray-500 hover:text-green-700 hover:bg-green-200 dark:hover:bg-green-700 rounded transition-colors dark:text-gray-200 print:hidden ${
-                //     item.partners.length === 0 &&
-                //     "text-red-300 dark:text-red-200"
-                //   }`}
-                //   onClick={() =>
-                //     setOpenPartnerListModal({
-                //       open: true,
-                //       data: item,
-                //       index,
-                //     })
-                //   }
-                >
-                  <div className="flex items-center">
-                    <FaClipboardList size={14} />
-                    <span className="text-xs text-gray-600 dark:text-gray-400">
-                    </span>
-                  </div>
-                </button> */}
-
-             
                 <button
                   //   ref={(el) => (editIconRefs.current[index] = el)}
                   //   onMouseEnter={() => {
@@ -152,7 +117,7 @@ const ProductList = ({
                 >
                   <GrEdit size={14} />
                 </button>
-                {/* <button
+                <button
                   //   ref={(el) => (deleteIconRefs.current[index] = el)}
                   //   onMouseEnter={() => {
                   //     hoverTimeoutRef.current = setTimeout(() => {
@@ -164,12 +129,12 @@ const ProductList = ({
                   //     setHoveredDeleteIndex(null);
                   //   }}
                   className="p-1 text-red-500 hover:text-red-700 hover:bg-red-200 dark:hover:bg-red-400 disabled:opacity-50 disabled:cursor-not-allowed rounded transition-colors print:hidden"
-                  //   onClick={() =>
-                  //     setOpenDeleteModal({ open: true, data: item, index })
-                  //   }
+                    onClick={() =>
+                      setOpenDeleteModal({ open: true, data: p, index })
+                    }
                 >
                   <RiDeleteBin2Fill size={14} />
-                </button> */}
+                </button>
               </div>
             </li>
           ))}
