@@ -38,31 +38,31 @@ class ModelInline(admin.TabularInline):
     show_change_link = True
 
 
-@admin.register(Brand)
-class BrandAdmin(admin.ModelAdmin):
-    list_display = ('id', 'name')
-    search_fields = ('name',)
-    inlines = [ModelInline]
+# @admin.register(Brand)
+# class BrandAdmin(admin.ModelAdmin):
+#     list_display = ('id', 'name')
+#     search_fields = ('name',)
+#     inlines = [ModelInline]
 
 
-@admin.register(Model)
-class ModelAdmin(admin.ModelAdmin):
-    list_display = ('id', 'name', 'brand')
-    list_filter = ('brand',)
-    search_fields = ('name', 'brand__name')
+# @admin.register(Model)
+# class ModelAdmin(admin.ModelAdmin):
+#     list_display = ('id', 'name', 'brand')
+#     list_filter = ('brand',)
+#     search_fields = ('name', 'brand__name')
 
 
-class ProductImageInline(admin.TabularInline):
-    model = ProductImage
-    extra = 1
-    readonly_fields = ['image_preview']
+# class ProductImageInline(admin.TabularInline):
+#     model = ProductImage
+#     extra = 1
+#     readonly_fields = ['image_preview']
 
-    def image_preview(self, obj):
-        if obj.image:
-            return f'<img src="{obj.image.url}" width="100" />'
-        return "-"
-    image_preview.allow_tags = True
-    image_preview.short_description = "Превью"
+#     def image_preview(self, obj):
+#         if obj.image:
+#             return f'<img src="{obj.image.url}" width="100" />'
+#         return "-"
+#     image_preview.allow_tags = True
+#     image_preview.short_description = "Превью"
 
 
 class ProductBatchInline(admin.TabularInline):
@@ -70,40 +70,33 @@ class ProductBatchInline(admin.TabularInline):
     extra = 1
 
 
-@admin.register(ProductImage)
-class ProductImageAdmin(admin.ModelAdmin):
-    list_display = ('id', 'product', 'alt_text', 'image_preview')
-    search_fields = ('product__name', 'alt_text')
+# @admin.register(ProductImage)
+# class ProductImageAdmin(admin.ModelAdmin):
+#     list_display = ('id', 'product', 'alt_text', 'image_preview')
+#     search_fields = ('product__name', 'alt_text')
 
-    def image_preview(self, obj):
-        if obj.image:
-            return f'<img src="{obj.image.url}" width="100" />'
-        return "-"
-    image_preview.allow_tags = True
-    image_preview.short_description = "Превью"
+#     def image_preview(self, obj):
+#         if obj.image:
+#             return f'<img src="{obj.image.url}" width="100" />'
+#         return "-"
+#     image_preview.allow_tags = True
+#     image_preview.short_description = "Превью"
 
 
-@admin.register(ProductBatch)
-class ProductBatchAdmin(admin.ModelAdmin):
-    list_display = (
-        'id', 'product', 'batch_number', 'quantity',
-        'arrival_date', 'production_date', 'expiration_date'
-    )
-    list_filter = ('arrival_date', 'expiration_date', 'product')
-    search_fields = ('product__name', 'batch_number')
+# @admin.register(ProductBatch)
+# class ProductBatchAdmin(admin.ModelAdmin):
+#     list_display = (
+#         'id', 'product', 'batch_number', 'quantity',
+#         'arrival_date', 'production_date', 'expiration_date'
+#     )
+#     list_filter = ('arrival_date', 'expiration_date', 'product')
+#     search_fields = ('product__name', 'batch_number')
 
 
 @admin.register(Tag)
 class TagAdmin(admin.ModelAdmin):
     list_display = ('id', 'name')
     search_fields = ('name',)
-
-
-
-
-
-
-
 
 
     
@@ -160,22 +153,11 @@ class PriceChangeHistoryAdmin(admin.ModelAdmin):
 
 
 
-
-
-
-
-        
-
 class CategoryAdmin(admin.ModelAdmin):
     search_fields = ('name',)
     list_display = ('name',)
 admin.site.register(Category, CategoryAdmin)
 
-
-# class ClientAdmin(admin.ModelAdmin):
-#     search_fields = ('name',)
-#     list_display = ('name',)
-# admin.site.register(Client, ClientAdmin)
 
 
 class AgentAdmin(admin.ModelAdmin):
@@ -201,30 +183,148 @@ class PartnerAdmin(admin.ModelAdmin):
     autocomplete_fields = ['agent']                # Автозаполнение для ForeignKey
 
 
-# class DriverAdmin(admin.ModelAdmin):
-#     search_fields = ('name',)
-#     list_display = ('name',)
-# admin.site.register(Driver, DriverAdmin)
 
 
-# class FakturaProductInline(admin.TabularInline):
-#     model = FakturaProduct
-#     extra = 1
-#     autocomplete_fields = ['product']
+
+############################################################################################################## Fakturalar START
+
+######################### Inline классы для позиций накладных ##############################
+
+class PurchaseInvoiceItemInline(admin.TabularInline):
+    model = PurchaseInvoiceItem
+    extra = 1
+    autocomplete_fields = ['product']
+    readonly_fields = ['line_total']
+
+    def line_total(self, obj):
+        return obj.get_line_total()
+    line_total.short_description = 'Сумма'
 
 
-# class FakturaAdmin(admin.ModelAdmin):
-#     list_display = (
-#         'id', 'faktura_type', 'client', 'supplier', 'driver', 'date', 'total_amount'
-#     )
-#     list_filter = ('faktura_type', 'date', 'client', 'supplier')
-#     search_fields = ('description',)
-#     date_hierarchy = 'date'
-#     inlines = [FakturaProductInline]
-#     autocomplete_fields = ['client', 'supplier', 'driver']
-#     readonly_fields = ['total_amount']
+class SalesInvoiceItemInline(admin.TabularInline):
+    model = SalesInvoiceItem
+    extra = 1
+    autocomplete_fields = ['product']
+    readonly_fields = ['line_total']
 
-#     def total_amount(self, obj):
-#         return obj.total_amount()
-#     total_amount.short_description = 'Jemi baha'
-# admin.site.register(Faktura, FakturaAdmin)
+    def line_total(self, obj):
+        return obj.get_line_total()
+    line_total.short_description = 'Сумма'
+
+
+class PurchaseReturnItemInline(admin.TabularInline):
+    model = PurchaseReturnItem
+    extra = 1
+    autocomplete_fields = ['product']
+    readonly_fields = ['line_total']
+
+    def line_total(self, obj):
+        return obj.get_line_total()
+    line_total.short_description = 'Сумма'
+
+
+class SalesReturnItemInline(admin.TabularInline):
+    model = SalesReturnItem
+    extra = 1
+    autocomplete_fields = ['product']
+    readonly_fields = ['line_total']
+
+    def line_total(self, obj):
+        return obj.get_line_total()
+    line_total.short_description = 'Сумма'
+
+
+######################### Admin для приходной накладной ##############################
+
+@admin.register(PurchaseInvoice)
+class PurchaseInvoiceAdmin(admin.ModelAdmin):
+    list_display = [
+        'id', 'supplier', 'created_by', 'created_at', 'total_amount',
+        'is_canceled', 'canceled_at', 'canceled_by', 'cancel_reason'
+    ]
+    list_filter = ['is_canceled', 'supplier', 'created_at']
+    search_fields = ['id', 'supplier__name', 'created_by__username', 'cancel_reason']
+    autocomplete_fields = ['supplier', 'created_by', 'canceled_by']
+    readonly_fields = ['total_amount', 'created_at', 'canceled_at']
+    inlines = [PurchaseInvoiceItemInline]
+
+    actions = ['cancel_selected_invoices']
+
+    @admin.action(description="Отменить выбранные накладные")
+    def cancel_selected_invoices(self, request, queryset):
+        canceled_count = 0
+        for invoice in queryset:
+            if not invoice.is_canceled:
+                invoice.is_canceled = True
+                invoice.canceled_at = now()
+                invoice.canceled_by = request.user
+                invoice.cancel_reason = "Отменено через админку"
+                try:
+                    invoice.full_clean()
+                    invoice.save()
+                    canceled_count += 1
+                except ValidationError as e:
+                    self.message_user(request, f"Ошибка отмены накладной {invoice.id}: {e}", level='error')
+        self.message_user(request, f"Отменено накладных: {canceled_count}")
+
+######################### Admin для расходной накладной ##############################
+
+@admin.register(SalesInvoice)
+class SalesInvoiceAdmin(admin.ModelAdmin):
+    list_display = [
+        'id', 'buyer', 'delivered_by', 'created_by', 'created_at', 'total_amount',
+        'is_canceled', 'canceled_at', 'canceled_by', 'cancel_reason'
+    ]
+    list_filter = ['is_canceled', 'buyer', 'delivered_by', 'created_at']
+    search_fields = ['id', 'buyer__name', 'created_by__username', 'cancel_reason']
+    autocomplete_fields = ['buyer', 'delivered_by', 'created_by', 'canceled_by']
+    readonly_fields = ['total_amount', 'created_at', 'canceled_at']
+    inlines = [SalesInvoiceItemInline]
+
+    actions = ['cancel_selected_invoices']
+
+    @admin.action(description="Отменить выбранные накладные")
+    def cancel_selected_invoices(self, request, queryset):
+        canceled_count = 0
+        for invoice in queryset:
+            if not invoice.is_canceled:
+                invoice.is_canceled = True
+                invoice.canceled_at = now()
+                invoice.canceled_by = request.user
+                invoice.cancel_reason = "Отменено через админку"
+                try:
+                    invoice.full_clean()
+                    invoice.save()
+                    canceled_count += 1
+                except ValidationError as e:
+                    self.message_user(request, f"Ошибка отмены накладной {invoice.id}: {e}", level='error')
+        self.message_user(request, f"Отменено накладных: {canceled_count}")
+
+######################### Admin для возврата по приходу ##############################
+
+@admin.register(PurchaseReturnInvoice)
+class PurchaseReturnInvoiceAdmin(admin.ModelAdmin):
+    list_display = [
+        'id', 'original_invoice', 'created_by', 'created_at', 'total_amount', 'reason'
+    ]
+    list_filter = ['created_at', 'original_invoice__supplier']
+    search_fields = ['id', 'original_invoice__id', 'created_by__username', 'reason']
+    autocomplete_fields = ['original_invoice', 'created_by']
+    readonly_fields = ['total_amount', 'created_at']
+    inlines = [PurchaseReturnItemInline]
+
+######################### Admin для возврата по продаже ##############################
+
+@admin.register(SalesReturnInvoice)
+class SalesReturnInvoiceAdmin(admin.ModelAdmin):
+    list_display = [
+        'id', 'original_invoice', 'created_by', 'created_at', 'total_amount', 'reason'
+    ]
+    list_filter = ['created_at', 'original_invoice__buyer']
+    search_fields = ['id', 'original_invoice__id', 'created_by__username', 'reason']
+    autocomplete_fields = ['original_invoice', 'created_by']
+    readonly_fields = ['total_amount', 'created_at']
+    inlines = [SalesReturnItemInline]
+
+
+############################################################################################################## Fakturalar END

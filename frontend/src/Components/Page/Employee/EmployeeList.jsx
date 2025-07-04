@@ -58,6 +58,13 @@ const EmployeeList = ({
               ref={(el) => (listItemRefs.current[index] = el)}
               onKeyDown={(e) => handleListKeyDown(e, index, s)}
               className={myClass.li}
+              onDoubleClick={() => {
+                setSelectedEmployee(s);
+                setEditName(s.name);
+                setEditId(s.id);
+                setSelectedListItemRef(index);
+                setOpenModal(true);
+              }}
             >
               <div className="text-sm text-gray-500 dark:text-gray-400 font-mono">
                 {index + 1}.

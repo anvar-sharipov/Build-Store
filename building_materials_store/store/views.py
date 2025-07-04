@@ -4,6 +4,7 @@ from django.http import HttpResponse
 import openpyxl
 from openpyxl.utils import get_column_letter
 from icecream import ic
+from rest_framework.decorators import action
 
 
 from rest_framework import viewsets, status, filters
@@ -29,6 +30,7 @@ from django.utils.dateparse import parse_datetime, parse_date
 from django.db.models import Sum, F, Count
 from openpyxl.styles import Font
 from rest_framework.exceptions import PermissionDenied
+from django.db import transaction
 
 from rest_framework.pagination import PageNumberPagination
 # swoy pagination 
@@ -835,3 +837,106 @@ class ProductExportExcelView(APIView):
         except Exception as e:
             return Response({"error": f"Внутренняя ошибка сервера: {str(e)}"}, status=500)
 
+
+
+
+
+
+######################################################################################################################### Faktura START
+
+
+class PurchaseInvoiceViewSet(viewsets.ModelViewSet):
+    queryset = PurchaseInvoice.objects.all()  # ОБЯЗАТЕЛЬНО добавить!
+    serializer_class = PurchaseInvoiceSerializer
+    permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        return PurchaseInvoice.objects.select_related(
+            'supplier', 'created_by', 'canceled_by'
+        ).prefetch_related('items__product').all()
+
+    def perform_create(self, serializer):
+        serializer.save(created_by=self.request.user)
+
+    @transaction.atomic
+    @action(detail=True, methods=['post'], url_path='cancel')
+    def cancel(self, request, pk=None):
+        invoice = self.get_object()
+        if invoice.is_canceled:
+            return Response({'detail': 'Накладная уже отменена'}, status=status.HTTP_400_BAD_REQUEST)
+        reason = request.data.get('cancel_reason')
+        if not reason:
+            return Response({'cancel_reason': 'Это поле обязательно'}, status=status.HTTP_400_BAD_REQUEST)
+
+        invoice.is_canceled = True
+        invoice.canceled_at = timezone.now()
+        invoice.cancel_reason = reason
+        invoice.canceled_by = request.user
+        invoice.save()
+
+        serializer = self.get_serializer(invoice)
+        return Response(serializer.data)
+    
+
+class SalesInvoiceViewSet(viewsets.ModelViewSet):
+    queryset = SalesInvoice.objects.all()  # ОБЯЗАТЕЛЬНО
+    serializer_class = SalesInvoiceSerializer
+    permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        return SalesInvoice.objects.select_related(
+            'buyer', 'delivered_by', 'created_by', 'canceled_by'
+        ).prefetch_related('items__product').all()
+
+    def perform_create(self, serializer):
+        serializer.save(created_by=self.request.user)
+
+    @transaction.atomic
+    @action(detail=True, methods=['post'], url_path='cancel')
+    def cancel(self, request, pk=None):
+        invoice = self.get_object()
+        if invoice.is_canceled:
+            return Response({'detail': 'Накладная уже отменена'}, status=status.HTTP_400_BAD_REQUEST)
+        reason = request.data.get('cancel_reason')
+        if not reason:
+            return Response({'cancel_reason': 'Это поле обязательно'}, status=status.HTTP_400_BAD_REQUEST)
+
+        invoice.is_canceled = True
+        invoice.canceled_at = timezone.now()
+        invoice.cancel_reason = reason
+        invoice.canceled_by = request.user
+        invoice.save()
+
+        serializer = self.get_serializer(invoice)
+        return Response(serializer.data)
+    
+
+class PurchaseReturnInvoiceViewSet(viewsets.ModelViewSet):
+    queryset = PurchaseReturnInvoice.objects.all()  # ОБЯЗАТЕЛЬНО
+    serializer_class = PurchaseReturnInvoiceSerializer
+    permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        return PurchaseReturnInvoice.objects.select_related(
+            'original_invoice', 'created_by'
+        ).prefetch_related('items__product').all()
+
+    def perform_create(self, serializer):
+        serializer.save(created_by=self.request.user)
+
+
+class SalesReturnInvoiceViewSet(viewsets.ModelViewSet):
+    queryset = SalesReturnInvoice.objects.all()  # ОБЯЗАТЕЛЬНО
+    serializer_class = SalesReturnInvoiceSerializer
+    permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        return SalesReturnInvoice.objects.select_related(
+            'original_invoice', 'created_by'
+        ).prefetch_related('items__product').all()
+
+    def perform_create(self, serializer):
+        serializer.save(created_by=self.request.user)
+
+
+######################################################################################################################### Faktura END

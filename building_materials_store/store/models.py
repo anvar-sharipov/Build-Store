@@ -415,7 +415,6 @@ class Partner(models.Model):
 
 
 
-
 class Employee(models.Model):
     name = models.CharField(verbose_name='Işgär', max_length=2000)
 
@@ -427,86 +426,271 @@ class Employee(models.Model):
         verbose_name_plural = 'Işgärler'
 
 
-# class Driver(models.Model):
-#     name = models.CharField(verbose_name='Sürüjiniň ady', max_length=2000)
 
-#     def __str__(self):
-#         return self.name
+############################################################################################################## Fakturalar START
+######################################################################## Приходная накладная (faktura) START
+class PurchaseInvoice(models.Model):
+    supplier = models.ForeignKey(
+        'Partner',
+        on_delete=models.PROTECT,
+        limit_choices_to={'type__in': ['supplier', 'both']},
+        verbose_name="Поставщик"
+    )
+    created_by = models.ForeignKey(
+        User,
+        on_delete=models.PROTECT,
+        verbose_name="Создал"
+    )
+    created_at = models.DateTimeField(auto_now_add=True, verbose_name="Дата создания")
+    total_amount = models.DecimalField(
+        max_digits=12,
+        decimal_places=2,
+        default=Decimal("0.00"),
+        verbose_name="Общая сумма"
+    )
 
-#     class Meta:
-#         verbose_name = 'Sürüji'
-#         verbose_name_plural = 'Sürüjiler'
+    is_canceled = models.BooleanField(default=False, verbose_name="Отменена?")
+    canceled_at = models.DateTimeField(null=True, blank=True, verbose_name="Дата отмены")
+    canceled_by = models.ForeignKey(
+        User,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='canceled_purchase_invoices',
+        verbose_name="Кем отменена"
+    )
+    cancel_reason = models.TextField(null=True, blank=True, verbose_name="Причина отмены")
 
+    class Meta:
+        verbose_name = "Приходная накладная"
+        verbose_name_plural = "Приходные накладные"
+
+    def __str__(self):
+        return f"Приход №{self.id} от {self.created_at.strftime('%Y-%m-%d')}"
+
+    def calculate_total(self):
+        return sum(item.get_line_total() for item in self.items.all())
+
+    def save(self, *args, **kwargs):
+        if self.is_canceled and not self.cancel_reason:
+            raise ValidationError("Необходимо указать причину отмены.")
+        self.total_amount = self.calculate_total()
+        super().save(*args, **kwargs)
+
+
+class PurchaseInvoiceItem(models.Model):
+    invoice = models.ForeignKey(
+        'PurchaseInvoice',
+        on_delete=models.CASCADE,
+        related_name='items'
+    )
+    product = models.ForeignKey('Product', on_delete=models.PROTECT)
+    quantity = models.DecimalField(max_digits=10, decimal_places=2)
+    purchase_price = models.DecimalField(max_digits=10, decimal_places=2)
+
+    def get_line_total(self):
+        quantity = self.quantity or 0
+        purchase_price = self.purchase_price or 0
+        return quantity * purchase_price
     
 
+    def save(self, *args, **kwargs):
+        created = self.pk is None
+        super().save(*args, **kwargs)
+        if created and not self.invoice.is_canceled:
+            self.product.quantity += self.quantity
+            self.product.save()
+######################################################################## Приходная накладная (faktura) END
 
 
-# class Faktura(models.Model):
+
+######################################################################## Расходная накладная (faktura) START
+class SalesInvoice(models.Model):
+    buyer = models.ForeignKey(
+        'Partner',
+        on_delete=models.PROTECT,
+        limit_choices_to={'type__in': ['klient', 'both']},
+        verbose_name="Покупатель"
+    )
+    created_by = models.ForeignKey(
+        User,
+        on_delete=models.PROTECT,
+        verbose_name="Создал"
+    )
+    created_at = models.DateTimeField(auto_now_add=True, verbose_name="Дата создания")
+    total_amount = models.DecimalField(
+        max_digits=12,
+        decimal_places=2,
+        default=Decimal("0.00"),
+        verbose_name="Общая сумма"
+    )
+    delivered_by = models.ForeignKey(
+        'Employee',
+        on_delete=models.PROTECT,
+        verbose_name="Доставил",
+        null=True,
+        blank=True
+    )
+
+    is_canceled = models.BooleanField(default=False, verbose_name="Отменена?")
+    canceled_at = models.DateTimeField(null=True, blank=True, verbose_name="Дата отмены")
+    canceled_by = models.ForeignKey(
+        User,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='canceled_sales_invoices',
+        verbose_name="Кем отменена"
+    )
+    cancel_reason = models.TextField(null=True, blank=True, verbose_name="Причина отмены")
+
+    class Meta:
+        verbose_name = "Расходная накладная"
+        verbose_name_plural = "Расходные накладные"
+
+    def __str__(self):
+        return f"Продажа №{self.id} от {self.created_at.strftime('%Y-%m-%d')}"
+
+    def calculate_total(self):
+        return sum(item.get_line_total() for item in self.items.all())
+
+    def save(self, *args, **kwargs):
+        if self.is_canceled and not self.cancel_reason:
+            raise ValidationError("Необходимо указать причину отмены.")
+        self.total_amount = self.calculate_total()
+        super().save(*args, **kwargs)
+
+
+class SalesInvoiceItem(models.Model):
+    invoice = models.ForeignKey(
+        'SalesInvoice',
+        on_delete=models.CASCADE,
+        related_name='items'
+    )
+    product = models.ForeignKey('Product', on_delete=models.PROTECT)
+    quantity = models.DecimalField(max_digits=10, decimal_places=2)
+    sale_price = models.DecimalField(max_digits=10, decimal_places=2)
+
+    def get_line_total(self):
+        quantity = self.quantity or 0
+        sale_price = self.sale_price or 0
+        return quantity * sale_price
+
+    def save(self, *args, **kwargs):
+        created = self.pk is None
+        if created and self.quantity > self.product.quantity:
+            raise ValidationError(f"Недостаточно товара на складе: {self.product.name}")
+        super().save(*args, **kwargs)
+        if created and not self.invoice.is_canceled:
+            self.product.quantity -= self.quantity
+            self.product.save()
+######################################################################## Расходная накладная (faktura) END
+
+
+######################################################################## Возврат по приходу START
+class PurchaseReturnInvoice(models.Model):
+    original_invoice = models.ForeignKey(
+        PurchaseInvoice,
+        on_delete=models.PROTECT,
+        related_name='returns',
+        verbose_name="Исходная приходная накладная"
+    )
+    created_by = models.ForeignKey(User, on_delete=models.PROTECT, verbose_name="Создал")
+    created_at = models.DateTimeField(auto_now_add=True, verbose_name="Дата возврата")
+    reason = models.TextField(null=True, blank=True, verbose_name="Причина возврата")
+    total_amount = models.DecimalField(max_digits=12, decimal_places=2, default=Decimal("0.00"))
+
+    class Meta:
+        verbose_name = "Возврат по приходу"
+        verbose_name_plural = "Возвраты по приходу"
+
+    def __str__(self):
+        return f"Возврат к приходу №{self.original_invoice.id}"
+
+    def calculate_total(self):
+        return sum(item.get_line_total() for item in self.items.all())
+
+    def save(self, *args, **kwargs):
+        self.total_amount = self.calculate_total()
+        super().save(*args, **kwargs)
+
+
+class PurchaseReturnItem(models.Model):
+    invoice = models.ForeignKey(
+        PurchaseReturnInvoice,
+        on_delete=models.CASCADE,
+        related_name='items',
+        verbose_name="Возврат по приходу"
+    )
+    product = models.ForeignKey('Product', on_delete=models.PROTECT, verbose_name="Продукт")
+    quantity = models.DecimalField(max_digits=10, decimal_places=2, verbose_name="Количество")
+    purchase_price = models.DecimalField(max_digits=10, decimal_places=2, verbose_name="Закупочная цена")
+
+    class Meta:
+        verbose_name = "Позиция возврата по приходу"
+        verbose_name_plural = "Позиции возврата по приходу"
+
+    def get_line_total(self):
+        quantity = self.quantity or 0
+        purchase_price = self.purchase_price or 0
+        return quantity * purchase_price
     
-#     TYPE_CHOICES = [
-#         (1, 'Girdeji'),   # Входящий
-#         (2, 'Çykyjy'),    # Исходящий
-#         (3, 'Wozwrat'),   # Возврат
-#     ]
 
-#     faktura_type = models.PositiveSmallIntegerField(
-#         verbose_name='Faktura görnüşi',
-#         choices=TYPE_CHOICES,
-#         default=1,
-#     )
-
-#     client = models.ForeignKey(
-#         Client,
-#         verbose_name='Müşderi',  # Клиент
-#         on_delete=models.SET_NULL,
-#         null=True,
-#         blank=True
-#     )
-#     supplier = models.ForeignKey(
-#         Supplier,
-#         verbose_name=' üpjünçi',  # Поставщик
-#         on_delete=models.SET_NULL,
-#         null=True,
-#         blank=True
-#     )
-#     driver = models.ForeignKey(
-#         Driver,
-#         verbose_name=' sürüji',  # Водитель
-#         on_delete=models.SET_NULL,
-#         null=True,
-#         blank=True
-#     )
-
-#     description = models.TextField(verbose_name='beýany', blank=True)
-
-#     date = models.DateTimeField(verbose_name='Senesi')
-
-#     def __str__(self):
-#         return f"{self.get_faktura_type_display()} - {self.date.strftime('%Y-%m-%d %H:%M')}"
-    
-#     def total_amount(self):
-#         # Сумма всех товаров в этой фактуре (quantity * price)
-#         return sum(item.quantity * item.price for item in self.items.all())
-    
-#     class Meta:
-#         verbose_name = 'Faktura'
-#         verbose_name_plural = 'Fakturalar'
+    def save(self, *args, **kwargs):
+        created = self.pk is None
+        if created:
+            # Проверка, достаточно ли товара на складе для возврата
+            if self.quantity > self.product.quantity:
+                raise ValidationError(f"Недостаточно остатков для возврата: {self.product.name}")
+        super().save(*args, **kwargs)
+        if created:
+            self.product.quantity -= self.quantity
+            self.product.save()
+######################################################################## Возврат по приходу END
 
 
+######################################################################## Возврат по продаже START
+class SalesReturnInvoice(models.Model):
+    original_invoice = models.ForeignKey(SalesInvoice, on_delete=models.PROTECT, related_name='returns')
+    created_by = models.ForeignKey(User, on_delete=models.PROTECT)
+    created_at = models.DateTimeField(auto_now_add=True)
+    reason = models.TextField(null=True, blank=True)
+    total_amount = models.DecimalField(max_digits=12, decimal_places=2, default=Decimal("0.00"))
+
+    def calculate_total(self):
+        return sum(item.get_line_total() for item in self.items.all())
+
+    def save(self, *args, **kwargs):
+        self.total_amount = self.calculate_total()
+        super().save(*args, **kwargs)
+
+    def __str__(self):
+        return f"Возврат к продаже №{self.original_invoice.id}"
+
+
+class SalesReturnItem(models.Model):
+    invoice = models.ForeignKey(SalesReturnInvoice, on_delete=models.CASCADE, related_name='items')
+    product = models.ForeignKey('Product', on_delete=models.PROTECT)
+    quantity = models.DecimalField(max_digits=10, decimal_places=2)
+    sale_price = models.DecimalField(max_digits=10, decimal_places=2)
+
+    def get_line_total(self):
+        quantity = self.quantity or 0
+        sale_price = self.sale_price or 0
+        return quantity * sale_price
+
+
+    def save(self, *args, **kwargs):
+        created = self.pk is None
+        super().save(*args, **kwargs)
+        if created:
+            self.product.quantity += self.quantity
+            self.product.save()
+######################################################################## Возврат по продаже END
 
 
 
 
-# class FakturaProduct(models.Model):
-#     faktura = models.ForeignKey(Faktura, on_delete=models.CASCADE, related_name='items')
-#     product = models.ForeignKey(Product, on_delete=models.PROTECT)
-#     quantity = models.DecimalField(verbose_name='Mukdary', max_digits=10, decimal_places=2)
-#     price = models.DecimalField(verbose_name='Baha', max_digits=10, decimal_places=2)
 
-#     def __str__(self):
-#         return f"{self.product.name} - {self.quantity} x {self.price}"
 
-#     class Meta:
-#         verbose_name = 'Faktura önümi'
-#         verbose_name_plural = 'Faktura önümleri'
-
+############################################################################################################## Fakturalar END

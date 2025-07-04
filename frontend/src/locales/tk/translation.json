@@ -280,7 +280,12 @@
   "deleteItem": "Harydy öçür",
   "productSearchError": "Haryt gözleginde säwlik boldy:",
   "PRICE_CHANGE_REPORT": "Bahalaryň üýtgemegi barada hasabat",
-  "reports": "Hasabatlar"
+  "reports": "Hasabatlar",
+
+
+  "purchaseInvoice": "Gelýän hasap-fakturany",
+  "salesInvoice": "Satuw hasap-fakturasy"
+
   
 
 }

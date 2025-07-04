@@ -282,9 +282,9 @@ const Agent = () => {
       const res = await myAxios.post("agents/", { name: newAgent });
       setAgentList((prev) => [res.data.data, ...prev]);
       showNotification(t("newAgentAdded"), "success");
-    } catch(error) {
-      console.log('eeerrrrooorrr', error);
-      
+    } catch (error) {
+      console.log("eeerrrrooorrr", error);
+
       if (error.response && error.response.status === 403) {
         // Показываем уведомление пользователю
         showNotification(t(error.response.data.detail), "error");
@@ -547,6 +547,9 @@ const Agent = () => {
                   ref={(el) => (listItemRefs.current[index] = el)}
                   tabIndex={0}
                   onClick={() => setFocusedIndex(index)}
+                  onDoubleClick={() => {
+                    setOpenEditModal({ open: true, data: item, index });
+                  }}
                   onKeyDown={(e) => {
                     if (e.key === "Delete") {
                       e.preventDefault();

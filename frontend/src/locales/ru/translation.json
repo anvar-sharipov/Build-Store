@@ -297,7 +297,15 @@
   "deleteItem": "Удалить товар",
   "productSearchError": "Ошибка поиска продуктов:",
   "PRICE_CHANGE_REPORT": "Отчёт об изменении цен",
-  "reports": "Отчёты"
+  "reports": "Отчёты",
+
+
+
+  "purchaseInvoice": "Добавить приход",
+  "salesInvoice": "Добавить продажу"
+  
+
+
 
 
  
